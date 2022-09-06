@@ -1,0 +1,21 @@
+tagFormat: "${version}"
+branches:
+  - "master"
+
+plugins:
+  - - "@semantic-release/commit-analyzer"
+    - preset: conventionalcommits
+  - - "@semantic-release/release-notes-generator"
+    - preset: conventionalcommits
+  - "@semantic-release/changelog"
+  - - "@semantic-release/exec"
+    - publishCmd: |
+        export CI_COMMIT_TAG="true"
+        poetry version "${nextRelease.version}"
+        poetry config pypi-token.pypi ${PYPI_TOKEN}
+        poetry publish --build --no-interaction
+        poetry run mkdocs gh-deploy --force
+  - - "@semantic-release/git"
+    - assets:
+        - CHANGELOG.md
+  - "@semantic-release/github"
