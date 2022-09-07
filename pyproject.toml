@@ -31,8 +31,18 @@ packages = [
 python = ">=3.10, <4.0"
 pyyaml = "~6.0"
 pydantic = "~1.10"
+# HACK: Poetry does not yet support fetching from PyPI with extras fetched from a custom URL,
+# so we need to hardcode the Wheel URL until they fix it.
+torch = [
+    { url = "https://download.pytorch.org/whl/cu116/torch-1.12.1%2Bcu116-cp310-cp310-win_amd64.whl", markers = "sys_platform == 'win32'" },
+    { url = "https://download.pytorch.org/whl/cu116/torch-1.12.1%2Bcu116-cp310-cp310-linux_x86_64.whl", markers = "sys_platform == 'linux'" },
+]
+torchvision = [
+    { url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-win_amd64.whl", markers = "sys_platform == 'win32'" },
+    { url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-linux_x86_64.whl", markers = "sys_platform == 'linux'" },
+]
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.dev-dependencies]
 autoflake = "~1.5"
 black = "~22.8"
 flake8 = "~5.0"
