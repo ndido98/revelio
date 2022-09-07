@@ -72,7 +72,7 @@ Pre-commit hooks run all the auto-formatters (e.g. `black`, `isort`), linters (e
 You can install the hooks with (runs for each commit):
 
 ```sh
-pre-commit install
+pre-commit install -t commit-msg
 ```
 
 Or if you want them to run only for each push:
