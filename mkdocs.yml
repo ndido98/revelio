@@ -1,5 +1,5 @@
-site_name: Enhance
-repo_url: https://github.com/ndido98/enhance
+site_name: Revelio
+repo_url: https://github.com/ndido98/revelio
 
 theme:
   name: material
@@ -32,4 +32,4 @@ plugins:
             show_signature_annotations: true
             show_source: true
       watch:
-        - src/enhance
+        - src/revelio

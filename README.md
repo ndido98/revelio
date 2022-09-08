@@ -1,18 +1,18 @@
-# Enhance
+# Revelio
 
-[![PyPI](https://img.shields.io/pypi/v/enhance?style=flat-square)](https://pypi.python.org/pypi/enhance/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/enhance?style=flat-square)](https://pypi.python.org/pypi/enhance/)
-[![PyPI - License](https://img.shields.io/pypi/l/enhance?style=flat-square)](https://pypi.python.org/pypi/enhance/)
+[![PyPI](https://img.shields.io/pypi/v/revelio?style=flat-square)](https://pypi.python.org/pypi/revelio/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/revelio?style=flat-square)](https://pypi.python.org/pypi/revelio/)
+[![PyPI - License](https://img.shields.io/pypi/l/revelio?style=flat-square)](https://pypi.python.org/pypi/revelio/)
 [![Coookiecutter - Wolt](https://img.shields.io/badge/cookiecutter-Wolt-00c2e8?style=flat-square&logo=cookiecutter&logoColor=D4AA00&link=https://github.com/woltapp/wolt-python-package-cookiecutter)](https://github.com/woltapp/wolt-python-package-cookiecutter)
 
 
 ---
 
-**Documentation**: [https://ndido98.github.io/enhance](https://ndido98.github.io/enhance)
+**Documentation**: [https://ndido98.github.io/revelio](https://ndido98.github.io/revelio)
 
-**Source Code**: [https://github.com/ndido98/enhance](https://github.com/ndido98/enhance)
+**Source Code**: [https://github.com/ndido98/revelio](https://github.com/ndido98/revelio)
 
-**PyPI**: [https://pypi.org/project/enhance/](https://pypi.org/project/enhance/)
+**PyPI**: [https://pypi.org/project/revelio/](https://pypi.org/project/revelio/)
 
 ---
 
@@ -21,7 +21,7 @@ A declarative data augmentation framework
 ## Installation
 
 ```sh
-pip install enhance
+pip install revelio
 ```
 
 ## Development
@@ -56,12 +56,12 @@ The documentation is automatically generated from the content of the [docs direc
 
 ### Releasing
 
-Trigger the [Draft release workflow](https://github.com/ndido98/enhance/actions/workflows/draft_release.yml)
+Trigger the [Draft release workflow](https://github.com/ndido98/revelio/actions/workflows/draft_release.yml)
 (press _Run workflow_). This will update the changelog & version and create a GitHub release which is in _Draft_ state.
 
 Find the draft release from the
-[GitHub releases](https://github.com/ndido98/enhance/releases) and publish it. When
- a release is published, it'll trigger [release](https://github.com/ndido98/enhance/blob/master/.github/workflows/release.yml) workflow which creates PyPI
+[GitHub releases](https://github.com/ndido98/revelio/releases) and publish it. When
+ a release is published, it'll trigger [release](https://github.com/ndido98/revelio/blob/master/.github/workflows/release.yml) workflow which creates PyPI
  release and deploys updated documentation.
 
 ### Pre-commit
