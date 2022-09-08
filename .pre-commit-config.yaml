@@ -1,3 +1,4 @@
+default_stages: [commit]
 repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: "v2.0.0"
@@ -36,9 +37,9 @@ repos:
     hooks:
       - id: autoflake
         name: autoflake
-        entry: poetry run autoflake -r -i --remove-all-unused-imports --remove-unused-variables
+        entry: poetry run autoflake -r -i --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports
         language: system
-        types: [ python ]
+        types: [python]
       - id: isort
         name: isort
         entry: poetry run isort
