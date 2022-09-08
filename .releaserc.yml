@@ -12,10 +12,9 @@ plugins:
     - publishCmd: |
         export CI_COMMIT_TAG="true"
         poetry version "${nextRelease.version}"
-        poetry config pypi-token.pypi ${PYPI_TOKEN}
-        poetry publish --build --no-interaction
         poetry run mkdocs gh-deploy --force
   - - "@semantic-release/git"
     - assets:
         - CHANGELOG.md
+        - pyproject.toml
   - "@semantic-release/github"
