@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "enhance"
+name = "revelio"
 version = "1.0.0a1"
 description = "A declarative data augmentation framework"
 authors = [
@@ -8,9 +8,9 @@ authors = [
 license = "Apache 2.0"
 readme = "README.md"
 
-documentation = "https://ndido98.github.io/enhance"
-homepage = "https://ndido98.github.io/enhance"
-repository = "https://github.com/ndido98/enhance"
+documentation = "https://ndido98.github.io/revelio"
+homepage = "https://ndido98.github.io/revelio"
+repository = "https://github.com/ndido98/revelio"
 
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 packages = [
-    { include = "enhance", from = "src" }
+    { include = "revelio", from = "src" }
 ]
 
 [tool.poetry.dependencies]
@@ -79,7 +79,7 @@ include = '\.pyi?$'
 
 [tool.pytest.ini_options]
 addopts = """\
-    --cov enhance \
+    --cov revelio \
     --cov tests \
     --cov-report term-missing \
     --no-cov-on-fail \
