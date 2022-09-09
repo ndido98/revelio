@@ -20,7 +20,5 @@ class Augmentation(BaseModel):
         is_enabled = values.get("enabled", True)
         steps = values.get("steps", [])
         if is_enabled and len(steps) == 0:
-            raise ValueError(
-                "At least one augmentation step must be specified"
-            )  # noqa: TC003
+            raise ValueError("At least one augmentation step must be specified")
         return values
