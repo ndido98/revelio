@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, DirectoryPath
+from pydantic import BaseModel
 
 
 class FaceDetectionAlgorithm(BaseModel):
@@ -10,5 +10,5 @@ class FaceDetectionAlgorithm(BaseModel):
 
 class FaceDetection(BaseModel):
     enabled: bool = True
-    output_path: DirectoryPath
+    output_path: str
     algorithm: FaceDetectionAlgorithm
