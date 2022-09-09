@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, DirectoryPath, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 
 class Model(BaseModel):
@@ -14,8 +14,8 @@ class Training(BaseModel):
 
 
 class Scores(BaseModel):
-    bona_fide: DirectoryPath
-    morphed: DirectoryPath
+    bona_fide: str
+    morphed: str
 
 
 class Experiment(BaseModel):
