@@ -66,6 +66,12 @@ def main() -> None:
         default="cpu",
         help="The device to use for the experiment",
     )
+    parser.add_argument(
+        "--workers-count",
+        type=int,
+        default=0,
+        help="The number of workers that the data loader should use",
+    )
 
     args = parser.parse_args()
     print(args)
