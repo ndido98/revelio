@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class FaceDetectionAlgorithm(BaseModel):
     name: str
-    params: dict[str, Any]
+    args: dict[str, Any]
 
 
 class FaceDetection(BaseModel):
