@@ -68,6 +68,7 @@ pytest-github-actions-annotate-failures = "~0.1"
 pytest-cov = "~3.0"
 pyupgrade = "~2.37"
 tryceratops = "~1.1"
+types-Pillow = "~9.2"
 types-pyyaml = "~6.0"
 
 [build-system]
