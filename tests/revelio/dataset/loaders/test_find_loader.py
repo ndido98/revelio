@@ -7,12 +7,12 @@ from revelio.dataset.loaders.loader import DatasetLoader, _find_loader
 
 
 class ALoader(DatasetLoader):
-    def load(self, path: Path) -> list[DatasetElement[Path]]:
+    def load(self, path: Path) -> list[DatasetElement]:
         return []
 
 
 class BLoader(DatasetLoader):
-    def load(self, path: Path) -> list[DatasetElement[Path]]:
+    def load(self, path: Path) -> list[DatasetElement]:
         return []
 
 
@@ -27,5 +27,5 @@ def test_find_loader_multiple_loaders_same_name() -> None:
     with pytest.raises(TypeError):
         # Add a class which already exists
         class ALoader(DatasetLoader):
-            def load(self, path: Path) -> list[DatasetElement[Path]]:
+            def load(self, path: Path) -> list[DatasetElement]:
                 return []
