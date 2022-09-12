@@ -32,5 +32,5 @@ class DatasetLoader(ABC):
         _loaders[cls.__name__] = cls
 
     @abstractmethod
-    def load(self, path: Path) -> list[DatasetElement[Path]]:
+    def load(self, path: Path) -> list[DatasetElement]:
         raise NotImplementedError  # pragma: no cover
