@@ -1,6 +1,11 @@
 import argparse
+import sys
 
 import torch
+from pydantic import ValidationError
+
+from revelio.config import Config
+from revelio.dataset import DatasetFactory
 
 
 def _is_valid_device(
@@ -56,25 +61,56 @@ def main() -> None:
         )
     )
     parser.add_argument(
-        "config-file",
+        "config_file",
+        metavar="CONFIG_FILE",
         type=argparse.FileType("r", encoding="utf-8"),
         help="The configuration file of the experiment",
     )
     parser.add_argument(
+        "-d",
         "--device",
         type=_valid_device,
         default="cpu",
         help="The device to use for the experiment",
     )
     parser.add_argument(
+        "-w",
         "--workers-count",
         type=int,
         default=0,
         help="The number of workers that the data loader should use",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Set this to true to enable verbose output",
+    )
 
     args = parser.parse_args()
     print(args)
+
+    try:
+        config = Config.from_string(args.config_file.read())
+        dataset = DatasetFactory(config)
+        print("Dataset:", dataset)
+    except (TypeError, ValueError, ValidationError) as e:
+        # Ignore pretty printing of exceptions and just re-raise them
+        if args.verbose:
+            raise
+        print(
+            "---------------------------- FATAL ERROR ----------------------------\n"
+            "Revelio encountered a fatal error while trying to run the experiment.\n"
+            "Please check the error message below and try to fix the problem.\n"
+            "If you think this is a bug in Revelio, please open an issue on GitHub:\n"
+            "https://github.com/ndido98/revelio/issues\n"
+            "----------------------------------------------------------------------\n\n"
+            f"{e}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
