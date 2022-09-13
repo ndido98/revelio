@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
@@ -10,5 +11,5 @@ class FaceDetectionAlgorithm(BaseModel):
 
 class FaceDetection(BaseModel):
     enabled: bool = True
-    output_path: str
+    output_path: Path
     algorithm: FaceDetectionAlgorithm

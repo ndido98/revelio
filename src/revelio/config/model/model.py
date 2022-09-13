@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, NonNegativeInt, PositiveInt
@@ -14,8 +15,8 @@ class Training(BaseModel):
 
 
 class Scores(BaseModel):
-    bona_fide: str
-    morphed: str
+    bona_fide: Path
+    morphed: Path
 
 
 class Experiment(BaseModel):
