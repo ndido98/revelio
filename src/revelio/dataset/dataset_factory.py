@@ -2,10 +2,14 @@ import random
 from typing import Optional
 
 from revelio.config import Config
-from revelio.face_detection.detector import FaceDetector, _find_face_detector
+from revelio.face_detection.detector import FaceDetector
+from revelio.registry.registry import Registrable
 
-from . import Dataset, DatasetElement, ElementClass
-from .loaders.loader import DatasetLoader, _find_loader
+from .dataset import Dataset
+from .element import DatasetElement, ElementClass
+from .loaders.loader import DatasetLoader
+
+__all__ = ("DatasetFactory",)
 
 
 def _split_dataset(
@@ -74,7 +78,9 @@ class DatasetFactory:
         loader_errors = []
         for dataset in self._config.datasets:
             try:
-                loader = _find_loader(dataset.name)
+                # HACK: Type[T] where T is abstract is disallowed, see find definition
+                # for more details
+                loader: DatasetLoader = Registrable.find(DatasetLoader, dataset.name)
                 loaders.append(loader)
             except ValueError:
                 loader_errors.append(dataset.name)
@@ -88,7 +94,8 @@ class DatasetFactory:
         return loaders
 
     def _get_face_detector(self) -> FaceDetector:
-        return _find_face_detector(
+        return Registrable.find(
+            FaceDetector,
             self._config.face_detection.algorithm.name,
             self._config,
             **self._config.face_detection.algorithm.args,

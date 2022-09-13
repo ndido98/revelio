@@ -1,7 +1,7 @@
 import json
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Optional, Type, TypeAlias
+from typing import Optional, TypeAlias
 
 import numpy as np
 from PIL import Image as ImageModule
@@ -9,37 +9,16 @@ from PIL.Image import Image
 
 from revelio.config.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage
+from revelio.registry.registry import Registrable
 
 __all__ = ("FaceDetector",)
-
-
-_algorithms: dict[str, Type["FaceDetector"]] = {}
 
 
 BoundingBox: TypeAlias = tuple[int, int, int, int]
 Landmarks: TypeAlias = np.ndarray
 
 
-def _find_face_detector(name: str, config: Config, **kwargs: Any) -> "FaceDetector":
-    lowercase_algorithms = [k.lower() for k in _algorithms.keys()]
-    wanted_algorithm = name.lower()
-    if wanted_algorithm not in lowercase_algorithms:
-        raise ValueError(f"Could not find a face detection algorithm named {name}")
-    # Get the correct face detection algorithm name from the lowercase list
-    algorithm_index = lowercase_algorithms.index(wanted_algorithm)
-    algorithm_name = list(_algorithms.keys())[algorithm_index]
-    return _algorithms[algorithm_name](config=config, **kwargs)
-
-
-class FaceDetector(ABC):
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super().__init_subclass__(**kwargs)
-        # Make sure there is no other algorithm with the same case-insensitive name
-        lowercase_algorithms = [k.lower() for k in _algorithms.keys()]
-        if cls.__name__.lower() in lowercase_algorithms:
-            raise TypeError(f"Face detection algorithm {cls.__name__} already exists")
-        _algorithms[cls.__name__] = cls
-
+class FaceDetector(Registrable):
     def __init__(self, config: Config) -> None:
         self._config = config
 
