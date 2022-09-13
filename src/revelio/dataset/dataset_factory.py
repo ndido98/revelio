@@ -17,7 +17,7 @@ def _split_dataset(
     split: float,
 ) -> tuple[list[DatasetElement], list[DatasetElement]]:
     shuffled = random.sample(dataset, len(dataset))
-    split_index = int(len(shuffled) * split)
+    split_index = round(len(shuffled) * split)
     return dataset[:split_index], dataset[split_index:]
 
 
@@ -34,9 +34,9 @@ def _split_train_val_test(
 
 class DatasetFactory:
 
-    _train: list[DatasetElement]
-    _val: list[DatasetElement]
-    _test: list[DatasetElement]
+    _train: list[DatasetElement] = []
+    _val: list[DatasetElement] = []
+    _test: list[DatasetElement] = []
 
     _face_detector: Optional[FaceDetector]
 
