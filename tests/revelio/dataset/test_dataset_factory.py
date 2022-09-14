@@ -1,22 +1,26 @@
 from pathlib import Path
 from typing import Any, Optional, cast
 
+import numpy as np
 import pytest
 from PIL.Image import Image
 
 from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
+from revelio.config.model import Augmentation
+from revelio.config.model import AugmentationStep as ConfigAugmentationStep
 from revelio.config.model import (
     Dataset,
     DatasetSplit,
     FaceDetection,
     FaceDetectionAlgorithm,
+    FeatureExtraction,
+    FeatureExtractionAlgorithm,
 )
-from revelio.config.model.augmentation import Augmentation
-from revelio.config.model.augmentation import AugmentationStep as ConfigAugmentationStep
 from revelio.dataset import DatasetElement, DatasetFactory, ElementClass, ElementImage
 from revelio.dataset.loaders import DatasetLoader
 from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
+from revelio.feature_extraction.extractor import FeatureExtractor
 
 
 class DS1Loader(DatasetLoader):
@@ -77,6 +81,11 @@ class Identity(AugmentationStep):
         return elem
 
 
+class DummyFeatureExtractor(FeatureExtractor):
+    def process_element(self, elem: ElementImage) -> np.ndarray:
+        return np.array([1, 2, 3])
+
+
 @pytest.fixture
 def config() -> Config:
     return Config.construct(
@@ -110,6 +119,16 @@ def config() -> Config:
                         "foo": "bar",
                     },
                 )
+            ],
+        ),
+        feature_extraction=FeatureExtraction(
+            enabled=True,
+            output_path=Path("/path/to/feature_extraction"),
+            algorithms=[
+                FeatureExtractionAlgorithm(
+                    name="dummyfeatureextractor",
+                    args={},
+                ),
             ],
         ),
     )
@@ -179,6 +198,11 @@ def test_augmentation_is_loaded(config: Config) -> None:
     step: Identity = cast(Identity, factory._augmentation_steps[0])
     assert step.foo == "bar"
     assert step._probability == 1.0
+
+
+def test_extraction_is_loaded(config: Config) -> None:
+    factory = DatasetFactory(config)
+    assert len(factory._feature_extractors) == 1
 
 
 def test_train_dataset(config: Config) -> None:
