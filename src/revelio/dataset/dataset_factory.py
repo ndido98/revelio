@@ -1,6 +1,7 @@
 import random
 from typing import Optional
 
+from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
 from revelio.face_detection.detector import FaceDetector
 from revelio.registry.registry import Registrable
@@ -39,6 +40,7 @@ class DatasetFactory:
     _test: list[DatasetElement] = []
 
     _face_detector: Optional[FaceDetector]
+    _augmentation_steps: list[AugmentationStep]
 
     def __init__(self, config: Config) -> None:
         self._config = config
@@ -72,6 +74,10 @@ class DatasetFactory:
             self._face_detector = self._get_face_detector()
         else:
             self._face_detector = None
+        if self._config.augmentation.enabled:
+            self._augmentation_steps = self._get_augmentation_steps()
+        else:
+            self._augmentation_steps = []
 
     def _get_loaders(self) -> list[DatasetLoader]:
         loaders: list[DatasetLoader] = []
@@ -97,12 +103,23 @@ class DatasetFactory:
         return Registrable.find(
             FaceDetector,
             self._config.face_detection.algorithm.name,
-            self._config,
+            config=self._config,
             **self._config.face_detection.algorithm.args,
         )
 
+    def _get_augmentation_steps(self) -> list[AugmentationStep]:
+        return [
+            Registrable.find(
+                AugmentationStep,
+                step.uses,
+                probability=step.probability,
+                **step.args,
+            )
+            for step in self._config.augmentation.steps
+        ]
+
     def get_train_dataset(self) -> Dataset:
-        return Dataset(self._train, self._face_detector, [], None)
+        return Dataset(self._train, self._face_detector, self._augmentation_steps, None)
 
     def get_val_dataset(self) -> Dataset:
         return Dataset(self._val, self._face_detector, [], None)
