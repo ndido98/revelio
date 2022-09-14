@@ -1,10 +1,11 @@
 import unittest.mock as mock
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional, cast
 
 import pytest
 from PIL.Image import Image
 
+from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
 from revelio.config.model import (
     Dataset,
@@ -12,6 +13,8 @@ from revelio.config.model import (
     FaceDetection,
     FaceDetectionAlgorithm,
 )
+from revelio.config.model.augmentation import Augmentation
+from revelio.config.model.augmentation import AugmentationStep as ConfigAugmentationStep
 from revelio.dataset import DatasetElement, DatasetFactory, ElementClass, ElementImage
 from revelio.dataset.loaders import DatasetLoader
 from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
@@ -66,6 +69,15 @@ class Dummy(FaceDetector):
         return ((0, 0, 0, 0), None)
 
 
+class Identity(AugmentationStep):
+    def __init__(self, *, foo: str, **kwargs: Any) -> None:
+        self.foo = foo
+        super().__init__(**kwargs)
+
+    def process_element(self, elem: DatasetElement) -> DatasetElement:
+        return elem
+
+
 @pytest.fixture
 def config() -> Config:
     with (
@@ -93,6 +105,18 @@ def config() -> Config:
                     name="dummy",
                     args={},
                 ),
+            ),
+            augmentation=Augmentation(
+                enabled=True,
+                steps=[
+                    ConfigAugmentationStep(
+                        uses="identity",
+                        probability=1.0,
+                        args={
+                            "foo": "bar",
+                        },
+                    )
+                ],
             ),
         )
 
@@ -158,3 +182,11 @@ def test_split(config: Config) -> None:
 def test_nonexistent_dataset(bad_config_dataset: Config) -> None:
     with pytest.raises(ValueError):
         DatasetFactory(bad_config_dataset)
+
+
+def test_augmentation_is_loaded(config: Config) -> None:
+    factory = DatasetFactory(config)
+    assert len(factory._augmentation_steps) == 1
+    step: Identity = cast(Identity, factory._augmentation_steps[0])
+    assert step.foo == "bar"
+    assert step._probability == 1.0

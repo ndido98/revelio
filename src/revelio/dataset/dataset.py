@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image as ImageModule
 from torch.utils.data import IterableDataset, get_worker_info
 
+from revelio.augmentation.step import AugmentationStep
 from revelio.face_detection.detector import FaceDetector
 
 from .element import DatasetElement, ElementImage
@@ -27,7 +28,7 @@ class Dataset(IterableDataset):
         self,
         paths: list[DatasetElement],
         face_detector: Optional[FaceDetector],
-        augmentation_steps: list,  # TODO: add type
+        augmentation_steps: list[AugmentationStep],
         feature_extractor: None,  # TODO: add type
     ) -> None:
         self.paths = paths

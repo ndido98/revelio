@@ -14,15 +14,15 @@ class Registrable(ABC):  # noqa: B024
     prefix: str = ""
     suffix: str = ""
 
-    def __new__(cls: type[T], *args: Any, **kwargs: Any) -> T:
+    def __init__(self, **kwargs: Any) -> None:
         # Registrable is an abstract class because its subclasses will be,
         # but each of them will have a different interface, so we don't have
         # abstract methods to be defined;
         # however, Registrable is not meant to be instantiated, so we raise
         # an error if someone tries to do so
-        if cls is Registrable:
+        if type(self) is Registrable:
             raise TypeError("Can't instantiate abstract class Registrable")
-        return super().__new__(cls)
+        super().__init__(**kwargs)
 
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
@@ -49,7 +49,7 @@ class Registrable(ABC):  # noqa: B024
     @staticmethod
     # HACK: cls is Type[Any] and not Type[T],
     # see https://github.com/python/mypy/issues/4717
-    def find(cls: Type, name: str, *args: Any, **kwargs: Any) -> T:
+    def find(cls: Type, name: str, **kwargs: Any) -> T:
         if cls.__name__ not in _registry:
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
@@ -65,7 +65,7 @@ class Registrable(ABC):  # noqa: B024
         class_name = list(class_registry.keys())[class_index]
         class_type: Type[T] = class_registry[class_name]  # type: ignore
         # This cast is safe because the class registry has all classes of requested type
-        return class_type(*args, **kwargs)
+        return class_type(**kwargs)
 
 
 def _count_registrable_paths(cls: Type[T]) -> int:

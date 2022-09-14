@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Any, Generator
 
 import pytest
 
@@ -100,3 +100,21 @@ def test_find_nonexistent_registry_fails() -> None:
 
     with pytest.raises(ValueError):
         Registrable.find(Foo, "bar")
+
+
+def test_registrable_with_args_kwargs() -> None:
+    class Foo(Registrable):
+        def __init__(self, foo: str, bar: str):
+            self.foo = foo
+            self.bar = bar
+            super().__init__()
+
+    class FooChild(Foo):
+        def __init__(self, foo: str, bar: str, baz: str, *args: Any, **kwargs: Any):
+            self.baz = baz
+            super().__init__(foo, bar, *args, **kwargs)
+
+    x: FooChild = Registrable.find(Foo, "foochild", foo="123", bar="456", baz="789")
+    assert x.foo == "123"
+    assert x.bar == "456"
+    assert x.baz == "789"
