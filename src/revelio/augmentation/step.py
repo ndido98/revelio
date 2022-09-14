@@ -1,7 +1,7 @@
 import random
 from abc import abstractmethod
 
-from revelio.dataset.element import DatasetElement
+from revelio.dataset.element import DatasetElement, ElementImage
 from revelio.registry.registry import Registrable
 
 
@@ -11,11 +11,16 @@ class AugmentationStep(Registrable):
         super().__init__()
 
     @abstractmethod
-    def process_element(self, elem: DatasetElement) -> DatasetElement:
-        raise NotImplementedError
+    def process_element(self, elem: ElementImage) -> ElementImage:
+        raise NotImplementedError  # pragma: no cover
 
     def process(self, elem: DatasetElement) -> DatasetElement:
         if random.random() < self._probability:
-            return self.process_element(elem)
+            new_xs = [self.process_element(x) for x in elem.x]
+            return DatasetElement(
+                original_dataset=elem.original_dataset,
+                x=tuple(new_xs),
+                y=elem.y,
+            )
         else:
             return elem
