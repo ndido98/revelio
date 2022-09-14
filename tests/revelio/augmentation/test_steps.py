@@ -10,19 +10,11 @@ from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
 
 
 class Invert(AugmentationStep):
-    def process_element(self, elem: DatasetElement) -> DatasetElement:
-        new_xs = []
-        for x in elem.x:
-            assert x.image is not None
-            new_x = ElementImage(
-                path=x.path,
-                image=invert(x.image),
-            )
-            new_xs.append(new_x)
-        return DatasetElement(
-            original_dataset=elem.original_dataset,
-            x=tuple(new_xs),
-            y=elem.y,
+    def process_element(self, elem: ElementImage) -> ElementImage:
+        assert elem.image is not None
+        return ElementImage(
+            path=elem.path,
+            image=invert(elem.image),
         )
 
 

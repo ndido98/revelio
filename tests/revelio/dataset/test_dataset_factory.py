@@ -73,7 +73,7 @@ class Identity(AugmentationStep):
         self.foo = foo
         super().__init__(**kwargs)
 
-    def process_element(self, elem: DatasetElement) -> DatasetElement:
+    def process_element(self, elem: ElementImage) -> ElementImage:
         return elem
 
 
