@@ -24,5 +24,6 @@
     "prHourlyLimit": 0,
     "separateMajorMinor": true,
     "separateMinorPatch": true,
-    "separateMultipleMajor": true
+    "separateMultipleMajor": true,
+    "rangeStrategy": "update-lockfile"
 }
