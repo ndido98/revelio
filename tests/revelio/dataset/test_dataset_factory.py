@@ -1,7 +1,9 @@
 import unittest.mock as mock
 from pathlib import Path
+from typing import Optional
 
 import pytest
+from PIL.Image import Image
 
 from revelio.config import Config
 from revelio.config.model import (
@@ -12,6 +14,7 @@ from revelio.config.model import (
 )
 from revelio.dataset import DatasetElement, DatasetFactory, ElementClass, ElementImage
 from revelio.dataset.loaders import DatasetLoader
+from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
 
 
 class DS1Loader(DatasetLoader):
@@ -58,6 +61,11 @@ class DS2Loader(DatasetLoader):
         return [bona_fide] * 50 + [morphed] * 500
 
 
+class Dummy(FaceDetector):
+    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
+        return ((0, 0, 0, 0), None)
+
+
 @pytest.fixture
 def config() -> Config:
     with (
@@ -79,13 +87,32 @@ def config() -> Config:
                 ),
             ],
             face_detection=FaceDetection(
-                enabled=False,
+                enabled=True,
                 output_path=Path("/path/to/face_detection"),
                 algorithm=FaceDetectionAlgorithm(
                     name="dummy",
                     args={},
                 ),
             ),
+        )
+
+
+@pytest.fixture
+def bad_config_dataset() -> Config:
+    with (
+        mock.patch("pathlib.Path.is_dir", return_value=True),
+        mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.exists", return_value=True),
+    ):
+        return Config.construct(
+            datasets=[
+                Dataset(
+                    name="nonexistent",
+                    path=Path("/path/to/nonexistent"),
+                    split=DatasetSplit(train=0.5, val=0.25, test=0.25),
+                ),
+            ],
+            face_detection=None,
         )
 
 
@@ -126,3 +153,8 @@ def test_split(config: Config) -> None:
     assert len(ds1_train_m) + len(ds1_val_m) + len(ds1_test_m) == 500
     assert len(ds2_train_bf) + len(ds2_val_bf) + len(ds2_test_bf) == 50
     assert len(ds2_train_m) + len(ds2_val_m) + len(ds2_test_m) == 500
+
+
+def test_nonexistent_dataset(bad_config_dataset: Config) -> None:
+    with pytest.raises(ValueError):
+        DatasetFactory(bad_config_dataset)
