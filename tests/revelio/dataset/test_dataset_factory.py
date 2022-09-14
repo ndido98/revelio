@@ -1,4 +1,3 @@
-import unittest.mock as mock
 from pathlib import Path
 from typing import Any, Optional, cast
 
@@ -80,64 +79,54 @@ class Identity(AugmentationStep):
 
 @pytest.fixture
 def config() -> Config:
-    with (
-        mock.patch("pathlib.Path.is_dir", return_value=True),
-        mock.patch("pathlib.Path.is_file", return_value=True),
-        mock.patch("pathlib.Path.exists", return_value=True),
-    ):
-        return Config.construct(
-            datasets=[
-                Dataset(
-                    name="ds1",
-                    path=Path("/path/to/ds1"),
-                    split=DatasetSplit(train=0.5, val=0.25, test=0.25),
-                ),
-                Dataset(
-                    name="ds2",
-                    path=Path("/path/to/ds2"),
-                    split=DatasetSplit(train=0.8, val=0.1, test=0.1),
-                ),
+    return Config.construct(
+        datasets=[
+            Dataset.construct(
+                name="ds1",
+                path=Path("/path/to/ds1"),
+                split=DatasetSplit(train=0.5, val=0.25, test=0.25),
+            ),
+            Dataset.construct(
+                name="ds2",
+                path=Path("/path/to/ds2"),
+                split=DatasetSplit(train=0.8, val=0.1, test=0.1),
+            ),
+        ],
+        face_detection=FaceDetection(
+            enabled=True,
+            output_path=Path("/path/to/face_detection"),
+            algorithm=FaceDetectionAlgorithm(
+                name="dummy",
+                args={},
+            ),
+        ),
+        augmentation=Augmentation(
+            enabled=True,
+            steps=[
+                ConfigAugmentationStep(
+                    uses="identity",
+                    probability=1.0,
+                    args={
+                        "foo": "bar",
+                    },
+                )
             ],
-            face_detection=FaceDetection(
-                enabled=True,
-                output_path=Path("/path/to/face_detection"),
-                algorithm=FaceDetectionAlgorithm(
-                    name="dummy",
-                    args={},
-                ),
-            ),
-            augmentation=Augmentation(
-                enabled=True,
-                steps=[
-                    ConfigAugmentationStep(
-                        uses="identity",
-                        probability=1.0,
-                        args={
-                            "foo": "bar",
-                        },
-                    )
-                ],
-            ),
-        )
+        ),
+    )
 
 
 @pytest.fixture
 def bad_config_dataset() -> Config:
-    with (
-        mock.patch("pathlib.Path.is_dir", return_value=True),
-        mock.patch("pathlib.Path.is_file", return_value=True),
-        mock.patch("pathlib.Path.exists", return_value=True),
-    ):
-        return Config.construct(
-            datasets=[
-                Dataset(
-                    name="nonexistent",
-                    path=Path("/path/to/nonexistent"),
-                    split=DatasetSplit(train=0.5, val=0.25, test=0.25),
-                ),
-            ],
-            face_detection=None,
-        )
+    return Config.construct(
+        datasets=[
+            Dataset.construct(
+                name="nonexistent",
+                path=Path("/path/to/nonexistent"),
+                split=DatasetSplit(train=0.5, val=0.25, test=0.25),
+            ),
+        ],
+        face_detection=None,
+    )
 
 
 def test_split(config: Config) -> None:
