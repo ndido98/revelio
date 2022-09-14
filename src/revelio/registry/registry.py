@@ -22,7 +22,7 @@ class Registrable(ABC):  # noqa: B024
         # an error if someone tries to do so
         if cls is Registrable:
             raise TypeError("Can't instantiate abstract class Registrable")
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls)
 
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
