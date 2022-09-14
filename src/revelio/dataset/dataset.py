@@ -75,7 +75,8 @@ class Dataset(IterableDataset):
                         "features": x.features,
                     }
                     for x in elem.x
-                ]
+                ],
+                "y": elem.y.value,
             }
 
     def _get_elems_iterator(self) -> Iterator[DatasetElement]:
