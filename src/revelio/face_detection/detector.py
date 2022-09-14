@@ -11,9 +11,6 @@ from revelio.config.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage
 from revelio.registry.registry import Registrable
 
-__all__ = ("FaceDetector",)
-
-
 BoundingBox: TypeAlias = tuple[int, int, int, int]
 Landmarks: TypeAlias = np.ndarray
 
@@ -72,6 +69,7 @@ class FaceDetector(Registrable):
                     "landmarks": landmarks.tolist() if landmarks is not None else None,
                 }
                 # Create the meta file
+                meta_path.parent.mkdir(parents=True, exist_ok=True)
                 meta_path.write_text(json.dumps(meta))
                 new_xs.append(new_x)
         return DatasetElement(
