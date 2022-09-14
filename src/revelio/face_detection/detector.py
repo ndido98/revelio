@@ -35,7 +35,7 @@ class FaceDetector(Registrable):
 
     @abstractmethod
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def process(self, elem: DatasetElement) -> DatasetElement:
         new_xs = []
@@ -69,7 +69,7 @@ class FaceDetector(Registrable):
                 )
                 meta = {
                     "bb": bb,
-                    "landmarks": landmarks,
+                    "landmarks": landmarks.tolist() if landmarks is not None else None,
                 }
                 # Create the meta file
                 meta_path.write_text(json.dumps(meta))
