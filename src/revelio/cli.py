@@ -1,11 +1,24 @@
 import argparse
+import random
 import sys
 
+import numpy as np
 import torch
 from pydantic import ValidationError
 
 from revelio.config import Config
 from revelio.dataset import DatasetFactory
+
+
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.enabled = True
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
 
 
 def _is_valid_device(
@@ -90,10 +103,16 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    print(args)
 
     try:
         config = Config.from_string(args.config_file.read())
+        # Set the seed as soon as possible
+        if config.experiment.seed is not None:
+            set_seed(config.experiment.seed)
+        else:
+            seed = random.randint(0, 2**32 - 1)
+            print(f"No seed was specified, using a random seed: {seed}")
+            set_seed(seed)
         dataset = DatasetFactory(config)
         print("Dataset:", dataset)
     except (TypeError, ValueError, ValidationError) as e:

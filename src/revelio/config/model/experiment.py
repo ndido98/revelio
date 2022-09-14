@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
@@ -20,6 +20,7 @@ class Scores(BaseModel):
 
 
 class Experiment(BaseModel):
+    seed: Optional[int] = None
     workers_count: NonNegativeInt = 0
     batch_size: PositiveInt
     model: Model
