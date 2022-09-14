@@ -1,10 +1,11 @@
 import random
 from typing import Optional
 
-from revelio.augmentation.step import AugmentationStep
+from revelio.augmentation import AugmentationStep
 from revelio.config import Config
-from revelio.face_detection.detector import FaceDetector
-from revelio.registry.registry import Registrable
+from revelio.face_detection import FaceDetector
+from revelio.feature_extraction import FeatureExtractor
+from revelio.registry import Registrable
 
 from .dataset import Dataset
 from .element import DatasetElement, ElementClass
@@ -41,6 +42,7 @@ class DatasetFactory:
 
     _face_detector: Optional[FaceDetector]
     _augmentation_steps: list[AugmentationStep]
+    _feature_extractors: list[FeatureExtractor]
 
     def __init__(self, config: Config) -> None:
         self._config = config
@@ -78,6 +80,10 @@ class DatasetFactory:
             self._augmentation_steps = self._get_augmentation_steps()
         else:
             self._augmentation_steps = []
+        if self._config.feature_extraction.enabled:
+            self._feature_extractors = self._get_feature_extractors()
+        else:
+            self._feature_extractors = []
 
     def _get_loaders(self) -> list[DatasetLoader]:
         loaders: list[DatasetLoader] = []
@@ -118,11 +124,27 @@ class DatasetFactory:
             for step in self._config.augmentation.steps
         ]
 
+    def _get_feature_extractors(self) -> list[FeatureExtractor]:
+        return [
+            Registrable.find(
+                FeatureExtractor,
+                extractor.name,
+                config=self._config,
+                **extractor.args,
+            )
+            for extractor in self._config.feature_extraction.algorithms
+        ]
+
     def get_train_dataset(self) -> Dataset:
-        return Dataset(self._train, self._face_detector, self._augmentation_steps, None)
+        return Dataset(
+            self._train,
+            self._face_detector,
+            self._augmentation_steps,
+            self._feature_extractors,
+        )
 
     def get_val_dataset(self) -> Dataset:
-        return Dataset(self._val, self._face_detector, [], None)
+        return Dataset(self._val, self._face_detector, [], self._feature_extractors)
 
     def get_test_dataset(self) -> Dataset:
-        return Dataset(self._test, self._face_detector, [], None)
+        return Dataset(self._test, self._face_detector, [], self._feature_extractors)

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, root_validator
@@ -11,6 +12,7 @@ class FeatureExtractionAlgorithm(BaseModel):
 
 class FeatureExtraction(BaseModel):
     enabled: bool = True
+    output_path: Path
     algorithms: list[FeatureExtractionAlgorithm]
 
     @root_validator
