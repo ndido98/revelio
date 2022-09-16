@@ -7,6 +7,7 @@ from torch.utils.data import IterableDataset, get_worker_info
 from revelio.augmentation.step import AugmentationStep
 from revelio.face_detection.detector import FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
+from revelio.utils.iterators import consume
 
 from .element import DatasetElement, ElementImage
 
@@ -39,13 +40,14 @@ class Dataset(IterableDataset):
         self._face_detector = face_detector
         self._augmentation_steps = augmentation_steps
         self._feature_extractors = feature_extractors
+        self.warmup = False
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
-        self._offline_processing()
-        return self._online_processing()
-
-    def warmup(self) -> None:
-        self._offline_processing()
+        if self.warmup:
+            return self._offline_processing()
+        else:
+            consume(self._offline_processing())
+            return self._online_processing()
 
     def _get_elems_iterator(self) -> Iterator[DatasetElement]:
         worker_info = get_worker_info()
@@ -57,7 +59,7 @@ class Dataset(IterableDataset):
                 if i % worker_info.num_workers == worker_info.id:
                     yield p
 
-    def _offline_processing(self) -> None:
+    def _offline_processing(self) -> Iterator:
         elems = self._get_elems_iterator()
         for elem in elems:
             # We need to know if there are any elements with already loaded images,
@@ -75,6 +77,7 @@ class Dataset(IterableDataset):
             for i, x in enumerate(elem.x):
                 if x.image is not None and i not in opened_idxs:
                     x.image.close()
+            yield
 
     def _online_processing(self) -> Generator[dict[str, Any], None, None]:
         elems = self._get_elems_iterator()
