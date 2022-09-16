@@ -45,6 +45,9 @@ class ElementImage:
     def features(self) -> dict[str, np.ndarray]:
         return self._features
 
+    def __repr__(self) -> str:
+        return f"ElementImage(path={self._path})"
+
 
 class DatasetElement:
     _original_dataset: str
@@ -72,3 +75,6 @@ class DatasetElement:
     @property
     def y(self) -> ElementClass:
         return self._y
+
+    def __repr__(self) -> str:
+        return f"DatasetElement(x={self.x}, y={self.y})"
