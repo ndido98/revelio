@@ -41,6 +41,9 @@ class Dataset(IterableDataset):
         self._offline_processing()
         return self._online_processing()
 
+    def warmup(self) -> None:
+        self._offline_processing()
+
     def _get_elems_iterator(self) -> Iterator[DatasetElement]:
         worker_info = get_worker_info()
         if worker_info is None:
