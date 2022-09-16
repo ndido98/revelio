@@ -14,8 +14,11 @@ from .element import DatasetElement, ElementImage
 def _element_with_images(elem: DatasetElement) -> DatasetElement:
     new_xs = []
     for x in elem.x:
-        img = ImageModule.open(x.path)
-        new_x = ElementImage(x.path, img, None, None)
+        if x.image is None:
+            img = ImageModule.open(x.path)
+            new_x = ElementImage(x.path, img, x.landmarks, x.features)
+        else:
+            new_x = x
         new_xs.append(new_x)
     return DatasetElement(
         original_dataset=elem.original_dataset,
@@ -57,6 +60,9 @@ class Dataset(IterableDataset):
     def _offline_processing(self) -> None:
         elems = self._get_elems_iterator()
         for elem in elems:
+            # We need to know if there are any elements with already loaded images,
+            # so we don't close those
+            opened_idxs = {i for i, x in enumerate(elem.x) if x.image is not None}
             elem = _element_with_images(elem)
             if self._face_detector is not None:
                 elem = self._face_detector.process(elem)
@@ -66,8 +72,8 @@ class Dataset(IterableDataset):
                     elem = feature_extractor.process(elem)
             # Now we can close the images, as we don't need them anymore in the offline
             # preprocessing phase; this way we avoid opening them twice
-            for x in elem.x:
-                if x.image is not None:
+            for i, x in enumerate(elem.x):
+                if x.image is not None and i not in opened_idxs:
                     x.image.close()
 
     def _online_processing(self) -> Generator[dict[str, Any], None, None]:
@@ -81,20 +87,23 @@ class Dataset(IterableDataset):
             # Augment the dataset; this is always done online
             for step in self._augmentation_steps:
                 elem = step.process(elem)
-            if len(self._feature_extractors) > 0:
-                # If augmentation is enabled, feature extraction is done online;
-                # otherwise, we load the precomputed features
-                for feature_extractor in self._feature_extractors:
-                    elem = feature_extractor.process(
-                        elem,
-                        force_online=len(self._augmentation_steps) > 0,
-                    )
+            # If augmentation is enabled, feature extraction is done online;
+            # otherwise, we load the precomputed features
+            for feature_extractor in self._feature_extractors:
+                elem = feature_extractor.process(
+                    elem,
+                    force_online=len(self._augmentation_steps) > 0,
+                )
             yield {
                 "x": [
                     {
                         "image": np.array(x.image),
-                        "landmarks": x.landmarks,
-                        "features": x.features,
+                        "landmarks": (
+                            x.landmarks if x.landmarks is not None else np.array([])
+                        ),
+                        "features": (
+                            x.features if x.features is not None else np.array([])
+                        ),
                     }
                     for x in elem.x
                 ],
