@@ -79,6 +79,7 @@ def test_features_present_non_forced(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "read_text", return_value="[1, 2, 3]"),
     ):
         new_elem = dummy1.process(dataset_element)
@@ -92,6 +93,7 @@ def test_features_present_forced(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "write_text") as mock_write_text,
     ):
         new_elem = dummy1.process(dataset_element, force_online=True)
@@ -106,6 +108,7 @@ def test_features_not_present_not_forced(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "write_text") as mock_write_text,
     ):
         new_elem = dummy1.process(dataset_element)
@@ -120,6 +123,7 @@ def test_features_not_present_forced(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "write_text") as mock_write_text,
     ):
         new_elem = dummy1.process(dataset_element, force_online=True)
@@ -132,10 +136,14 @@ def test_features_not_present_forced(
 def test_multiple_features(
     dummy1: Dummy1, dummy2: Dummy2, dataset_element: DatasetElement
 ) -> None:
-    elem = dummy1.process(dataset_element)
-    elem = dummy2.process(elem)
-    for i in range(len(elem.x)):
-        assert "dummy1" in elem.x[i].features
-        assert np.all(elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
-        assert "dummy2" in elem.x[i].features
-        assert np.all(elem.x[i].features["dummy2"] == np.array([4, 5, 6]))
+    with (
+        mock.patch("pathlib.Path.is_file", return_value=False),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
+    ):
+        elem = dummy1.process(dataset_element, force_online=True)
+        elem = dummy2.process(elem, force_online=True)
+        for i in range(len(elem.x)):
+            assert "dummy1" in elem.x[i].features
+            assert np.all(elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
+            assert "dummy2" in elem.x[i].features
+            assert np.all(elem.x[i].features["dummy2"] == np.array([4, 5, 6]))

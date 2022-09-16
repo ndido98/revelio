@@ -65,6 +65,7 @@ def test_meta_path(dummy2: FaceDetector, dataset_element: DatasetElement) -> Non
 def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "write_text") as mock_write_text,
     ):
         dummy2.process(dataset_element)
@@ -77,6 +78,7 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
 def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(
             Path,
             "read_text",
@@ -95,6 +97,7 @@ def test_meta_file_read_error(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(
             Path, "read_text", return_value='{"bb": [0, 0, 0, 0], "landmarks": [1, 2, 3'
         ),
@@ -108,6 +111,7 @@ def test_meta_file_without_bounding_boxes(
 ) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
+        mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "read_text", return_value='{"landmarks": [1, 2, 3]}'),
         pytest.raises(ValueError),
     ):
