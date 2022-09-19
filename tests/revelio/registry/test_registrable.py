@@ -118,3 +118,18 @@ def test_registrable_with_args_kwargs() -> None:
     assert x.foo == "123"
     assert x.bar == "456"
     assert x.baz == "789"
+
+
+def test_transparent() -> None:
+    class Foo(Registrable):
+        pass
+
+    class Bar(Foo):
+        transparent: bool = True
+
+    class Baz(Bar):
+        pass
+
+    assert type(Registrable.find(Foo, "baz")) is Baz
+    with pytest.raises(ValueError):
+        Registrable.find(Bar, "baz")

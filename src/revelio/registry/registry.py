@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar
 
 __all__ = ("Registrable",)
 
@@ -13,6 +13,7 @@ class Registrable(ABC):  # noqa: B024
 
     prefix: str = ""
     suffix: str = ""
+    transparent: bool = False
 
     def __init__(self, **kwargs: Any) -> None:
         # Registrable is an abstract class because its subclasses will be,
@@ -84,10 +85,16 @@ def _check_only_one_registrable_in_hierarchy(cls: Type[T]) -> bool:
 
 
 def _get_parent_registrable(cls: Type[T]) -> str:
+    candidate_parent: Optional[Type] = None
     for base in cls.__bases__:
         if base is Registrable or _count_registrable_paths(base) == 1:
-            return base.__name__
-
-    raise TypeError(  # pragma: no cover
-        f"Could not find parent Registrable for {cls.__name__}"
-    )
+            candidate_parent = base
+    if candidate_parent is not None:
+        if getattr(candidate_parent, "transparent", False):
+            return _get_parent_registrable(candidate_parent)
+        else:
+            return candidate_parent.__name__
+    else:
+        raise TypeError(  # pragma: no cover
+            f"Could not find parent Registrable for {cls.__name__}"
+        )
