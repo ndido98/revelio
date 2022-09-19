@@ -16,7 +16,7 @@ from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
 
 class Dummy2(FaceDetector):
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
-        return ((0, 0, 0, 0), np.array([1, 2, 3]))
+        return ((5, 5, 15, 15), np.array([1, 2, 3]))
 
 
 @pytest.fixture
@@ -41,11 +41,11 @@ def dataset_element() -> DatasetElement:
         x=(
             ElementImage(
                 path=Path("/path/to/ds1/image1.jpg"),
-                image=ImageModule.new("RGB", (1, 1), "black"),
+                image=ImageModule.new("RGB", (30, 30), "black"),
             ),
             ElementImage(
                 path=Path("/path/to/ds1/image2.jpg"),
-                image=ImageModule.new("RGB", (1, 1), "black"),
+                image=ImageModule.new("RGB", (30, 30), "black"),
             ),
         ),
         y=ElementClass.BONA_FIDE,
@@ -68,10 +68,18 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(Path, "write_text") as mock_write_text,
     ):
-        dummy2.process(dataset_element)
+        new_elem = dummy2.process(dataset_element)
+        assert new_elem.x[0].image is not None
+        assert new_elem.x[0].image.size == (10, 10)
+        assert new_elem.x[1].image is not None
+        assert new_elem.x[1].image.size == (10, 10)
+        assert new_elem.x[0].landmarks is not None
+        assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
+        assert new_elem.x[1].landmarks is not None
+        assert new_elem.x[1].landmarks.tolist() == [1, 2, 3]
         assert mock_write_text.call_count == 2
         mock_write_text.assert_called_with(
-            '{"bb": [0, 0, 0, 0], "landmarks": [1, 2, 3]}'
+            '{"bb": [5, 5, 15, 15], "landmarks": [1, 2, 3]}'
         )
 
 
@@ -82,10 +90,14 @@ def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -
         mock.patch.object(
             Path,
             "read_text",
-            return_value='{"bb": [0, 0, 0, 0], "landmarks": [1, 2, 3]}',
+            return_value='{"bb": [5, 5, 15, 15], "landmarks": [1, 2, 3]}',
         ),
     ):
         new_elem = dummy2.process(dataset_element)
+        assert new_elem.x[0].image is not None
+        assert new_elem.x[0].image.size == (10, 10)
+        assert new_elem.x[1].image is not None
+        assert new_elem.x[1].image.size == (10, 10)
         assert new_elem.x[0].landmarks is not None
         assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
         assert new_elem.x[1].landmarks is not None
@@ -99,7 +111,7 @@ def test_meta_file_read_error(
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch.object(
-            Path, "read_text", return_value='{"bb": [0, 0, 0, 0], "landmarks": [1, 2, 3'
+            Path, "read_text", return_value='{"bb": [5, 5, 15, 15], "landmarks": [1, 2,'
         ),
         pytest.raises(JSONDecodeError),
     ):
