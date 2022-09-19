@@ -47,7 +47,7 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "certifi"
-version = "2022.6.15.1"
+version = "2022.9.14"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -262,7 +262,7 @@ dev = ["flake8", "markdown", "twine", "wheel"]
 
 [[package]]
 name = "hypothesis"
-version = "6.54.5"
+version = "6.54.6"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -302,7 +302,7 @@ license = ["ukkonen"]
 
 [[package]]
 name = "idna"
-version = "3.3"
+version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
@@ -432,7 +432,7 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "8.5.1"
+version = "8.5.2"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
@@ -862,7 +862,6 @@ typing-extensions = "*"
 [package.source]
 type = "url"
 url = "https://download.pytorch.org/whl/cu116/torch-1.12.1%2Bcu116-cp310-cp310-linux_x86_64.whl"
-
 [[package]]
 name = "torch"
 version = "1.12.1+cu116"
@@ -877,7 +876,6 @@ typing-extensions = "*"
 [package.source]
 type = "url"
 url = "https://download.pytorch.org/whl/cu116/torch-1.12.1%2Bcu116-cp310-cp310-win_amd64.whl"
-
 [[package]]
 name = "torchvision"
 version = "0.13.1+cu116"
@@ -899,7 +897,6 @@ scipy = ["scipy"]
 [package.source]
 type = "url"
 url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-linux_x86_64.whl"
-
 [[package]]
 name = "torchvision"
 version = "0.13.1+cu116"
@@ -921,6 +918,22 @@ scipy = ["scipy"]
 [package.source]
 type = "url"
 url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-win_amd64.whl"
+[[package]]
+name = "tqdm"
+version = "4.64.1"
+description = "Fast, Extensible Progress Meter"
+category = "dev"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["py-make (>=0.1.0)", "twine", "wheel"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
 
 [[package]]
 name = "tryceratops"
@@ -947,6 +960,14 @@ python-versions = "*"
 name = "types-PyYAML"
 version = "6.0.11"
 description = "Typing stubs for PyYAML"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "types-tqdm"
+version = "4.64.6"
+description = "Typing stubs for tqdm"
 category = "dev"
 optional = false
 python-versions = "*"
@@ -1015,7 +1036,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <4.0"
-content-hash = "861d1dfbd3d7fb6ed8ee99bfda50fec6ab1e76237c8e1a6a007e304e2961ee14"
+content-hash = "5bde10a0ca09d1758549fa7f44f026b0af8c0e6807ab91e64e905971f5f116a0"
 
 [metadata.files]
 attrs = [
@@ -1052,8 +1073,8 @@ black = [
     {file = "black-22.8.0.tar.gz", hash = "sha256:792f7eb540ba9a17e8656538701d3eb1afcb134e3b45b71f20b25c77a8db7e6e"},
 ]
 certifi = [
-    {file = "certifi-2022.6.15.1-py3-none-any.whl", hash = "sha256:43dadad18a7f168740e66944e4fa82c6611848ff9056ad910f8f7a3e46ab89e0"},
-    {file = "certifi-2022.6.15.1.tar.gz", hash = "sha256:cffdcd380919da6137f76633531a5817e3a9f268575c128249fb637e4f9e73fb"},
+    {file = "certifi-2022.9.14-py3-none-any.whl", hash = "sha256:e232343de1ab72c2aa521b625c80f699e356830fd0e2c620b465b304b17b0516"},
+    {file = "certifi-2022.9.14.tar.gz", hash = "sha256:36973885b9542e6bd01dea287b2b4b3b21236307c56324fcc3f1160f2d655ed5"},
 ]
 cfgv = [
     {file = "cfgv-3.3.1-py2.py3-none-any.whl", hash = "sha256:c6a0883f3917a037485059700b9e75da2464e6c27051014ad85ba6aaa5884426"},
@@ -1175,16 +1196,16 @@ ghp-import = [
     {file = "ghp_import-2.1.0-py3-none-any.whl", hash = "sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.54.5-py3-none-any.whl", hash = "sha256:d8d2e18139be18e5c95593f1e2d87dbcd21534a32022a1db6e8ac2d458ee1d1a"},
-    {file = "hypothesis-6.54.5.tar.gz", hash = "sha256:8a9056825695f415bfad4e808ae719fc01383a9ab659775319724365afcc7ec7"},
+    {file = "hypothesis-6.54.6-py3-none-any.whl", hash = "sha256:e44833325f9a55f795596ceefd7ede7d626cfe45836025d2647cccaff7070e10"},
+    {file = "hypothesis-6.54.6.tar.gz", hash = "sha256:2d5e2d5ccd0efce4e0968a6164f4e4853f808e33f4d91490c975c98beec0c7c3"},
 ]
 identify = [
     {file = "identify-2.5.5-py2.py3-none-any.whl", hash = "sha256:ef78c0d96098a3b5fe7720be4a97e73f439af7cf088ebf47b620aeaa10fadf97"},
     {file = "identify-2.5.5.tar.gz", hash = "sha256:322a5699daecf7c6fd60e68852f36f2ecbb6a36ff6e6e973e0d2bb6fca203ee6"},
 ]
 idna = [
-    {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
-    {file = "idna-3.3.tar.gz", hash = "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"},
+    {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
+    {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.12.0-py3-none-any.whl", hash = "sha256:7401a975809ea1fdc658c3aa4f78cc2195a0e019c5cbc4c06122884e9ae80c23"},
@@ -1265,8 +1286,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-8.5.1.tar.gz", hash = "sha256:2daf604d00d554d5496c02b4c4d14dfa57dd689c90f639da5020601baef4b235"},
-    {file = "mkdocs_material-8.5.1-py2.py3-none-any.whl", hash = "sha256:79e9b65e481edb539eda6a3a939a0e02609a5c54afc315c3b05f57ff40db3188"},
+    {file = "mkdocs-material-8.5.2.tar.gz", hash = "sha256:16ca1304a93b085e5dfb0dbcc681b74dad1587d8ba727c89c8fd4259dd8fe004"},
+    {file = "mkdocs_material-8.5.2-py2.py3-none-any.whl", hash = "sha256:1962099d8c6eb7571896a0e7fdc52ff4fda1e906969d0e42ae3537418e807868"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
@@ -1513,13 +1534,6 @@ PyYAML = [
     {file = "PyYAML-6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5"},
     {file = "PyYAML-6.0-cp310-cp310-win32.whl", hash = "sha256:2cd5df3de48857ed0544b34e2d40e9fac445930039f3cfe4bcc592a1f836d513"},
     {file = "PyYAML-6.0-cp310-cp310-win_amd64.whl", hash = "sha256:daf496c58a8c52083df09b80c860005194014c3698698d1a57cbcfa182142a3a"},
-    {file = "PyYAML-6.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:d4b0ba9512519522b118090257be113b9468d804b19d63c71dbcf4a48fa32358"},
-    {file = "PyYAML-6.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:81957921f441d50af23654aa6c5e5eaf9b06aba7f0a19c18a538dc7ef291c5a1"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:afa17f5bc4d1b10afd4466fd3a44dc0e245382deca5b3c353d8b757f9e3ecb8d"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:dbad0e9d368bb989f4515da330b88a057617d16b6a8245084f1b05400f24609f"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:432557aa2c09802be39460360ddffd48156e30721f5e8d917f01d31694216782"},
-    {file = "PyYAML-6.0-cp311-cp311-win32.whl", hash = "sha256:bfaef573a63ba8923503d27530362590ff4f576c626d86a9fed95822a8255fd7"},
-    {file = "PyYAML-6.0-cp311-cp311-win_amd64.whl", hash = "sha256:01b45c0191e6d66c470b6cf1b9531a771a83c1c4208272ead47a3ae4f2f603bf"},
     {file = "PyYAML-6.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:897b80890765f037df3403d22bab41627ca8811ae55e9a722fd0392850ec4d86"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:50602afada6d6cbfad699b0c7bb50d5ccffa7e46a3d738092afddc1f9758427f"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:48c346915c114f5fdb3ead70312bd042a953a8ce5c7106d5bfb1a5254e47da92"},
@@ -1585,6 +1599,10 @@ tomli = [
 ]
 torch = []
 torchvision = []
+tqdm = [
+    {file = "tqdm-4.64.1-py2.py3-none-any.whl", hash = "sha256:6fee160d6ffcd1b1c68c65f14c829c22832bc401726335ce92c52d395944a6a1"},
+    {file = "tqdm-4.64.1.tar.gz", hash = "sha256:5f4f682a004951c1b450bc753c710e9280c5746ce6ffedee253ddbcbf54cf1e4"},
+]
 tryceratops = [
     {file = "tryceratops-1.1.0-py3-none-any.whl", hash = "sha256:f4770960782a2ae87cad7a7fd1206476468d0f41383c9fd7a49c6d537534015e"},
     {file = "tryceratops-1.1.0.tar.gz", hash = "sha256:58e56b33eeb7a9cfd643957069bb1872ebe26c1eeac7abb1877c9535b7e473db"},
@@ -1596,6 +1614,10 @@ types-Pillow = [
 types-PyYAML = [
     {file = "types-PyYAML-6.0.11.tar.gz", hash = "sha256:7f7da2fd11e9bc1e5e9eb3ea1be84f4849747017a59fc2eee0ea34ed1147c2e0"},
     {file = "types_PyYAML-6.0.11-py3-none-any.whl", hash = "sha256:8f890028123607379c63550179ddaec4517dc751f4c527a52bb61934bf495989"},
+]
+types-tqdm = [
+    {file = "types-tqdm-4.64.6.tar.gz", hash = "sha256:106e7cca7023b63270d8d3feaaa9b347b953e835d9d47e08781244b356fdb552"},
+    {file = "types_tqdm-4.64.6-py3-none-any.whl", hash = "sha256:bb4f35cdc7f90bc75f5b4bc893171ba5d41895e14b7ac436a6e95eb74f79276e"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
