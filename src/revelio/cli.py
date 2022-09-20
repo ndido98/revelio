@@ -5,9 +5,13 @@ import sys
 import numpy as np
 import torch
 from pydantic import ValidationError
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from revelio.config import Config
 from revelio.dataset import DatasetFactory
+from revelio.model import Model
+from revelio.registry import Registrable
 
 
 def set_seed(seed: int) -> None:
@@ -113,8 +117,53 @@ def main() -> None:
             seed = random.randint(0, 2**32 - 1)
             print(f"No seed was specified, using a random seed: {seed}")
             set_seed(seed)
+        print("Loading the dataset...")
         dataset = DatasetFactory(config)
-        print("Dataset:", dataset)
+        train_dl = DataLoader(
+            dataset.get_train_dataset(),
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+        )
+        val_dl = DataLoader(
+            dataset.get_val_dataset(),
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+        )
+        test_dl = DataLoader(
+            dataset.get_test_dataset(),
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+        )
+        # Warmup (i.e. run the offline processing) the three data loaders so we don't
+        # have an overhead when we start training
+        train_dl.dataset.warmup = True  # type: ignore
+        val_dl.dataset.warmup = True  # type: ignore
+        test_dl.dataset.warmup = True  # type: ignore
+        for _ in tqdm(train_dl, desc="Warming up the training data loader"):
+            pass
+        for _ in tqdm(val_dl, desc="Warming up the validation data loader"):
+            pass
+        for _ in tqdm(test_dl, desc="Warming up the test data loader"):
+            pass
+        train_dl.dataset.warmup = False  # type: ignore
+        val_dl.dataset.warmup = False  # type: ignore
+        test_dl.dataset.warmup = False  # type: ignore
+        model: Model = Registrable.find(
+            Model,
+            config.experiment.model.name,
+            config=config,
+            train_dataloader=train_dl,
+            val_dataloader=val_dl,
+            test_dataloader=test_dl,
+            device=args.device,
+        )
+        if config.experiment.training.enabled:
+            model.fit()
+        metrics = model.evaluate()
+        print(metrics)
     except (TypeError, ValueError, ValidationError) as e:
         # Ignore pretty printing of exceptions and just re-raise them
         if args.verbose:
