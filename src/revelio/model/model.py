@@ -19,14 +19,15 @@ class Model(Registrable):
         train_dataloader: DataLoader,
         val_dataloader: DataLoader,
         test_dataloader: DataLoader,
-        metrics: list[Metric],
         device: str,
     ):
         self.config = config
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
         self.test_dataloader = test_dataloader
-        self.metrics = metrics
+        self.metrics: list[Metric] = [
+            Registrable.find(Metric, m) for m in config.experiment.metrics
+        ]
         self.device = device
 
     @abstractmethod

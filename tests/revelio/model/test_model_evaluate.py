@@ -54,7 +54,8 @@ def config() -> Config:
             scores=Scores.construct(
                 bona_fide="bona_fide_scores.txt",
                 morphed="morphed_scores.txt",
-            )
+            ),
+            metrics=["dummyaccuracy"],
         )
     )
 
@@ -65,7 +66,6 @@ def test_model_evaluate(config: Config) -> None:
         train_dataloader=None,  # type: ignore
         val_dataloader=None,  # type: ignore
         test_dataloader=None,  # type: ignore
-        metrics=[DummyAccuracy()],
         device="cpu",
     )
     with mock.patch("numpy.savetxt") as mock_save:
@@ -87,7 +87,6 @@ def test_model_evaluate_shape_error(config: Config) -> None:
         train_dataloader=None,  # type: ignore
         val_dataloader=None,  # type: ignore
         test_dataloader=None,  # type: ignore
-        metrics=[DummyAccuracy()],
         device="cpu",
     )
     with pytest.raises(ValueError):
