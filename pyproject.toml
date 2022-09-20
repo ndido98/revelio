@@ -46,7 +46,7 @@ torchvision = [
 ]
 
 [tool.poetry.dev-dependencies]
-autoflake = "~1.5"
+autoflake = "~1.6.0"
 black = "~22.8"
 flake8 = "~5.0"
 flake8-bugbear = "~22.9.0"
