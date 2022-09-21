@@ -8,3 +8,8 @@ from .optimizer import Optimizer
 class SGD(Optimizer):
     def get(self, **kwargs: Any) -> torch.optim.Optimizer:
         return torch.optim.SGD(**kwargs)
+
+
+class Adam(Optimizer):
+    def get(self, **kwargs: Any) -> torch.optim.Optimizer:
+        return torch.optim.Adam(**kwargs)
