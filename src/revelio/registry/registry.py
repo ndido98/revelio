@@ -37,7 +37,9 @@ class Registrable(ABC):  # noqa: B024
         if parent_name in _registry:
             parent_registry = _registry[parent_name]
             # Make sure there is no other algorithm with the same case-insensitive name
-            lowercase_classes = [k.lower() for k in parent_registry.keys()]
+            lowercase_classes = [
+                k.lower().replace("_", "") for k in parent_registry.keys()
+            ]
             if cls.__name__.lower() not in lowercase_classes:
                 _registry[parent_name][cls.__name__] = cls
             else:
@@ -54,8 +56,9 @@ class Registrable(ABC):  # noqa: B024
         if cls.__name__ not in _registry:
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
-        lowercase_classes = [k.lower() for k in class_registry.keys()]
+        lowercase_classes = [k.lower().replace("_", "") for k in class_registry.keys()]
         wanted_class = f"{cls.prefix.lower()}{name.lower()}{cls.suffix.lower()}"
+        wanted_class = wanted_class.replace("_", "")
         if wanted_class not in lowercase_classes:
             raise ValueError(
                 f"Could not find {name} in {cls.__name__} registry "

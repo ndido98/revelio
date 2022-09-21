@@ -133,3 +133,21 @@ def test_transparent() -> None:
     assert type(Registrable.find(Foo, "baz")) is Baz
     with pytest.raises(ValueError):
         Registrable.find(Bar, "baz")
+
+
+def test_snake_case() -> None:
+    class PreAbstractSuf(Registrable):
+        prefix = "Pre"
+        suffix = "Suf"
+
+    class PreConcreteLongNameSuf(PreAbstractSuf):
+        pass
+
+    assert (
+        type(Registrable.find(PreAbstractSuf, "concretelongname"))
+        is PreConcreteLongNameSuf
+    )
+    assert (
+        type(Registrable.find(PreAbstractSuf, "concrete_long_name"))
+        is PreConcreteLongNameSuf
+    )
