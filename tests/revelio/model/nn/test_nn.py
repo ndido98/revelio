@@ -45,17 +45,17 @@ class DebugCallback(Callback):
     def after_validation_epoch(
         self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
-        assert "loss" not in metrics
+        assert "loss" in metrics
         assert "val_loss" in metrics
-        assert "accuracy" not in metrics
+        assert "accuracy" in metrics
         assert "val_accuracy" in metrics
 
     def after_validation_step(
         self, step: int, metrics: dict[str, torch.Tensor]
     ) -> None:
-        assert "loss" not in metrics
+        assert "loss" in metrics
         assert "val_loss" in metrics
-        assert "accuracy" not in metrics
+        assert "accuracy" in metrics
         assert "val_accuracy" in metrics
 
 
@@ -92,7 +92,7 @@ class XORModel(NeuralNetwork):
             )
 
         def forward(self, x: Any) -> Any:
-            return self.net(x["x"])
+            return self.net(x)
 
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:
         return self.Classifier(**kwargs)

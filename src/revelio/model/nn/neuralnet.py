@@ -34,12 +34,11 @@ class NeuralNetwork(Model):
     optimizer: torch.optim.Optimizer
     loss_function: torch.nn.Module
     callbacks: list[Callback]
+    should_stop: bool
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
         self.classifier = self.get_classifier(**self.config.experiment.model.args)
-        # Move the model to the device
-        self.classifier = self.classifier.to(self.device)
         # Load the training configuration
         if "epochs" not in self.config.experiment.training.args:
             raise ValueError("Missing epochs in training configuration")
@@ -80,6 +79,18 @@ class NeuralNetwork(Model):
             )
             self.callbacks.append(found_callback)
         self.should_stop = False
+        # Load a checkpoint if present
+        if self.config.experiment.model.checkpoint is not None:
+            checkpoint = torch.load(
+                self.config.experiment.model.checkpoint,
+                map_location="cpu",
+            )
+            self.load_state_dict(checkpoint)
+        else:
+            self._initial_epoch = 0
+        self._last_epoch = 0
+        # Move the model to the device
+        self.classifier = self.classifier.to(self.device)
         # Once the model is fully initialized, pass a reference to it to the callbacks
         for callback in self.callbacks:
             callback.model = self
@@ -94,10 +105,11 @@ class NeuralNetwork(Model):
             callback.before_training()
 
         pbar_len = len(self.train_dataloader) + len(self.val_dataloader)
-        for epoch in range(self.epochs):
+        for epoch in range(self._initial_epoch, self.epochs):
             with tqdm(total=pbar_len) as pbar:
                 if self.should_stop:
                     break
+                self._last_epoch = epoch
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs}")
                 for callback in self.callbacks:
                     callback.before_training_epoch(epoch)
@@ -111,7 +123,7 @@ class NeuralNetwork(Model):
                 with torch.no_grad():
                     val_metrics = self._validate(pbar, train_metrics)
                 for callback in self.callbacks:
-                    callback.after_validation_epoch(epoch, val_metrics)
+                    callback.after_validation_epoch(epoch, train_metrics | val_metrics)
 
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs} (done)")
                 display_metrics = {
@@ -127,11 +139,23 @@ class NeuralNetwork(Model):
         for batch in self.test_dataloader:
             device_batch = _dict_to_device(batch, self.device)
             # Use the classifier to get the batch classes
-            prediction = self.classifier(device_batch)
+            prediction = self.classifier(device_batch["x"])
             prediction = torch.squeeze(prediction)
             ground_truth = torch.squeeze(device_batch["y"])
             scores.append(np.array([prediction, ground_truth]))
         return np.stack(scores)
+
+    def get_state_dict(self) -> dict[str, Any]:
+        return {
+            "model_state_dict": self.classifier.state_dict(),
+            "optimizer_state_dict": self.optimizer.state_dict(),
+            "epoch": self._last_epoch,
+        }
+
+    def load_state_dict(self, state_dict: dict[str, Any]) -> None:
+        self.classifier.load_state_dict(state_dict["model_state_dict"])
+        self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
+        self._initial_epoch = state_dict["epoch"]
 
     def _train(self, pbar: tqdm) -> dict[str, torch.Tensor]:
         self.classifier.train()
@@ -165,7 +189,7 @@ class NeuralNetwork(Model):
             # Use the classifier to get the batch classes
             if training:
                 self.optimizer.zero_grad()
-            prediction = self.classifier(device_batch)
+            prediction = self.classifier(device_batch["x"])
             prediction = torch.squeeze(prediction)
             ground_truth = torch.squeeze(device_batch["y"])
             # Compute the loss
@@ -183,10 +207,9 @@ class NeuralNetwork(Model):
             metrics = self._compute_metrics_dict(
                 cumulative_loss / (step + 1), "val" if not training else ""
             )
+            metrics = initial_metrics | metrics
             # Call .item() so we don't have tensor() around each number
-            display_metrics = {
-                k: v.item() for k, v in (initial_metrics | metrics).items()
-            }
+            display_metrics = {k: v.item() for k, v in metrics.items()}
             for callback in self.callbacks:
                 if training:
                     callback.after_training_step(step, metrics)

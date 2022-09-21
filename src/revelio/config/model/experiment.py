@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import Any, Optional
 
-from pydantic import BaseModel, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, FilePath, NonNegativeInt, PositiveInt
 
 
 class Model(BaseModel):
     name: str
+    checkpoint: Optional[FilePath]
     args: dict[str, Any] = {}
 
 
