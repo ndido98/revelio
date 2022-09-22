@@ -1,29 +1,31 @@
-from typing import Literal
+from typing import Any, Literal, Optional
 
 import torch
 
 from .callback import Callback
 
 
-class ModelCheckpoint(Callback):
+class EarlyStopping(Callback):
     def __init__(
         self,
-        file_path: str,
         monitor: str = "val_loss",
         min_delta: float = 0.0,
+        patience: int = 0,
         direction: Literal["min", "max"] = "min",
-        save_best_only: bool = False,
+        restore_best_weights: bool = False,
     ) -> None:
-        self._file_path = file_path
         self._monitor = monitor
         self._min_delta = min_delta
+        self._patience = patience
         self._direction = direction
-        self._save_best_only = save_best_only
+        self._restore_best_weights = restore_best_weights
         self._best_metric_value = (
             torch.tensor(float("inf"))
             if direction == "min"
             else torch.tensor(float("-inf"))
         )
+        self._best_weights: Optional[dict[str, Any]] = None
+        self._wait = 0
 
     def after_validation_epoch(
         self, epoch: int, metrics: dict[str, torch.Tensor]
@@ -35,12 +37,17 @@ class ModelCheckpoint(Callback):
             has_improved = metric_value < self._best_metric_value - self._min_delta
         else:
             has_improved = metric_value > self._best_metric_value + self._min_delta
-        if has_improved or not self._save_best_only:
+        if has_improved:
             self._best_metric_value = metric_value
-            torch.save(
-                self.model.get_state_dict(),
-                self._parse_file_path(epoch, metrics),
-            )
+            self._wait = 0
+            if self._restore_best_weights:
+                self._best_weights = self.model.get_state_dict()
+        else:
+            self._wait += 1
 
-    def _parse_file_path(self, epoch: int, metrics: dict[str, torch.Tensor]) -> str:
-        return self._file_path.format(epoch=epoch, **metrics)
+        if self._wait >= self._patience:
+            self.model.should_stop = True
+
+    def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
+        if self._restore_best_weights and self._best_weights is not None:
+            self.model.load_state_dict(self._best_weights)
