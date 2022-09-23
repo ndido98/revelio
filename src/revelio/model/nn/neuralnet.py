@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -88,7 +88,7 @@ class NeuralNetwork(Model):
             self.load_state_dict(checkpoint)
         else:
             self._initial_epoch = 0
-        self._last_epoch = 0
+        self._last_epoch: Optional[int] = None
         # Move the model to the device
         self.classifier = self.classifier.to(self.device)
         # Once the model is fully initialized, pass a reference to it to the callbacks
@@ -155,7 +155,8 @@ class NeuralNetwork(Model):
     def load_state_dict(self, state_dict: dict[str, Any]) -> None:
         self.classifier.load_state_dict(state_dict["model_state_dict"])
         self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
-        self._initial_epoch = state_dict["epoch"]
+        last_epoch = state_dict["epoch"]
+        self._initial_epoch = last_epoch + 1 if last_epoch is not None else 0
 
     def _train(self, pbar: tqdm) -> dict[str, torch.Tensor]:
         self.classifier.train()
