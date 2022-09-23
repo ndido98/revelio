@@ -155,7 +155,7 @@ def _generate_points(count: int) -> Dataset:
 
 @pytest.fixture
 def train_dataset() -> Dataset:
-    return _generate_points(100)
+    return _generate_points(1000)
 
 
 @pytest.fixture
@@ -165,7 +165,7 @@ def train_dataloader(train_dataset: Dataset) -> DataLoader:
 
 @pytest.fixture
 def val_dataset() -> Dataset:
-    return _generate_points(50)
+    return _generate_points(500)
 
 
 @pytest.fixture
@@ -175,7 +175,7 @@ def val_dataloader(val_dataset: Dataset) -> DataLoader:
 
 @pytest.fixture
 def test_dataset() -> Dataset:
-    return _generate_points(50)
+    return _generate_points(500)
 
 
 @pytest.fixture
