@@ -17,7 +17,7 @@ _constructors = {
 }
 
 
-class ResNet(NeuralNetwork):
+class ResNet(NeuralNetwork):  # pragma: no cover
     class Classifier(torch.nn.Module):
         def __init__(
             self,
@@ -30,11 +30,13 @@ class ResNet(NeuralNetwork):
             super().__init__()
             if freeze and not pretrained:
                 raise ValueError("Cannot freeze a non-pretrained model")
-            if pretrained:
+            try:
                 function, weights = _constructors[size]
+            except KeyError as e:
+                raise ValueError(f"There is no ResNet{size}") from e
+            if pretrained:
                 self.preprocess = weights.transforms()
             else:
-                function, _ = _constructors[size]
                 self.preprocess = None
                 self.net = function(weights=None, progress=False)
             # Replace the classification head

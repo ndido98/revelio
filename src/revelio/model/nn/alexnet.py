@@ -6,7 +6,7 @@ import torchvision.models as models
 from .neuralnet import NeuralNetwork
 
 
-class AlexNet(NeuralNetwork):
+class AlexNet(NeuralNetwork):  # pragma: no cover
     class Classifier(torch.nn.Module):
         def __init__(
             self, *, pretrained: bool = True, freeze: bool = True, **kwargs: Any

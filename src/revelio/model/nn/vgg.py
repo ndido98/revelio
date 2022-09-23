@@ -9,22 +9,18 @@ VGGSize: TypeAlias = Literal[11, 13, 16, 19]
 
 
 _constructors = {
-    11: (models.vgg11, models.VGG11_Weights.DEFAULT),
-    13: (models.vgg13, models.VGG13_Weights.DEFAULT),
-    16: (models.vgg16, models.VGG16_Weights.DEFAULT),
-    19: (models.vgg19, models.VGG19_Weights.DEFAULT),
+    (11, False): (models.vgg11, models.VGG11_Weights.DEFAULT),
+    (11, True): (models.vgg11_bn, models.VGG11_BN_Weights.DEFAULT),
+    (13, False): (models.vgg13, models.VGG13_Weights.DEFAULT),
+    (13, True): (models.vgg13_bn, models.VGG13_BN_Weights.DEFAULT),
+    (16, False): (models.vgg16, models.VGG16_Weights.DEFAULT),
+    (16, True): (models.vgg16_bn, models.VGG16_BN_Weights.DEFAULT),
+    (19, False): (models.vgg19, models.VGG19_Weights.DEFAULT),
+    (19, True): (models.vgg19_bn, models.VGG19_BN_Weights.DEFAULT),
 }
 
 
-_bn_constructors = {
-    11: (models.vgg11_bn, models.VGG11_BN_Weights.DEFAULT),
-    13: (models.vgg13_bn, models.VGG13_BN_Weights.DEFAULT),
-    16: (models.vgg16_bn, models.VGG16_BN_Weights.DEFAULT),
-    19: (models.vgg19_bn, models.VGG19_BN_Weights.DEFAULT),
-}
-
-
-class VGG(NeuralNetwork):
+class VGG(NeuralNetwork):  # pragma: no cover
     class Classifier(torch.nn.Module):
         def __init__(
             self,
@@ -38,18 +34,17 @@ class VGG(NeuralNetwork):
             super().__init__()
             if freeze and not pretrained:
                 raise ValueError("Cannot freeze a non-pretrained model")
+            try:
+                function, weights = _constructors[(size, batch_norm)]
+            except KeyError as e:
+                raise ValueError(
+                    f"There is no VGG{size} "
+                    f"{'with' if batch_norm else 'without'} batch normalization"
+                ) from e
             if pretrained:
-                if not batch_norm:
-                    function, weights = _constructors[size]
-                else:
-                    function, weights = _bn_constructors[size]
                 self.preprocess = weights.transforms()
                 self.net = function(weights=weights, progress=False)
             else:
-                if not batch_norm:
-                    function, _ = _constructors[size]
-                else:
-                    function, _ = _bn_constructors[size]
                 self.preprocess = None
                 self.net = function(weights=None, progress=False)
             # Replace the classification head
