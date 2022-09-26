@@ -228,22 +228,25 @@ class NeuralNetwork(Model):
         return metrics
 
     def _reset_metrics(self) -> None:
-        for metric in self.metrics:
-            metric.reset()
+        with torch.no_grad():
+            for metric in self.metrics:
+                metric.reset()
 
     def _update_metrics(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:
-        for metric in self.metrics:
-            metric.update(y_pred, y_true)
+        with torch.no_grad():
+            for metric in self.metrics:
+                metric.update(y_pred, y_true)
 
     def _compute_metrics_dict(
         self, loss: torch.Tensor, metric_prefix: str = ""
     ) -> dict[str, torch.Tensor]:
-        metrics = {}
-        for metric in self.metrics:
-            metric_name = type(metric).name
-            if metric_prefix != "":
-                metric_name = f"{metric_prefix}_{metric_name}"
-            metrics[metric_name] = metric.compute()
-        loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
-        metrics[loss_name] = loss
-        return metrics
+        with torch.no_grad():
+            metrics = {}
+            for metric in self.metrics:
+                metric_name = metric.name
+                if metric_prefix != "":
+                    metric_name = f"{metric_prefix}_{metric_name}"
+                metrics[metric_name] = metric.compute()
+            loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
+            metrics[loss_name] = loss
+            return metrics

@@ -51,7 +51,7 @@ class Model(Registrable):
         for metric in self.metrics:
             metric.reset()
             metric.update(torch.tensor(scores), torch.tensor(labels))
-            computed_metrics[type(metric).name] = metric.compute().numpy()
+            computed_metrics[metric.name] = metric.compute().numpy()
         bona_fide_scores = scores[labels == 0]
         morphed_scores = scores[labels == 1]
         np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores)
