@@ -124,18 +124,21 @@ def main() -> None:
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            pin_memory=True,
         )
         val_dl = DataLoader(
             dataset.get_val_dataset(),
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            pin_memory=True,
         )
         test_dl = DataLoader(
             dataset.get_test_dataset(),
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            pin_memory=True,
         )
         # Warmup (i.e. run the offline processing) the three data loaders so we don't
         # have an overhead when we start training
