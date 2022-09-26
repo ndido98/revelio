@@ -6,7 +6,9 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from revelio.config import Config
-from revelio.config.model import Experiment, Model, Training
+from revelio.config.model import Experiment
+from revelio.config.model import Metric as ConfigMetric
+from revelio.config.model import Model, Training
 from revelio.model.metrics import Metric
 from revelio.model.nn import NeuralNetwork
 from revelio.model.nn.callbacks import Callback
@@ -121,7 +123,9 @@ def config() -> Config:
                     ],
                 },
             ),
-            metrics=["dummyaccuracy2"],
+            metrics=[
+                ConfigMetric.construct(name="dummyaccuracy2"),
+            ],
         )
     )
 

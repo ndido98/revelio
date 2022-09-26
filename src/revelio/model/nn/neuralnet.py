@@ -244,9 +244,32 @@ class NeuralNetwork(Model):
             metrics = {}
             for metric in self.metrics:
                 metric_name = metric.name
-                if metric_prefix != "":
-                    metric_name = f"{metric_prefix}_{metric_name}"
-                metrics[metric_name] = metric.compute()
+                metric_result = metric.compute()
+                if isinstance(metric_name, list):
+                    if len(metric_name) != len(metric_result):
+                        raise ValueError(
+                            f"The metric {type(metric).__name__} returned "
+                            f"{len(metric_name)} metric names, "
+                            f"but {len(metric_result)} metric results"
+                        )
+                    for name, value in zip(metric_name, metric_result):
+                        if name.startswith("val_"):
+                            raise ValueError(
+                                f"The metric {type(metric).__name__} contains a value "
+                                "which starts with the reserved prefix 'val_'"
+                            )
+                        if metric_prefix != "":
+                            name = f"{metric_prefix}_{name}"
+                        metrics[name] = value
+                else:
+                    if metric_name.startswith("val_"):
+                        raise ValueError(
+                            f"The metric {type(metric).__name__} contains a value "
+                            "which starts with the reserved prefix 'val_'"
+                        )
+                    if metric_prefix != "":
+                        metric_name = f"{metric_prefix}_{metric_name}"
+                    metrics[metric_name] = metric_result
             loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
             metrics[loss_name] = loss
             return metrics

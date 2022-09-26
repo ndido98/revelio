@@ -6,7 +6,9 @@ import pytest
 import torch
 
 from revelio.config import Config
-from revelio.config.model import Experiment, Scores
+from revelio.config.model import Experiment
+from revelio.config.model import Metric as ConfigMetric
+from revelio.config.model import Scores
 from revelio.model import Model
 from revelio.model.metrics import Metric
 
@@ -29,6 +31,24 @@ class DummyAccuracy(Metric):
     def reset(self) -> None:
         self.correct = torch.tensor(0.0)
         self.total = torch.tensor(0.0)
+
+
+class DummyListMetric(Metric):
+    @property
+    def name(self) -> list[str]:
+        return ["name1", self.test_arg]
+
+    def __init__(self, test_arg: str) -> None:
+        self.test_arg = test_arg
+
+    def update(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:
+        pass
+
+    def compute(self) -> torch.Tensor:
+        return torch.tensor([0.125, 0.25])
+
+    def reset(self) -> None:
+        pass
 
 
 class CorrectDummyModel(Model):
@@ -55,7 +75,15 @@ def config() -> Config:
                 bona_fide="bona_fide_scores.txt",
                 morphed="morphed_scores.txt",
             ),
-            metrics=["dummyaccuracy"],
+            metrics=[
+                ConfigMetric.construct(
+                    name="dummyaccuracy",
+                ),
+                ConfigMetric.construct(
+                    name="dummy_list_metric",
+                    args={"test_arg": "test"},
+                ),
+            ],
         )
     )
 
@@ -73,12 +101,12 @@ def test_model_evaluate(config: Config) -> None:
         print(mock_save.call_args_list)
         # We have to manually check the call args because Numpy arrays override __eq__
         for call in mock_save.call_args_list:
-            args, kwargs = call
+            args, _ = call
             if args[0] == "bona_fide_scores.txt":
                 assert np.array_equal(args[1], np.array([0.1, 0.2]))
             elif args[0] == "morphed_scores.txt":
                 assert np.array_equal(args[1], np.array([0.9, 0.8]))
-        assert metrics == {"accuracy": 1.0}
+        assert metrics == {"accuracy": 1.0, "name1": 0.125, "test": 0.25}
 
 
 def test_model_evaluate_shape_error(config: Config) -> None:

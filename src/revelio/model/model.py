@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Mapping
 
 import numpy as np
 import numpy.typing as npt
@@ -26,7 +27,8 @@ class Model(Registrable):
         self.val_dataloader = val_dataloader
         self.test_dataloader = test_dataloader
         self.metrics: list[Metric] = [
-            Registrable.find(Metric, m) for m in config.experiment.metrics
+            Registrable.find(Metric, m.name, **m.args)
+            for m in config.experiment.metrics
         ]
         self.device = device
 
@@ -38,7 +40,7 @@ class Model(Registrable):
     def predict(self) -> npt.NDArray[np.double]:
         raise NotImplementedError  # pragma: no cover
 
-    def evaluate(self) -> dict[str, npt.ArrayLike]:
+    def evaluate(self) -> Mapping[str, npt.ArrayLike]:
         scores_labels = self.predict()
         if scores_labels.ndim != 2 or scores_labels.shape[1] != 2:
             raise ValueError(
@@ -51,7 +53,35 @@ class Model(Registrable):
         for metric in self.metrics:
             metric.reset()
             metric.update(torch.tensor(scores), torch.tensor(labels))
-            computed_metrics[metric.name] = metric.compute().numpy()
+            metric_name = metric.name
+            metric_result: torch.Tensor = metric.compute()
+            if isinstance(metric_name, list):
+                if len(metric_name) != len(metric_result):
+                    raise ValueError(
+                        f"The metric {type(metric).__name__} returned "
+                        f"{len(metric_name)} metric names, "
+                        f"but {len(metric_result)} metric results"
+                    )
+                for name, value in zip(metric_name, metric_result):
+                    if name.startswith("val_"):
+                        raise ValueError(
+                            f"The metric {type(metric).__name__} contains a value "
+                            "which starts with the reserved prefix 'val_'"
+                        )
+                    np_value = value.numpy()
+                    computed_metrics[name] = (
+                        np_value if np_value.size > 1 else np_value.item()
+                    )
+            else:
+                if metric_name.startswith("val_"):
+                    raise ValueError(
+                        f"The metric {type(metric).__name__} contains a value "
+                        "which starts with the reserved prefix 'val_'"
+                    )
+                np_result = metric_result.numpy()
+                computed_metrics[metric_name] = (
+                    np_result if np_result.size > 1 else np_result.item()
+                )
         bona_fide_scores = scores[labels == 0]
         morphed_scores = scores[labels == 1]
         np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores)

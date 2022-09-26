@@ -8,7 +8,7 @@ from revelio.registry.registry import Registrable
 class Metric(Registrable):
     @property
     @abstractmethod
-    def name(self) -> str:
+    def name(self) -> str | list[str]:
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod

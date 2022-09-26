@@ -20,6 +20,11 @@ class Scores(BaseModel):
     morphed: Path
 
 
+class Metric(BaseModel):
+    name: str
+    args: dict[str, Any] = {}
+
+
 class Experiment(BaseModel):
     seed: Optional[int] = None
     workers_count: NonNegativeInt = 0
@@ -27,4 +32,4 @@ class Experiment(BaseModel):
     model: Model
     training: Training
     scores: Scores
-    metrics: list[str] = []
+    metrics: list[Metric] = []
