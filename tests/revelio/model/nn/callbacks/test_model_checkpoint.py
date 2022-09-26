@@ -10,7 +10,7 @@ from revelio.model.nn.neuralnet import NeuralNetwork
 def test_metric_not_in_metrics() -> None:
     with pytest.raises(ValueError):
         checkpoint = ModelCheckpoint("model.pt", monitor="not_a_metric")
-        checkpoint.after_validation_epoch(0, {"loss": torch.tensor(0.0)})
+        checkpoint.after_validation_epoch(0, 0, {"loss": torch.tensor(0.0)})
 
 
 def test_direction_min_save_best_only() -> None:
@@ -20,10 +20,10 @@ def test_direction_min_save_best_only() -> None:
     ):
         checkpoint = ModelCheckpoint("model.pt", direction="min", save_best_only=True)
         checkpoint.model = mock_nn
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(10.0)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(5.0)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(7.5)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(6.5)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(10.0)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(5.0)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(7.5)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(6.5)})
         assert mock_save.call_count == 2
 
 
@@ -34,10 +34,10 @@ def test_direction_max_save_best_only() -> None:
     ):
         checkpoint = ModelCheckpoint("model.pt", direction="max", save_best_only=True)
         checkpoint.model = mock_nn
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(10.0)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(5.0)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(15.0)})
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(12.5)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(10.0)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(5.0)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(15.0)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(12.5)})
         assert mock_save.call_count == 2
 
 
@@ -48,10 +48,10 @@ def test_file_name_formatting() -> None:
     ):
         checkpoint = ModelCheckpoint("model_{epoch}_{val_loss}.pt")
         checkpoint.model = mock_nn
-        checkpoint.after_validation_epoch(0, {"val_loss": torch.tensor(10.0)})
-        checkpoint.after_validation_epoch(1, {"val_loss": torch.tensor(5.0)})
-        checkpoint.after_validation_epoch(2, {"val_loss": torch.tensor(15.0)})
-        checkpoint.after_validation_epoch(3, {"val_loss": torch.tensor(12.5)})
+        checkpoint.after_validation_epoch(0, 0, {"val_loss": torch.tensor(10.0)})
+        checkpoint.after_validation_epoch(1, 0, {"val_loss": torch.tensor(5.0)})
+        checkpoint.after_validation_epoch(2, 0, {"val_loss": torch.tensor(15.0)})
+        checkpoint.after_validation_epoch(3, 0, {"val_loss": torch.tensor(12.5)})
         assert mock_save.call_count == 4
         mock_save.assert_has_calls(
             [

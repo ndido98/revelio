@@ -26,7 +26,7 @@ class ModelCheckpoint(Callback):
         )
 
     def after_validation_epoch(
-        self, epoch: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         if self._monitor not in metrics:
             raise ValueError(f"{self._monitor} is not a valid metric")

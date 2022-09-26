@@ -17,32 +17,34 @@ class Callback(Registrable):
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         pass
 
-    def before_training_epoch(self, epoch: int) -> None:
+    def before_training_epoch(self, epoch: int, steps_count: int) -> None:
         pass
 
     def after_training_epoch(
-        self, epoch: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         pass
 
-    def before_training_step(self, step: int) -> None:
+    def before_training_step(self, epoch: int, step: int) -> None:
         pass
 
-    def after_training_step(self, step: int, metrics: dict[str, torch.Tensor]) -> None:
+    def after_training_step(
+        self, epoch: int, step: int, metrics: dict[str, torch.Tensor]
+    ) -> None:
         pass
 
-    def before_validation_epoch(self, epoch: int) -> None:
+    def before_validation_epoch(self, epoch: int, steps_count: int) -> None:
         pass
 
     def after_validation_epoch(
-        self, epoch: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         pass
 
-    def before_validation_step(self, step: int) -> None:
+    def before_validation_step(self, epoch: int, step: int) -> None:
         pass
 
     def after_validation_step(
-        self, step: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, step: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         pass

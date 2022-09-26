@@ -112,18 +112,22 @@ class NeuralNetwork(Model):
                 self._last_epoch = epoch
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs}")
                 for callback in self.callbacks:
-                    callback.before_training_epoch(epoch)
-                train_metrics = self._train(pbar)
+                    callback.before_training_epoch(epoch, len(self.train_dataloader))
+                train_metrics = self._train(epoch, pbar)
                 for callback in self.callbacks:
-                    callback.after_training_epoch(epoch, train_metrics)
+                    callback.after_training_epoch(
+                        epoch, len(self.train_dataloader), train_metrics
+                    )
 
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs} (validation)")
                 for callback in self.callbacks:
-                    callback.before_validation_epoch(epoch)
+                    callback.before_validation_epoch(epoch, len(self.val_dataloader))
                 with torch.no_grad():
-                    val_metrics = self._validate(pbar, train_metrics)
+                    val_metrics = self._validate(epoch, pbar, train_metrics)
                 for callback in self.callbacks:
-                    callback.after_validation_epoch(epoch, train_metrics | val_metrics)
+                    callback.after_validation_epoch(
+                        epoch, len(self.val_dataloader), train_metrics | val_metrics
+                    )
 
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs} (done)")
                 display_metrics = {
@@ -158,21 +162,23 @@ class NeuralNetwork(Model):
         last_epoch = state_dict["epoch"]
         self._initial_epoch = last_epoch + 1 if last_epoch is not None else 0
 
-    def _train(self, pbar: tqdm) -> dict[str, torch.Tensor]:
+    def _train(self, epoch: int, pbar: tqdm) -> dict[str, torch.Tensor]:
         self.classifier.train()
-        return self._run_epoch(True, pbar, {})
+        return self._run_epoch(True, epoch, pbar, {})
 
     def _validate(
         self,
+        epoch: int,
         pbar: tqdm,
         train_metrics: dict[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
         self.classifier.eval()
-        return self._run_epoch(False, pbar, train_metrics)
+        return self._run_epoch(False, epoch, pbar, train_metrics)
 
     def _run_epoch(
         self,
         training: bool,
+        epoch: int,
         pbar: tqdm,
         initial_metrics: dict[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
@@ -184,9 +190,9 @@ class NeuralNetwork(Model):
             self._reset_metrics()
             for callback in self.callbacks:
                 if training:
-                    callback.before_training_step(step)
+                    callback.before_training_step(epoch, step)
                 else:
-                    callback.before_validation_step(step)
+                    callback.before_validation_step(epoch, step)
             # Use the classifier to get the batch classes
             if training:
                 self.optimizer.zero_grad()
@@ -213,9 +219,9 @@ class NeuralNetwork(Model):
             display_metrics = {k: v.item() for k, v in metrics.items()}
             for callback in self.callbacks:
                 if training:
-                    callback.after_training_step(step, metrics)
+                    callback.after_training_step(epoch, step, metrics)
                 else:
-                    callback.after_validation_step(step, metrics)
+                    callback.after_validation_step(epoch, step, metrics)
             pbar.update(1)
             pbar.set_postfix(display_metrics)
         # At the end the metrics dictionary will contain the metrics for the whole epoch
