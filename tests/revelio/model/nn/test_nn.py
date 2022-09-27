@@ -66,7 +66,8 @@ class DebugCallback(Callback):
 class DummyAccuracy2(Metric):
     name: str = "accuracy"
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.reset()
 
     def update(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:

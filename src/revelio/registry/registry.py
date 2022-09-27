@@ -69,9 +69,7 @@ class Registrable(ABC):  # noqa: B024
         class_name = list(class_registry.keys())[class_index]
         class_type: Type[T] = class_registry[class_name]  # type: ignore
         # This cast is safe because the class registry has all classes of requested type
-        # Sanitize the kwargs by removing the ones that start with _
-        sanitized_kwargs = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        return class_type(**sanitized_kwargs)
+        return class_type(**kwargs)
 
 
 def _count_registrable_paths(cls: Type[T]) -> int:

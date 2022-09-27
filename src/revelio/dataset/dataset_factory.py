@@ -109,7 +109,7 @@ class DatasetFactory:
         return Registrable.find(
             FaceDetector,
             self._config.face_detection.algorithm.name,
-            config=self._config,
+            _config=self._config,
             **self._config.face_detection.algorithm.args,
         )
 
@@ -129,7 +129,7 @@ class DatasetFactory:
             Registrable.find(
                 FeatureExtractor,
                 extractor.name,
-                config=self._config,
+                _config=self._config,
                 **extractor.args,
             )
             for extractor in self._config.feature_extraction.algorithms

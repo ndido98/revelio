@@ -1,4 +1,5 @@
 import unittest.mock as mock
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -16,7 +17,8 @@ from revelio.model.metrics import Metric
 class DummyAccuracy(Metric):
     name: str = "accuracy"
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.reset()
 
     def update(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:
@@ -38,7 +40,8 @@ class DummyListMetric(Metric):
     def name(self) -> list[str]:
         return ["name1", self.test_arg]
 
-    def __init__(self, test_arg: str) -> None:
+    def __init__(self, test_arg: str, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.test_arg = test_arg
 
     def update(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:

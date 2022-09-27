@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Any, Optional
 
-from pydantic import BaseModel, FilePath, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, FilePath, NonNegativeInt, PositiveInt, validator
+
+from .utils import args_cannot_contain_underscores
 
 
 class Model(BaseModel):
@@ -9,10 +11,18 @@ class Model(BaseModel):
     checkpoint: Optional[FilePath]
     args: dict[str, Any] = {}
 
+    _args_underscores = validator("args", allow_reuse=True)(
+        args_cannot_contain_underscores
+    )
+
 
 class Training(BaseModel):
     enabled: bool = True
     args: dict[str, Any] = {}
+
+    _args_underscores = validator("args", allow_reuse=True)(
+        args_cannot_contain_underscores
+    )
 
 
 class Scores(BaseModel):
@@ -23,6 +33,10 @@ class Scores(BaseModel):
 class Metric(BaseModel):
     name: str
     args: dict[str, Any] = {}
+
+    _args_underscores = validator("args", allow_reuse=True)(
+        args_cannot_contain_underscores
+    )
 
 
 class Experiment(BaseModel):

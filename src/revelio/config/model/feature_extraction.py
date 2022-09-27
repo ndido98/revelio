@@ -1,13 +1,19 @@
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, validator
+
+from .utils import args_cannot_contain_underscores
 
 
 class FeatureExtractionAlgorithm(BaseModel):
     name: str
     args: dict[str, Any]
     weight: float = 1.0
+
+    _args_underscores = validator("args", allow_reuse=True)(
+        args_cannot_contain_underscores
+    )
 
 
 class FeatureExtraction(BaseModel):
