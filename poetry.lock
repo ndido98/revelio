@@ -1139,7 +1139,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-tqdm"
-version = "4.64.6"
+version = "4.64.7"
 description = "Typing stubs for tqdm"
 category = "dev"
 optional = false
@@ -1943,8 +1943,8 @@ types-PyYAML = [
     {file = "types_PyYAML-6.0.11-py3-none-any.whl", hash = "sha256:8f890028123607379c63550179ddaec4517dc751f4c527a52bb61934bf495989"},
 ]
 types-tqdm = [
-    {file = "types-tqdm-4.64.6.tar.gz", hash = "sha256:106e7cca7023b63270d8d3feaaa9b347b953e835d9d47e08781244b356fdb552"},
-    {file = "types_tqdm-4.64.6-py3-none-any.whl", hash = "sha256:bb4f35cdc7f90bc75f5b4bc893171ba5d41895e14b7ac436a6e95eb74f79276e"},
+    {file = "types-tqdm-4.64.7.tar.gz", hash = "sha256:32ccd88feb144667a2aeef0db0069c2183a3836ea996c03509236802b8858227"},
+    {file = "types_tqdm-4.64.7-py3-none-any.whl", hash = "sha256:66ea3e49e07d3343c386823a82885bab5c5bf42ff4fc12ca56effbd7fd62f7dd"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
