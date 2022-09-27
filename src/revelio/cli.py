@@ -12,6 +12,7 @@ from revelio.config import Config
 from revelio.dataset import DatasetFactory
 from revelio.model import Model
 from revelio.registry import Registrable
+from revelio.utils.iterators import consume
 
 
 def set_seed(seed: int) -> None:
@@ -145,12 +146,9 @@ def main() -> None:
         train_dl.dataset.warmup = True  # type: ignore
         val_dl.dataset.warmup = True  # type: ignore
         test_dl.dataset.warmup = True  # type: ignore
-        for _ in tqdm(train_dl, desc="Warming up the training data loader"):
-            pass
-        for _ in tqdm(val_dl, desc="Warming up the validation data loader"):
-            pass
-        for _ in tqdm(test_dl, desc="Warming up the test data loader"):
-            pass
+        consume(tqdm(train_dl, desc="Warming up the training data loader"))
+        consume(tqdm(val_dl, desc="Warming up the validation data loader"))
+        consume(tqdm(test_dl, desc="Warming up the test data loader"))
         train_dl.dataset.warmup = False  # type: ignore
         val_dl.dataset.warmup = False  # type: ignore
         test_dl.dataset.warmup = False  # type: ignore

@@ -1,6 +1,6 @@
 import collections
-from typing import Iterator
+from typing import Iterable, Iterator
 
 
-def consume(iterator: Iterator) -> None:
+def consume(iterator: Iterable | Iterator) -> None:
     collections.deque(iterator, maxlen=0)
