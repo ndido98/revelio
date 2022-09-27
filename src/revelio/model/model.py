@@ -27,7 +27,7 @@ class Model(Registrable):
         self.val_dataloader = val_dataloader
         self.test_dataloader = test_dataloader
         self.metrics: list[Metric] = [
-            Registrable.find(Metric, m.name, **m.args)
+            Registrable.find(Metric, m.name, _device=device, **m.args)
             for m in config.experiment.metrics
         ]
         self.device = device
@@ -52,9 +52,9 @@ class Model(Registrable):
         computed_metrics = {}
         for metric in self.metrics:
             metric.reset()
-            metric.update(torch.tensor(scores), torch.tensor(labels))
+            metric.update(torch.from_numpy(scores), torch.from_numpy(labels))
             metric_name = metric.name
-            metric_result: torch.Tensor = metric.compute()
+            metric_result: torch.Tensor = metric.compute().cpu()
             if isinstance(metric_name, list):
                 if len(metric_name) != len(metric_result):
                     raise ValueError(

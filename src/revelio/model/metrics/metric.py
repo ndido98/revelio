@@ -6,6 +6,13 @@ from revelio.registry.registry import Registrable
 
 
 class Metric(Registrable):
+    def __init__(self, *, _device: str) -> None:
+        self._device = _device
+
+    @property
+    def device(self) -> str:
+        return self._device
+
     @property
     @abstractmethod
     def name(self) -> str | list[str]:
