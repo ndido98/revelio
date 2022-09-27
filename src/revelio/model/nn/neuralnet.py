@@ -18,7 +18,7 @@ def _dict_to_device(data: dict[str, Any], device: str) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for k, v in data.items():
         if isinstance(v, torch.Tensor):
-            result[k] = v.to(device)
+            result[k] = v.to(device, non_blocking=True)
         elif isinstance(v, dict):
             result[k] = _dict_to_device(v, device)
         else:
@@ -66,7 +66,7 @@ class NeuralNetwork(Model):
         self.loss_function = found_loss.get(
             **self.config.experiment.training.args["loss"].get("args", {}),
         )
-        self.loss_function = self.loss_function.to(self.device)
+        self.loss_function = self.loss_function.to(self.device, non_blocking=True)
         # Load the callbacks
         self.callbacks = []
         for callback in self.config.experiment.training.args.get("callbacks", []):
@@ -90,7 +90,7 @@ class NeuralNetwork(Model):
             self._initial_epoch = 0
         self._last_epoch: Optional[int] = None
         # Move the model to the device
-        self.classifier = self.classifier.to(self.device)
+        self.classifier = self.classifier.to(self.device, non_blocking=True)
         # Once the model is fully initialized, pass a reference to it to the callbacks
         for callback in self.callbacks:
             callback.model = self
@@ -182,12 +182,12 @@ class NeuralNetwork(Model):
         pbar: tqdm,
         initial_metrics: dict[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
-        cumulative_loss = torch.tensor(0.0)
+        cumulative_loss = torch.tensor(0.0, device=self.device)
         metrics = {}
         dl = self.train_dataloader if training else self.val_dataloader
+        self._reset_metrics()
         for step, batch in enumerate(dl):
             device_batch = _dict_to_device(batch, self.device)
-            self._reset_metrics()
             for callback in self.callbacks:
                 if training:
                     callback.before_training_step(epoch, step)
@@ -209,7 +209,7 @@ class NeuralNetwork(Model):
             if training:
                 loss.backward()
                 self.optimizer.step()
-            cumulative_loss += loss.item()
+            cumulative_loss += loss
             # Compute the metrics up until this point
             metrics = self._compute_metrics_dict(
                 cumulative_loss / (step + 1), "val" if not training else ""
@@ -244,7 +244,7 @@ class NeuralNetwork(Model):
             metrics = {}
             for metric in self.metrics:
                 metric_name = metric.name
-                metric_result = metric.compute()
+                metric_result = metric.compute().cpu()
                 if isinstance(metric_name, list):
                     if len(metric_name) != len(metric_result):
                         raise ValueError(
@@ -271,5 +271,5 @@ class NeuralNetwork(Model):
                         metric_name = f"{metric_prefix}_{metric_name}"
                     metrics[metric_name] = metric_result
             loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
-            metrics[loss_name] = loss
+            metrics[loss_name] = loss.cpu()
             return metrics
