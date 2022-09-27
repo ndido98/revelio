@@ -16,9 +16,8 @@ Landmarks: TypeAlias = np.ndarray
 
 
 class FaceDetector(Registrable):
-    def __init__(self, *, config: Config) -> None:
-        self._config = config
-        super().__init__()
+    def __init__(self, *, _config: Config) -> None:
+        self._config = _config
 
     def _get_meta_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.face_detection.output_path)

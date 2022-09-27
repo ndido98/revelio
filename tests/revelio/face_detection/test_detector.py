@@ -32,7 +32,7 @@ def config() -> Config:
 
 @pytest.fixture
 def dummy2(config: Config) -> FaceDetector:
-    return Dummy2(config=config)
+    return Dummy2(_config=config)
 
 
 @pytest.fixture

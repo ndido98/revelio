@@ -10,9 +10,8 @@ from revelio.registry import Registrable
 
 
 class FeatureExtractor(Registrable):
-    def __init__(self, *, config: Config) -> None:
-        self._config = config
-        super().__init__()
+    def __init__(self, *, _config: Config) -> None:
+        self._config = _config
 
     def _get_features_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.feature_extraction.output_path)
