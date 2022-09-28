@@ -1,7 +1,7 @@
 import itertools
 from pathlib import Path
 
-from revelio.dataset import DatasetElement, ElementClass, ElementImage
+from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
 
 from .loader import DatasetLoader
 
@@ -17,7 +17,8 @@ class PMDBLoader(DatasetLoader):
                     DatasetElement(
                         (ElementImage(image),),
                         ElementClass.BONA_FIDE,
-                        "pmdb",
+                        dataset_root_path=path,
+                        original_dataset="pmdb",
                     )
                 )
         morphed_images = sorted(path.rglob("morph*.png"))
@@ -30,7 +31,8 @@ class PMDBLoader(DatasetLoader):
                     DatasetElement(
                         (ElementImage(group_images[i]),),
                         ElementClass.MORPHED,
-                        "pmdb",
+                        dataset_root_path=path,
+                        original_dataset="pmdb",
                     )
                 )
         return bona_fide + morphed

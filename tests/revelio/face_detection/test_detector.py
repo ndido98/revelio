@@ -49,6 +49,7 @@ def dataset_element() -> DatasetElement:
             ),
         ),
         y=ElementClass.BONA_FIDE,
+        dataset_root_path=Path("/path/to/ds1"),
         original_dataset="ds1",
     )
 

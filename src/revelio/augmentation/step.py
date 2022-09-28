@@ -18,6 +18,7 @@ class AugmentationStep(Registrable):
         if random.random() < self._probability:
             new_xs = [self.process_element(x) for x in elem.x]
             return DatasetElement(
+                dataset_root_path=elem.dataset_root_path,
                 original_dataset=elem.original_dataset,
                 x=tuple(new_xs),
                 y=elem.y,

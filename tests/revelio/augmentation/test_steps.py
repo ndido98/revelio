@@ -23,6 +23,7 @@ def dataset_element() -> DatasetElement:
     black = Image.new("RGB", (1, 1), "black")
     img = ElementImage(path=Path("test"), image=black)
     return DatasetElement(
+        dataset_root_path=Path("test"),
         original_dataset="test",
         x=(img, img),
         y=ElementClass.BONA_FIDE,

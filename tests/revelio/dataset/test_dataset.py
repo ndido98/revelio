@@ -30,6 +30,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
                 ElementImage(path=Path("/path/to/ds1/image2.jpg")),
             ),
             y=ElementClass.BONA_FIDE,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         ),
         DatasetElement(
@@ -38,6 +39,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
                 ElementImage(path=Path("/path/to/ds1/image4.jpg")),
             ),
             y=ElementClass.BONA_FIDE,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         ),
         DatasetElement(
@@ -52,6 +54,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
                 ),
             ),
             y=ElementClass.MORPHED,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         ),
         DatasetElement(
@@ -66,6 +69,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
                 ),
             ),
             y=ElementClass.MORPHED,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         ),
     ]

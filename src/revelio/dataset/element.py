@@ -50,6 +50,7 @@ class ElementImage:
 
 
 class DatasetElement:
+    _dataset_root_path: Path
     _original_dataset: str
     _x: tuple[ElementImage, ...]
     _y: ElementClass
@@ -58,11 +59,21 @@ class DatasetElement:
         self,
         x: tuple[ElementImage, ...],
         y: ElementClass,
-        original_dataset: str,
+        *,
+        dataset_root_path: Path,
+        original_dataset: Optional[str] = None,
     ) -> None:
         self._x = x
         self._y = y
-        self._original_dataset = original_dataset
+        self._dataset_root_path = dataset_root_path
+        if original_dataset is not None:
+            self._original_dataset = original_dataset
+        else:
+            self._original_dataset = self._dataset_root_path.stem
+
+    @property
+    def dataset_root_path(self) -> Path:
+        return self._dataset_root_path
 
     @property
     def original_dataset(self) -> str:

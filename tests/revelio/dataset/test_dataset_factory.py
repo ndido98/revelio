@@ -32,6 +32,7 @@ class DS1Loader(DatasetLoader):
                 ElementImage(Path("/path/to/ds1/bf_b.png")),
             ),
             y=ElementClass.BONA_FIDE,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         )
         morphed = DatasetElement(
@@ -40,6 +41,7 @@ class DS1Loader(DatasetLoader):
                 ElementImage(Path("/path/to/ds1/m_b.png")),
             ),
             y=ElementClass.MORPHED,
+            dataset_root_path=Path("/path/to/ds1"),
             original_dataset="ds1",
         )
         return [bona_fide] * 50 + [morphed] * 500
@@ -54,6 +56,7 @@ class DS2Loader(DatasetLoader):
                 ElementImage(Path("/path/to/ds2/bf_b.png")),
             ),
             y=ElementClass.BONA_FIDE,
+            dataset_root_path=Path("/path/to/ds2"),
             original_dataset="ds2",
         )
         morphed = DatasetElement(
@@ -62,6 +65,7 @@ class DS2Loader(DatasetLoader):
                 ElementImage(Path("/path/to/ds2/m_b.png")),
             ),
             y=ElementClass.MORPHED,
+            dataset_root_path=Path("/path/to/ds2"),
             original_dataset="ds2",
         )
         return [bona_fide] * 50 + [morphed] * 500

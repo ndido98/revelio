@@ -16,11 +16,13 @@ class FeatureExtractor(Registrable):
     def _get_features_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.feature_extraction.output_path)
         algorithm_name = type(self).__name__.lower()
+        relative_img_path = elem.x[x_idx].path.relative_to(elem.dataset_root_path)
         return (
             output_path
             / algorithm_name
             / elem.original_dataset
-            / (elem.x[x_idx].path.stem + ".features.json")
+            / relative_img_path.parent
+            / f"{relative_img_path.stem}.features.json"
         )
 
     @abstractmethod
@@ -56,6 +58,7 @@ class FeatureExtractor(Registrable):
                 )
                 new_xs.append(new_x)
         return DatasetElement(
+            dataset_root_path=elem.dataset_root_path,
             original_dataset=elem.original_dataset,
             x=tuple(new_xs),
             y=elem.y,

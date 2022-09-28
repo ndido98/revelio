@@ -22,11 +22,13 @@ class FaceDetector(Registrable):
     def _get_meta_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.face_detection.output_path)
         algorithm_name = type(self).__name__.lower()
+        relative_img_path = elem.x[x_idx].path.relative_to(elem.dataset_root_path)
         return (
             output_path
             / algorithm_name
             / elem.original_dataset
-            / (elem.x[x_idx].path.stem + ".meta.json")
+            / relative_img_path.parent
+            / f"{relative_img_path.stem}.meta.json"
         )
 
     @abstractmethod
@@ -72,6 +74,7 @@ class FaceDetector(Registrable):
                 meta_path.write_text(json.dumps(meta))
                 new_xs.append(new_x)
         return DatasetElement(
+            dataset_root_path=elem.dataset_root_path,
             original_dataset=elem.original_dataset,
             x=tuple(new_xs),
             y=elem.y,

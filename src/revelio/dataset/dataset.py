@@ -22,6 +22,7 @@ def _element_with_images(elem: DatasetElement) -> DatasetElement:
             new_x = x
         new_xs.append(new_x)
     return DatasetElement(
+        dataset_root_path=elem.dataset_root_path,
         original_dataset=elem.original_dataset,
         x=tuple(new_xs),
         y=elem.y,
@@ -80,7 +81,9 @@ class Dataset(IterableDataset):
             for i, x in enumerate(elem.x):
                 if x.image is not None and i not in opened_idxs:
                     x.image.close()
-            yield
+            # HACK: the data loader expects something it can collate to a tensor,
+            # so we return a dummy value
+            yield 0
 
     def _online_processing(self) -> Generator[dict[str, Any], None, None]:
         elems = self._get_elems_iterator()

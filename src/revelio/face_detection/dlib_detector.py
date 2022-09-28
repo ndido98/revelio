@@ -10,6 +10,7 @@ from .detector import BoundingBox, FaceDetector, Landmarks
 
 class DLIBDetector(FaceDetector):
     def __init__(self, landmark_predictor_path: Optional[Path] = None, **kwargs: Any):
+        super().__init__(**kwargs)
         self._face_detector = dlib.get_frontal_face_detector()
         self._landmark_predictor_path = landmark_predictor_path
         if self._landmark_predictor_path is not None:
@@ -21,13 +22,14 @@ class DLIBDetector(FaceDetector):
 
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         img_data = np.array(elem)
-        faces = self._face_detector(img_data, 1)
+        faces, scores, idx = self._face_detector.run(img_data, 1)
         if len(faces) == 0:
-            raise ValueError("No faces found")
-        elif len(faces) > 1:
-            raise ValueError("More than one face found")
+            raise ValueError(
+                f"Expected 1 face, got 0 in {elem.filename}"  # type: ignore
+            )
 
-        face = faces[0]
+        max_score_idx = np.argmax(scores)
+        face = faces[max_score_idx]
         bb = (face.left(), face.top(), face.right(), face.bottom())
 
         if self._landmark_predictor is not None:
