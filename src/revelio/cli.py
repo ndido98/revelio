@@ -120,38 +120,62 @@ def main() -> None:
             set_seed(seed)
         print("Loading the dataset...")
         dataset = DatasetFactory(config)
-        train_dl = DataLoader(
-            dataset.get_train_dataset(),
-            batch_size=config.experiment.batch_size,
+        train_ds = dataset.get_train_dataset()
+        val_ds = dataset.get_val_dataset()
+        test_ds = dataset.get_test_dataset()
+        train_ds.warmup = True
+        warmup_train_dl = DataLoader(
+            train_ds,
+            batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
             pin_memory=True,
         )
-        val_dl = DataLoader(
-            dataset.get_val_dataset(),
-            batch_size=config.experiment.batch_size,
+        val_ds.warmup = True
+        warmup_val_dl = DataLoader(
+            val_ds,
+            batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
             pin_memory=True,
         )
-        test_dl = DataLoader(
-            dataset.get_test_dataset(),
-            batch_size=config.experiment.batch_size,
+        test_ds.warmup = True
+        warmup_test_dl = DataLoader(
+            test_ds,
+            batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
             pin_memory=True,
         )
         # Warmup (i.e. run the offline processing) the three data loaders so we don't
         # have an overhead when we start training
-        train_dl.dataset.warmup = True  # type: ignore
-        val_dl.dataset.warmup = True  # type: ignore
-        test_dl.dataset.warmup = True  # type: ignore
-        consume(tqdm(train_dl, desc="Warming up the training data loader"))
-        consume(tqdm(val_dl, desc="Warming up the validation data loader"))
-        consume(tqdm(test_dl, desc="Warming up the test data loader"))
-        train_dl.dataset.warmup = False  # type: ignore
-        val_dl.dataset.warmup = False  # type: ignore
-        test_dl.dataset.warmup = False  # type: ignore
+        consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
+        consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
+        consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
+        train_ds.warmup = False
+        train_dl = DataLoader(
+            train_ds,
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+            pin_memory=True,
+        )
+        val_ds.warmup = False
+        val_dl = DataLoader(
+            val_ds,
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+            pin_memory=True,
+        )
+        test_ds.warmup = False
+        test_dl = DataLoader(
+            test_ds,
+            batch_size=config.experiment.batch_size,
+            shuffle=False,
+            num_workers=args.workers_count,
+            pin_memory=True,
+        )
         model: Model = Registrable.find(
             Model,
             config.experiment.model.name,
