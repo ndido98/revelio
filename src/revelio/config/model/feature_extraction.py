@@ -8,7 +8,7 @@ from .utils import args_cannot_contain_underscores
 
 class FeatureExtractionAlgorithm(BaseModel):
     name: str
-    args: dict[str, Any]
+    args: dict[str, Any] = {}
     weight: float = 1.0
 
     _args_underscores = validator("args", allow_reuse=True)(
