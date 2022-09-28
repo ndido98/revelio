@@ -44,6 +44,11 @@ torchvision = [
     { url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-win_amd64.whl", markers = "sys_platform == 'win32'" },
     { url = "https://download.pytorch.org/whl/cu116/torchvision-0.13.1%2Bcu116-cp310-cp310-linux_x86_64.whl", markers = "sys_platform == 'linux'" },
 ]
+dlib = "~19.24"
+numpy = "~1.23"
+opencv-python = "~4.6"
+tensorboard = "~2.10"
+tqdm = "~4.64"
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.6.0"
@@ -67,8 +72,6 @@ pytest = "~7.1"
 pytest-github-actions-annotate-failures = "~0.1"
 pytest-cov = "~3.0"
 pyupgrade = "~2.38.0"
-tensorboard = "~2.10"
-tqdm = "~4.64"
 tryceratops = "~1.1"
 types-Pillow = "~9.2"
 types-pyyaml = "~6.0"
