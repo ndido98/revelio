@@ -27,6 +27,7 @@ class BPCERAtAPCER(Metric):
         idx = Pfa.shape[0] - torch.searchsorted(
             torch.flip(Pfa, dims=(0,)), self._thresholds
         )
+        # Linearly interpolate between the two closest points
         d1 = torch.abs(self._thresholds - Pmiss[idx - 1])
         d2 = torch.abs(self._thresholds - Pmiss[idx])
         w1 = d1 / (d1 + d2)
