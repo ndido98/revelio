@@ -21,6 +21,8 @@ def _dict_to_device(data: dict[str, Any], device: str) -> dict[str, Any]:
             result[k] = v.to(device, non_blocking=True)
         elif isinstance(v, dict):
             result[k] = _dict_to_device(v, device)
+        elif isinstance(v, list):
+            result[k] = [_dict_to_device(x, device) for x in v]
         else:
             raise TypeError(f"Unexpected type {type(v)} when trying to move to device")
     return result
@@ -139,15 +141,16 @@ class NeuralNetwork(Model):
             callback.after_training(train_metrics | val_metrics)
 
     def predict(self) -> npt.NDArray[np.double]:
-        scores = []
-        for batch in self.test_dataloader:
-            device_batch = _dict_to_device(batch, self.device)
-            # Use the classifier to get the batch classes
-            prediction = self.classifier(device_batch["x"])
-            prediction = torch.squeeze(prediction)
-            ground_truth = torch.squeeze(device_batch["y"])
-            scores.append(np.array([prediction, ground_truth]))
-        return np.stack(scores)
+        with torch.no_grad():
+            scores = []
+            for batch in self.test_dataloader:
+                device_batch = _dict_to_device(batch, self.device)
+                # Use the classifier to get the batch classes
+                prediction = self.classifier(device_batch["x"])
+                prediction = torch.squeeze(prediction).cpu().numpy()
+                ground_truth = torch.squeeze(device_batch["y"]).cpu().numpy()
+                scores.append(np.stack((prediction, ground_truth), axis=1))
+            return np.concatenate(scores)
 
     def get_state_dict(self) -> dict[str, Any]:
         return {
