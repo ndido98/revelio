@@ -334,7 +334,7 @@ protobuf = ["grpcio-tools (>=1.49.1)"]
 
 [[package]]
 name = "hypothesis"
-version = "6.54.6"
+version = "6.55.0"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -1258,7 +1258,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <4.0"
-content-hash = "ed77d6dbdc74d21996be724856a5cb0262bb87c8f5426b0e07946386b7c0a33f"
+content-hash = "5939021308730c22ee62d9a8f17d33c9322d31e140ae8a6c4a7d108358c20ad8"
 
 [metadata.files]
 absl-py = [
@@ -1484,8 +1484,8 @@ grpcio = [
     {file = "grpcio-1.49.1.tar.gz", hash = "sha256:d4725fc9ec8e8822906ae26bb26f5546891aa7fbc3443de970cc556d43a5c99f"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.54.6-py3-none-any.whl", hash = "sha256:e44833325f9a55f795596ceefd7ede7d626cfe45836025d2647cccaff7070e10"},
-    {file = "hypothesis-6.54.6.tar.gz", hash = "sha256:2d5e2d5ccd0efce4e0968a6164f4e4853f808e33f4d91490c975c98beec0c7c3"},
+    {file = "hypothesis-6.55.0-py3-none-any.whl", hash = "sha256:5692f801635942f1b58469af151c39ea5c0b7971e2c815f4bc162fa7ca439f2a"},
+    {file = "hypothesis-6.55.0.tar.gz", hash = "sha256:3d60085ac34f5edf91538cf1496f8a248d05535ed67cb396babdf0621866e21a"},
 ]
 identify = [
     {file = "identify-2.5.5-py2.py3-none-any.whl", hash = "sha256:ef78c0d96098a3b5fe7720be4a97e73f439af7cf088ebf47b620aeaa10fadf97"},
