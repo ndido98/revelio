@@ -52,7 +52,10 @@ class Model(Registrable):
         computed_metrics = {}
         for metric in self.metrics:
             metric.reset()
-            metric.update(torch.from_numpy(scores), torch.from_numpy(labels))
+            metric.update(
+                torch.from_numpy(scores).to(self.device),
+                torch.from_numpy(labels).to(self.device),
+            )
             metric_name = metric.name
             metric_result: torch.Tensor = metric.compute().cpu()
             if isinstance(metric_name, list):
@@ -84,6 +87,10 @@ class Model(Registrable):
                 )
         bona_fide_scores = scores[labels == 0]
         morphed_scores = scores[labels == 1]
+        self.config.experiment.scores.bona_fide.parent.mkdir(
+            parents=True, exist_ok=True
+        )
+        self.config.experiment.scores.morphed.parent.mkdir(parents=True, exist_ok=True)
         np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores)
         np.savetxt(self.config.experiment.scores.morphed, morphed_scores)
         return computed_metrics
