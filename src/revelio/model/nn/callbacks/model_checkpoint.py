@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 
 import torch
@@ -14,7 +15,7 @@ class ModelCheckpoint(Callback):
         direction: Literal["min", "max"] = "min",
         save_best_only: bool = False,
     ) -> None:
-        self._file_path = file_path
+        self._file_path = Path(file_path)
         self._monitor = monitor
         self._min_delta = min_delta
         self._direction = direction
@@ -37,10 +38,14 @@ class ModelCheckpoint(Callback):
             has_improved = metric_value > self._best_metric_value + self._min_delta
         if has_improved or not self._save_best_only:
             self._best_metric_value = metric_value
+            dest_file = self._parse_file_path(epoch, metrics)
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
             torch.save(
                 self.model.get_state_dict(),
                 self._parse_file_path(epoch, metrics),
             )
 
-    def _parse_file_path(self, epoch: int, metrics: dict[str, torch.Tensor]) -> str:
-        return self._file_path.format(epoch=epoch, **metrics)
+    def _parse_file_path(self, epoch: int, metrics: dict[str, torch.Tensor]) -> Path:
+        return self._file_path.with_name(
+            self._file_path.name.format(epoch=epoch, **metrics)
+        )
