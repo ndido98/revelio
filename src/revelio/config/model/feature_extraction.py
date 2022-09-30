@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, root_validator, validator
 
-from .utils import args_cannot_contain_underscores
+from .utils import args_cannot_start_with_underscores
 
 
 class FeatureExtractionAlgorithm(BaseModel):
@@ -12,7 +12,7 @@ class FeatureExtractionAlgorithm(BaseModel):
     weight: float = 1.0
 
     _args_underscores = validator("args", allow_reuse=True)(
-        args_cannot_contain_underscores
+        args_cannot_start_with_underscores
     )
 
 

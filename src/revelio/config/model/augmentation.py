@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, root_validator, validator
 
-from .utils import Percentage, args_cannot_contain_underscores
+from .utils import Percentage, args_cannot_start_with_underscores
 
 
 class AugmentationStep(BaseModel):
@@ -11,7 +11,7 @@ class AugmentationStep(BaseModel):
     args: dict[str, Any] = {}
 
     _args_underscores = validator("args", allow_reuse=True)(
-        args_cannot_contain_underscores
+        args_cannot_start_with_underscores
     )
 
 
