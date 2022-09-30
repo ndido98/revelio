@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from PIL.Image import Image
 
 
 class ElementClass(Enum):
@@ -13,14 +12,14 @@ class ElementClass(Enum):
 
 class ElementImage:
     _path: Path
-    _image: Optional[Image]
+    _image: Optional[np.ndarray]
     _landmarks: Optional[np.ndarray]
     _features: dict[str, np.ndarray]
 
     def __init__(
         self,
         path: Path,
-        image: Optional[Image] = None,
+        image: Optional[np.ndarray] = None,
         landmarks: Optional[np.ndarray] = None,
         features: Optional[dict[str, np.ndarray]] = None,
     ) -> None:
@@ -34,7 +33,7 @@ class ElementImage:
         return self._path
 
     @property
-    def image(self) -> Optional[Image]:
+    def image(self) -> Optional[np.ndarray]:
         return self._image
 
     @property

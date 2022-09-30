@@ -4,8 +4,6 @@ from pathlib import Path
 from typing import Optional, TypeAlias
 
 import numpy as np
-from PIL import Image as ImageModule
-from PIL.Image import Image
 
 from revelio.config.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage
@@ -32,12 +30,16 @@ class FaceDetector(Registrable):
         )
 
     @abstractmethod
-    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(
+        self, elem: np.ndarray
+    ) -> tuple[BoundingBox, Optional[Landmarks]]:
         raise NotImplementedError  # pragma: no cover
 
     def process(self, elem: DatasetElement) -> DatasetElement:
         new_xs = []
         for i, x in enumerate(elem.x):
+            if x.image is None:
+                raise ValueError(f"Image at {x.path} is not loaded")
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
                 meta = json.loads(meta_path.read_text())
@@ -45,10 +47,8 @@ class FaceDetector(Registrable):
                 if "bb" in meta:
                     # We have the bounding boxes, skip loading a new image
                     # and instead crop the one we already have
-                    if x.image is not None:
-                        image = x.image.crop(meta["bb"])
-                    else:
-                        image = ImageModule.open(x.path).crop(meta["bb"])
+                    x1, y1, x2, y2 = meta["bb"]
+                    image = x.image[y1:y2, x1:x2]
                     new_x = ElementImage(
                         path=x.path,
                         image=image,
@@ -58,11 +58,11 @@ class FaceDetector(Registrable):
                 else:
                     raise ValueError(f"No bounding box found in {meta_path}")
             else:
-                image = x.image if x.image is not None else ImageModule.open(x.path)
-                bb, landmarks = self.process_element(image)
+                bb, landmarks = self.process_element(x.image)
+                x1, y1, x2, y2 = bb
                 new_x = ElementImage(
                     path=x.path,
-                    image=image.crop(bb),
+                    image=x.image[y1:y2, x1:x2],
                     landmarks=landmarks,
                 )
                 meta = {

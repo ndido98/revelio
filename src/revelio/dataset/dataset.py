@@ -1,7 +1,7 @@
 from typing import Any, Generator, Iterator, Optional
 
+import cv2 as cv
 import numpy as np
-from PIL import Image as ImageModule
 from torch.utils.data import IterableDataset, get_worker_info
 
 from revelio.augmentation.step import AugmentationStep
@@ -16,7 +16,7 @@ def _element_with_images(elem: DatasetElement) -> DatasetElement:
     new_xs = []
     for x in elem.x:
         if x.image is None:
-            img = ImageModule.open(x.path)
+            img = cv.imread(str(x.path))
             new_x = ElementImage(x.path, img, x.landmarks, x.features)
         else:
             new_x = x
@@ -66,9 +66,6 @@ class Dataset(IterableDataset):
     def _offline_processing(self) -> Iterator:
         elems = self._get_elems_iterator()
         for elem in elems:
-            # We need to know if there are any elements with already loaded images,
-            # so we don't close those
-            opened_idxs = {i for i, x in enumerate(elem.x) if x.image is not None}
             elem = _element_with_images(elem)
             if self._face_detector is not None:
                 elem = self._face_detector.process(elem)
@@ -76,11 +73,6 @@ class Dataset(IterableDataset):
             if len(self._augmentation_steps) == 0 and len(self._feature_extractors) > 0:
                 for feature_extractor in self._feature_extractors:
                     elem = feature_extractor.process(elem)
-            # Now we can close the images, as we don't need them anymore in the offline
-            # preprocessing phase; this way we avoid opening them twice
-            for i, x in enumerate(elem.x):
-                if x.image is not None and i not in opened_idxs:
-                    x.image.close()
             # HACK: the data loader expects something it can collate to a tensor,
             # so we return a dummy value
             yield 0
@@ -94,8 +86,8 @@ class Dataset(IterableDataset):
             if self._face_detector is not None:
                 elem = self._face_detector.process(elem)
             # Augment the dataset; this is always done online
-            for step in self._augmentation_steps:
-                elem = step.process(elem)
+            for augmentation_step in self._augmentation_steps:
+                elem = augmentation_step.process(elem)
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
             for feature_extractor in self._feature_extractors:
@@ -106,7 +98,7 @@ class Dataset(IterableDataset):
             yield {
                 "x": [
                     {
-                        "image": np.array(x.image),
+                        "image": x.image,
                         "landmarks": (
                             x.landmarks if x.landmarks is not None else np.array([])
                         ),

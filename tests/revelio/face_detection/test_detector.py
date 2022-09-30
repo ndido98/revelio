@@ -5,8 +5,6 @@ from typing import Optional
 
 import numpy as np
 import pytest
-from PIL import Image as ImageModule
-from PIL.Image import Image
 
 from revelio.config.config import Config
 from revelio.config.model.face_detection import FaceDetection, FaceDetectionAlgorithm
@@ -15,7 +13,9 @@ from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
 
 
 class Dummy2(FaceDetector):
-    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(
+        self, elem: np.ndarray
+    ) -> tuple[BoundingBox, Optional[Landmarks]]:
         return ((5, 5, 15, 15), np.array([1, 2, 3]))
 
 
@@ -37,15 +37,16 @@ def dummy2(config: Config) -> FaceDetector:
 
 @pytest.fixture
 def dataset_element() -> DatasetElement:
+    img = np.zeros(((30, 30, 3)), dtype=np.uint8)
     return DatasetElement(
         x=(
             ElementImage(
                 path=Path("/path/to/ds1/image1.jpg"),
-                image=ImageModule.new("RGB", (30, 30), "black"),
+                image=img.copy(),
             ),
             ElementImage(
                 path=Path("/path/to/ds1/image2.jpg"),
-                image=ImageModule.new("RGB", (30, 30), "black"),
+                image=img.copy(),
             ),
         ),
         y=ElementClass.BONA_FIDE,
@@ -71,9 +72,9 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
     ):
         new_elem = dummy2.process(dataset_element)
         assert new_elem.x[0].image is not None
-        assert new_elem.x[0].image.size == (10, 10)
+        assert new_elem.x[0].image.shape == (10, 10, 3)
         assert new_elem.x[1].image is not None
-        assert new_elem.x[1].image.size == (10, 10)
+        assert new_elem.x[1].image.shape == (10, 10, 3)
         assert new_elem.x[0].landmarks is not None
         assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
         assert new_elem.x[1].landmarks is not None
@@ -96,9 +97,9 @@ def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -
     ):
         new_elem = dummy2.process(dataset_element)
         assert new_elem.x[0].image is not None
-        assert new_elem.x[0].image.size == (10, 10)
+        assert new_elem.x[0].image.shape == (10, 10, 3)
         assert new_elem.x[1].image is not None
-        assert new_elem.x[1].image.size == (10, 10)
+        assert new_elem.x[1].image.shape == (10, 10, 3)
         assert new_elem.x[0].landmarks is not None
         assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
         assert new_elem.x[1].landmarks is not None

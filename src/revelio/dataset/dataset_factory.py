@@ -144,7 +144,17 @@ class DatasetFactory:
         )
 
     def get_val_dataset(self) -> Dataset:
-        return Dataset(self._val, self._face_detector, [], self._feature_extractors)
+        return Dataset(
+            self._val,
+            self._face_detector,
+            [],
+            self._feature_extractors,
+        )
 
     def get_test_dataset(self) -> Dataset:
-        return Dataset(self._test, self._face_detector, [], self._feature_extractors)
+        return Dataset(
+            self._test,
+            self._face_detector,
+            [],
+            self._feature_extractors,
+        )

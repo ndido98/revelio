@@ -3,7 +3,6 @@ from typing import Any, Optional, cast
 
 import numpy as np
 import pytest
-from PIL.Image import Image
 
 from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
@@ -72,7 +71,9 @@ class DS2Loader(DatasetLoader):
 
 
 class Dummy(FaceDetector):
-    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(
+        self, elem: np.ndarray
+    ) -> tuple[BoundingBox, Optional[Landmarks]]:
         return ((0, 0, 0, 0), None)
 
 

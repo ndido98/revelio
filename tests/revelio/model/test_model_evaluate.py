@@ -1,4 +1,5 @@
 import unittest.mock as mock
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -75,8 +76,8 @@ def config() -> Config:
     return Config.construct(
         experiment=Experiment.construct(
             scores=Scores.construct(
-                bona_fide="bona_fide_scores.txt",
-                morphed="morphed_scores.txt",
+                bona_fide=Path("bona_fide_scores.txt"),
+                morphed=Path("morphed_scores.txt"),
             ),
             metrics=[
                 ConfigMetric.construct(
@@ -99,7 +100,10 @@ def test_model_evaluate(config: Config) -> None:
         test_dataloader=None,  # type: ignore
         device="cpu",
     )
-    with mock.patch("numpy.savetxt") as mock_save:
+    with (
+        mock.patch("pathlib.Path.mkdir", return_value=None),
+        mock.patch("numpy.savetxt") as mock_save,
+    ):
         metrics = model.evaluate()
         print(mock_save.call_args_list)
         # We have to manually check the call args because Numpy arrays override __eq__

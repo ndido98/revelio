@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from PIL import Image as ImageModule
 
 from revelio.config import Config
 from revelio.config.model import FeatureExtraction, FeatureExtractionAlgorithm
@@ -51,11 +50,11 @@ def dataset_element() -> DatasetElement:
         x=(
             ElementImage(
                 path=Path("/path/to/ds1/image1.jpg"),
-                image=ImageModule.new("RGB", (1, 1), "black"),
+                image=np.zeros((1, 1, 3), dtype=np.uint8),
             ),
             ElementImage(
                 path=Path("/path/to/ds1/image2.jpg"),
-                image=ImageModule.new("RGB", (1, 1), "black"),
+                image=np.zeros((1, 1, 3), dtype=np.uint8),
             ),
         ),
         y=ElementClass.BONA_FIDE,

@@ -1,9 +1,8 @@
 from pathlib import Path
 from unittest import mock
 
+import numpy as np
 import pytest
-from PIL import Image
-from PIL.ImageOps import invert
 
 from revelio.augmentation.step import AugmentationStep
 from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
@@ -14,13 +13,13 @@ class Invert(AugmentationStep):
         assert elem.image is not None
         return ElementImage(
             path=elem.path,
-            image=invert(elem.image),
+            image=255 - elem.image,
         )
 
 
 @pytest.fixture
 def dataset_element() -> DatasetElement:
-    black = Image.new("RGB", (1, 1), "black")
+    black = np.array([[[0, 0, 0]]], dtype=np.uint8)
     img = ElementImage(path=Path("test"), image=black)
     return DatasetElement(
         dataset_root_path=Path("test"),
@@ -32,13 +31,13 @@ def dataset_element() -> DatasetElement:
 
 def is_black(img: ElementImage) -> bool:
     assert img.image is not None
-    return img.image.getpixel((0, 0)) == (0, 0, 0)  # type: ignore
+    return np.all(img.image[0, 0] == np.array([0, 0, 0]))  # type: ignore
 
 
 def is_white(img: ElementImage) -> bool:
     print(img.image)
     assert img.image is not None
-    return img.image.getpixel((0, 0)) == (255, 255, 255)  # type: ignore
+    return np.all(img.image[0, 0] == np.array([255, 255, 255]))  # type: ignore
 
 
 def test_probability_0(dataset_element: DatasetElement) -> None:

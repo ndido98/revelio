@@ -3,21 +3,20 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from PIL import Image as ImageModule
-from PIL.Image import Image
 from torch.utils.data import DataLoader
 
 from revelio.dataset import Dataset, DatasetElement, ElementClass, ElementImage
 
 
-def black_img(*args: Any, **kwargs: Any) -> Image:
-    return ImageModule.new("RGB", (1, 1), "black")
+def black_img(*args: Any, **kwargs: Any) -> np.ndarray:
+    return np.array([[[0, 0, 0]]])
 
 
 def init_fn(worker_id: int) -> None:
-    mock.patch("PIL.Image.open", side_effect=black_img).start()
+    mock.patch("cv2.imread", side_effect=black_img).start()
 
 
 @given(workers_count=st.integers(min_value=0, max_value=4))
@@ -73,7 +72,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
             original_dataset="ds1",
         ),
     ]
-    with mock.patch("PIL.Image.open", side_effect=black_img):
+    with mock.patch("cv2.imread", side_effect=black_img):
         ds = Dataset(dataset_elements, None, [], [])
         dl = DataLoader(
             ds,
