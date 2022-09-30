@@ -5,6 +5,7 @@ from revelio.augmentation import AugmentationStep
 from revelio.config import Config
 from revelio.face_detection import FaceDetector
 from revelio.feature_extraction import FeatureExtractor
+from revelio.preprocessing.step import PreprocessingStep
 from revelio.registry import Registrable
 
 from .dataset import Dataset
@@ -43,6 +44,7 @@ class DatasetFactory:
     _face_detector: Optional[FaceDetector]
     _augmentation_steps: list[AugmentationStep]
     _feature_extractors: list[FeatureExtractor]
+    _preprocessing_steps: list[PreprocessingStep]
 
     def __init__(self, config: Config) -> None:
         self._config = config
@@ -84,6 +86,7 @@ class DatasetFactory:
             self._feature_extractors = self._get_feature_extractors()
         else:
             self._feature_extractors = []
+        self._preprocessing_steps = self._get_preprocessing_steps()
 
     def _get_loaders(self) -> list[DatasetLoader]:
         loaders: list[DatasetLoader] = []
@@ -135,12 +138,23 @@ class DatasetFactory:
             for extractor in self._config.feature_extraction.algorithms
         ]
 
+    def _get_preprocessing_steps(self) -> list[PreprocessingStep]:
+        return [
+            Registrable.find(
+                PreprocessingStep,
+                step.uses,
+                **step.args,
+            )
+            for step in self._config.preprocessing.steps
+        ]
+
     def get_train_dataset(self) -> Dataset:
         return Dataset(
             self._train,
             self._face_detector,
             self._augmentation_steps,
             self._feature_extractors,
+            self._preprocessing_steps,
         )
 
     def get_val_dataset(self) -> Dataset:
@@ -149,6 +163,7 @@ class DatasetFactory:
             self._face_detector,
             [],
             self._feature_extractors,
+            self._preprocessing_steps,
         )
 
     def get_test_dataset(self) -> Dataset:
@@ -157,4 +172,5 @@ class DatasetFactory:
             self._face_detector,
             [],
             self._feature_extractors,
+            self._preprocessing_steps,
         )

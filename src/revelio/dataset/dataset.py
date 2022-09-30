@@ -7,6 +7,7 @@ from torch.utils.data import IterableDataset, get_worker_info
 from revelio.augmentation.step import AugmentationStep
 from revelio.face_detection.detector import FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
+from revelio.preprocessing.step import PreprocessingStep
 from revelio.utils.iterators import consume
 
 from .element import DatasetElement, ElementImage
@@ -36,11 +37,13 @@ class Dataset(IterableDataset):
         face_detector: Optional[FaceDetector],
         augmentation_steps: list[AugmentationStep],
         feature_extractors: list[FeatureExtractor],
+        preprocessing_steps: list[PreprocessingStep],
     ) -> None:
         self._paths = paths
         self._face_detector = face_detector
         self._augmentation_steps = augmentation_steps
         self._feature_extractors = feature_extractors
+        self._preprocessing_steps = preprocessing_steps
         self.warmup = False
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
@@ -95,6 +98,8 @@ class Dataset(IterableDataset):
                     elem,
                     force_online=len(self._augmentation_steps) > 0,
                 )
+            for preprocessing_step in self._preprocessing_steps:
+                elem = preprocessing_step.process(elem)
             yield {
                 "x": [
                     {

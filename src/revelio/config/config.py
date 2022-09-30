@@ -1,7 +1,14 @@
 import yaml
 from pydantic import BaseModel
 
-from .model import Augmentation, Dataset, Experiment, FaceDetection, FeatureExtraction
+from .model import (
+    Augmentation,
+    Dataset,
+    Experiment,
+    FaceDetection,
+    FeatureExtraction,
+    Preprocessing,
+)
 from .model.utils import NonEmptyList
 
 
@@ -10,6 +17,7 @@ class Config(BaseModel):
     face_detection: FaceDetection
     augmentation: Augmentation
     feature_extraction: FeatureExtraction
+    preprocessing: Preprocessing
     experiment: Experiment
 
     @staticmethod

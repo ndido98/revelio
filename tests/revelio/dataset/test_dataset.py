@@ -73,7 +73,7 @@ def test_worker_sharding_correct(workers_count: int) -> None:
         ),
     ]
     with mock.patch("cv2.imread", side_effect=black_img):
-        ds = Dataset(dataset_elements, None, [], [])
+        ds = Dataset(dataset_elements, None, [], [], [])
         dl = DataLoader(
             ds,
             batch_size=1,
