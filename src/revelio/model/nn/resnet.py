@@ -36,6 +36,7 @@ class ResNet(NeuralNetwork):  # pragma: no cover
                 raise ValueError(f"There is no ResNet{size}") from e
             if pretrained:
                 self.preprocess = weights.transforms()
+                self.net = function(weights=weights, progress=False)
             else:
                 self.preprocess = None
                 self.net = function(weights=None, progress=False)
