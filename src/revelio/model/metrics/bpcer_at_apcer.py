@@ -13,7 +13,8 @@ class BPCERAtAPCER(Metric):
 
     def __init__(self, thresholds: list[float], **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self._thresholds = torch.tensor(thresholds, device=self.device)
+        self._thresholds = thresholds
+        self._thresholds_tensor = torch.tensor(thresholds, device=self.device)
         self.reset()
 
     def update(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> None:
@@ -25,11 +26,11 @@ class BPCERAtAPCER(Metric):
         all_true = torch.cat(self._trues)
         Pfa, Pmiss = _compute_roc(all_pred, all_true, self.device)  # noqa: N806
         idx = Pfa.shape[0] - torch.searchsorted(
-            torch.flip(Pfa, dims=(0,)), self._thresholds
+            torch.flip(Pfa, dims=(0,)), self._thresholds_tensor
         )
         # Linearly interpolate between the two closest points
-        d1 = torch.abs(self._thresholds - Pmiss[idx - 1])
-        d2 = torch.abs(self._thresholds - Pmiss[idx])
+        d1 = torch.abs(self._thresholds_tensor - Pmiss[idx - 1])
+        d2 = torch.abs(self._thresholds_tensor - Pmiss[idx])
         w1 = d1 / (d1 + d2)
         w2 = d2 / (d1 + d2)
         return Pmiss[idx - 1] * w1 + Pmiss[idx] * w2

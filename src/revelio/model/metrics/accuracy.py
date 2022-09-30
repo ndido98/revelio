@@ -20,7 +20,7 @@ class Accuracy(Metric):
         self.correct += (pred_classes == y_true).sum()
 
     def compute(self) -> torch.Tensor:
-        return self.total / self.correct
+        return self.correct / self.total
 
     def reset(self) -> None:
         self.total = torch.zeros((), device=self.device)
