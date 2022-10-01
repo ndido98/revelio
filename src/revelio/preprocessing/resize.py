@@ -45,8 +45,6 @@ class Resize(PreprocessingStep):
         self._fill_mode = fill_mode
 
     def process_element(self, elem: ElementImage) -> ElementImage:
-        if elem.image is None:
-            raise ValueError("Image is not loaded")
         if not self._keep_aspect_ratio:
             new_img = cv.resize(
                 elem.image,

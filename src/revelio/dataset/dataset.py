@@ -10,22 +10,14 @@ from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
 from revelio.utils.iterators import consume
 
-from .element import DatasetElement, ElementImage
+from .element import DatasetElement, DatasetElementDescriptor, ElementImage
 
 
-def _element_with_images(elem: DatasetElement) -> DatasetElement:
-    new_xs = []
-    for x in elem.x:
-        if x.image is None:
-            img = cv.imread(str(x.path))
-            new_x = ElementImage(x.path, img, x.landmarks, x.features)
-        else:
-            new_x = x
-        new_xs.append(new_x)
+def _element_with_images(elem: DatasetElementDescriptor) -> DatasetElement:
     return DatasetElement(
-        dataset_root_path=elem.dataset_root_path,
-        original_dataset=elem.original_dataset,
-        x=tuple(new_xs),
+        dataset_root_path=elem._root_path,
+        original_dataset=elem._dataset_name,
+        x=tuple(ElementImage(path=x, image=cv.imread(str(x))) for x in elem.x),
         y=elem.y,
     )
 
@@ -33,7 +25,7 @@ def _element_with_images(elem: DatasetElement) -> DatasetElement:
 class Dataset(IterableDataset):
     def __init__(
         self,
-        paths: list[DatasetElement],
+        paths: list[DatasetElementDescriptor],
         face_detector: Optional[FaceDetector],
         augmentation_steps: list[AugmentationStep],
         feature_extractors: list[FeatureExtractor],
@@ -56,7 +48,7 @@ class Dataset(IterableDataset):
     def __len__(self) -> int:
         return len(self._paths)
 
-    def _get_elems_iterator(self) -> Iterator[DatasetElement]:
+    def _get_elems_iterator(self) -> Iterator[DatasetElementDescriptor]:
         worker_info = get_worker_info()
         if worker_info is None:
             for p in self._paths:
@@ -67,9 +59,9 @@ class Dataset(IterableDataset):
                     yield p
 
     def _offline_processing(self) -> Iterator:
-        elems = self._get_elems_iterator()
-        for elem in elems:
-            elem = _element_with_images(elem)
+        descriptors = self._get_elems_iterator()
+        for descriptor in descriptors:
+            elem = _element_with_images(descriptor)
             if self._face_detector is not None:
                 elem = self._face_detector.process(elem)
             # Feature extraction is offline only if augmentation is disabled
@@ -81,9 +73,9 @@ class Dataset(IterableDataset):
             yield 0
 
     def _online_processing(self) -> Generator[dict[str, Any], None, None]:
-        elems = self._get_elems_iterator()
-        for elem in elems:
-            elem = _element_with_images(elem)
+        descriptors = self._get_elems_iterator()
+        for descriptor in descriptors:
+            elem = _element_with_images(descriptor)
             # We can safely call the face detector again, as this time it will load
             # the precomputed bounding boxes and landmarks
             if self._face_detector is not None:

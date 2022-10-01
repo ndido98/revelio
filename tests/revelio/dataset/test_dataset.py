@@ -8,7 +8,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 from torch.utils.data import DataLoader
 
-from revelio.dataset import Dataset, DatasetElement, ElementClass, ElementImage
+from revelio.dataset import Dataset, DatasetElementDescriptor, ElementClass
 
 
 def black_img(*args: Any, **kwargs: Any) -> np.ndarray:
@@ -23,55 +23,38 @@ def init_fn(worker_id: int) -> None:
 @settings(deadline=timedelta(seconds=10))
 def test_worker_sharding_correct(workers_count: int) -> None:
     dataset_elements = [
-        DatasetElement(
+        DatasetElementDescriptor(
             x=(
-                ElementImage(path=Path("/path/to/ds1/image1.jpg")),
-                ElementImage(path=Path("/path/to/ds1/image2.jpg")),
+                Path("/path/to/ds1/image1.jpg"),
+                Path("/path/to/ds1/image2.jpg"),
             ),
             y=ElementClass.BONA_FIDE,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         ),
-        DatasetElement(
+        DatasetElementDescriptor(
             x=(
-                ElementImage(path=Path("/path/to/ds1/image3.jpg")),
-                ElementImage(path=Path("/path/to/ds1/image4.jpg")),
+                Path("/path/to/ds1/image3.jpg"),
+                Path("/path/to/ds1/image4.jpg"),
             ),
             y=ElementClass.BONA_FIDE,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         ),
-        DatasetElement(
+        DatasetElementDescriptor(
             x=(
-                ElementImage(
-                    path=Path("/path/to/ds1/image5.jpg"),
-                    image=black_img(),
-                ),
-                ElementImage(
-                    path=Path("/path/to/ds1/image6.jpg"),
-                    image=black_img(),
-                ),
+                Path("/path/to/ds1/image5.jpg"),
+                Path("/path/to/ds1/image6.jpg"),
             ),
             y=ElementClass.MORPHED,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         ),
-        DatasetElement(
+        DatasetElementDescriptor(
             x=(
-                ElementImage(
-                    path=Path("/path/to/ds1/image7.jpg"),
-                    image=black_img(),
-                ),
-                ElementImage(
-                    path=Path("/path/to/ds1/image8.jpg"),
-                    image=black_img(),
-                ),
+                Path("/path/to/ds1/image7.jpg"),
+                Path("/path/to/ds1/image8.jpg"),
             ),
             y=ElementClass.MORPHED,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         ),
     ]
+    for elem in dataset_elements:
+        elem._dataset_name = "ds1"
+        elem._root_path = Path("/path/to/ds1")
     with mock.patch("cv2.imread", side_effect=black_img):
         ds = Dataset(dataset_elements, None, [], [], [])
         dl = DataLoader(

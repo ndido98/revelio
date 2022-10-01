@@ -10,10 +10,9 @@ from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
 
 class Invert(AugmentationStep):
     def process_element(self, elem: ElementImage) -> ElementImage:
-        assert elem.image is not None
         return ElementImage(
             path=elem.path,
-            image=255 - elem.image,
+            image=(255 - elem.image).astype(np.uint8),
         )
 
 
@@ -30,13 +29,11 @@ def dataset_element() -> DatasetElement:
 
 
 def is_black(img: ElementImage) -> bool:
-    assert img.image is not None
     return np.all(img.image[0, 0] == np.array([0, 0, 0]))  # type: ignore
 
 
 def is_white(img: ElementImage) -> bool:
     print(img.image)
-    assert img.image is not None
     return np.all(img.image[0, 0] == np.array([255, 255, 255]))  # type: ignore
 
 

@@ -6,7 +6,7 @@ from typing import Optional, TypeAlias
 import numpy as np
 
 from revelio.config.config import Config
-from revelio.dataset.element import DatasetElement, ElementImage
+from revelio.dataset.element import DatasetElement, ElementImage, Image
 from revelio.registry.registry import Registrable
 
 BoundingBox: TypeAlias = tuple[int, int, int, int]
@@ -30,16 +30,12 @@ class FaceDetector(Registrable):
         )
 
     @abstractmethod
-    def process_element(
-        self, elem: np.ndarray
-    ) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         raise NotImplementedError  # pragma: no cover
 
     def process(self, elem: DatasetElement) -> DatasetElement:
         new_xs = []
         for i, x in enumerate(elem.x):
-            if x.image is None:
-                raise ValueError(f"Image at {x.path} is not loaded")
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
                 meta = json.loads(meta_path.read_text())

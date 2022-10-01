@@ -1,24 +1,22 @@
 import itertools
 from pathlib import Path
 
-from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
+from revelio.dataset.element import DatasetElementDescriptor, ElementClass
 
 from .loader import DatasetLoader
 
 
 class PMDBLoader(DatasetLoader):
-    def load(self, path: Path) -> list[DatasetElement]:
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
         all_images = sorted(path.rglob("*.png"))
         bona_fide = []
         morphed = []
         for image in all_images:
             if "morph" not in image.name and "keypoints" not in image.name:
                 bona_fide.append(
-                    DatasetElement(
-                        (ElementImage(image),),
-                        ElementClass.BONA_FIDE,
-                        dataset_root_path=path,
-                        original_dataset="pmdb",
+                    DatasetElementDescriptor(
+                        x=(image,),
+                        y=ElementClass.BONA_FIDE,
                     )
                 )
         morphed_images = sorted(path.rglob("morph*.png"))
@@ -28,11 +26,9 @@ class PMDBLoader(DatasetLoader):
             morphed_count = min(4, len(group_images))
             for i in range(morphed_count):
                 morphed.append(
-                    DatasetElement(
-                        (ElementImage(group_images[i]),),
-                        ElementClass.MORPHED,
-                        dataset_root_path=path,
-                        original_dataset="pmdb",
+                    DatasetElementDescriptor(
+                        x=(group_images[i],),
+                        y=ElementClass.MORPHED,
                     )
                 )
         return bona_fide + morphed

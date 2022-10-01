@@ -16,64 +16,65 @@ from revelio.config.model import (
     FeatureExtraction,
     FeatureExtractionAlgorithm,
 )
-from revelio.dataset import DatasetElement, DatasetFactory, ElementClass, ElementImage
+from revelio.config.model.preprocessing import Preprocessing
+from revelio.config.model.preprocessing import (
+    PreprocessingStep as ConfigPreprocessingStep,
+)
+from revelio.dataset import (
+    DatasetElementDescriptor,
+    DatasetFactory,
+    ElementClass,
+    ElementImage,
+    Image,
+)
 from revelio.dataset.loaders import DatasetLoader
 from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
 from revelio.feature_extraction.extractor import FeatureExtractor
+from revelio.preprocessing.step import PreprocessingStep
 
 
 class DS1Loader(DatasetLoader):
-    def load(self, path: Path) -> list[DatasetElement]:
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
         assert path == Path("/path/to/ds1")
-        bona_fide = DatasetElement(
+        bona_fide = DatasetElementDescriptor(
             x=(
-                ElementImage(Path("/path/to/ds1/bf_a.png")),
-                ElementImage(Path("/path/to/ds1/bf_b.png")),
+                Path("/path/to/ds1/bf_a.png"),
+                Path("/path/to/ds1/bf_b.png"),
             ),
             y=ElementClass.BONA_FIDE,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         )
-        morphed = DatasetElement(
+        morphed = DatasetElementDescriptor(
             x=(
-                ElementImage(Path("/path/to/ds1/m_a.png")),
-                ElementImage(Path("/path/to/ds1/m_b.png")),
+                Path("/path/to/ds1/m_a.png"),
+                Path("/path/to/ds1/m_b.png"),
             ),
             y=ElementClass.MORPHED,
-            dataset_root_path=Path("/path/to/ds1"),
-            original_dataset="ds1",
         )
         return [bona_fide] * 50 + [morphed] * 500
 
 
 class DS2Loader(DatasetLoader):
-    def load(self, path: Path) -> list[DatasetElement]:
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
         assert path == Path("/path/to/ds2")
-        bona_fide = DatasetElement(
+        bona_fide = DatasetElementDescriptor(
             x=(
-                ElementImage(Path("/path/to/ds2/bf_a.png")),
-                ElementImage(Path("/path/to/ds2/bf_b.png")),
+                Path("/path/to/ds2/bf_a.png"),
+                Path("/path/to/ds2/bf_b.png"),
             ),
             y=ElementClass.BONA_FIDE,
-            dataset_root_path=Path("/path/to/ds2"),
-            original_dataset="ds2",
         )
-        morphed = DatasetElement(
+        morphed = DatasetElementDescriptor(
             x=(
-                ElementImage(Path("/path/to/ds2/m_a.png")),
-                ElementImage(Path("/path/to/ds2/m_b.png")),
+                Path("/path/to/ds2/m_a.png"),
+                Path("/path/to/ds2/m_b.png"),
             ),
             y=ElementClass.MORPHED,
-            dataset_root_path=Path("/path/to/ds2"),
-            original_dataset="ds2",
         )
         return [bona_fide] * 50 + [morphed] * 500
 
 
 class Dummy(FaceDetector):
-    def process_element(
-        self, elem: np.ndarray
-    ) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         return ((0, 0, 0, 0), None)
 
 
@@ -89,6 +90,11 @@ class Identity(AugmentationStep):
 class DummyFeatureExtractor(FeatureExtractor):
     def process_element(self, elem: ElementImage) -> np.ndarray:
         return np.array([1, 2, 3])
+
+
+class Pass(PreprocessingStep):
+    def process_element(self, elem: ElementImage) -> ElementImage:
+        return elem
 
 
 @pytest.fixture
@@ -136,6 +142,14 @@ def config() -> Config:
                 ),
             ],
         ),
+        preprocessing=Preprocessing(
+            steps=[
+                ConfigPreprocessingStep(
+                    uses="pass",
+                    args={},
+                )
+            ]
+        ),
     )
 
 
@@ -155,12 +169,12 @@ def bad_config_dataset() -> Config:
 
 def test_split(config: Config) -> None:
     factory = DatasetFactory(config)
-    ds1_train = [elem for elem in factory._train if elem.original_dataset == "ds1"]
-    ds2_train = [elem for elem in factory._train if elem.original_dataset == "ds2"]
-    ds1_val = [elem for elem in factory._val if elem.original_dataset == "ds1"]
-    ds2_val = [elem for elem in factory._val if elem.original_dataset == "ds2"]
-    ds1_test = [elem for elem in factory._test if elem.original_dataset == "ds1"]
-    ds2_test = [elem for elem in factory._test if elem.original_dataset == "ds2"]
+    ds1_train = [elem for elem in factory._train if elem._dataset_name == "ds1"]
+    ds2_train = [elem for elem in factory._train if elem._dataset_name == "ds2"]
+    ds1_val = [elem for elem in factory._val if elem._dataset_name == "ds1"]
+    ds2_val = [elem for elem in factory._val if elem._dataset_name == "ds2"]
+    ds1_test = [elem for elem in factory._test if elem._dataset_name == "ds1"]
+    ds2_test = [elem for elem in factory._test if elem._dataset_name == "ds2"]
     ds1_train_bf = [elem for elem in ds1_train if elem.y == ElementClass.BONA_FIDE]
     ds1_train_m = [elem for elem in ds1_train if elem.y == ElementClass.MORPHED]
     ds1_val_bf = [elem for elem in ds1_val if elem.y == ElementClass.BONA_FIDE]
@@ -208,6 +222,11 @@ def test_augmentation_is_loaded(config: Config) -> None:
 def test_extraction_is_loaded(config: Config) -> None:
     factory = DatasetFactory(config)
     assert len(factory._feature_extractors) == 1
+
+
+def test_preprocessing_is_loaded(config: Config) -> None:
+    factory = DatasetFactory(config)
+    assert len(factory._preprocessing_steps) == 1
 
 
 def test_train_dataset(config: Config) -> None:

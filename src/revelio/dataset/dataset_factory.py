@@ -1,5 +1,5 @@
 import random
-from typing import Optional
+from typing import Optional, TypeVar
 
 from revelio.augmentation import AugmentationStep
 from revelio.config import Config
@@ -9,26 +9,29 @@ from revelio.preprocessing.step import PreprocessingStep
 from revelio.registry import Registrable
 
 from .dataset import Dataset
-from .element import DatasetElement, ElementClass
+from .element import DatasetElementDescriptor, ElementClass
 from .loaders.loader import DatasetLoader
 
 __all__ = ("DatasetFactory",)
 
 
+T = TypeVar("T")
+
+
 def _split_dataset(
-    dataset: list[DatasetElement],
+    dataset: list[T],
     split: float,
-) -> tuple[list[DatasetElement], list[DatasetElement]]:
+) -> tuple[list[T], list[T]]:
     shuffled = random.sample(dataset, len(dataset))
     split_index = round(len(shuffled) * split)
     return dataset[:split_index], dataset[split_index:]
 
 
 def _split_train_val_test(
-    dataset: list[DatasetElement],
+    dataset: list[T],
     train_percentage: float,
     val_percentage: float,
-) -> tuple[list[DatasetElement], list[DatasetElement], list[DatasetElement]]:
+) -> tuple[list[T], list[T], list[T]]:
     train_val_percentage = train_percentage + val_percentage
     train_val, test = _split_dataset(dataset, train_val_percentage)
     train, val = _split_dataset(train_val, train_percentage / train_val_percentage)
@@ -37,9 +40,9 @@ def _split_train_val_test(
 
 class DatasetFactory:
 
-    _train: list[DatasetElement] = []
-    _val: list[DatasetElement] = []
-    _test: list[DatasetElement] = []
+    _train: list[DatasetElementDescriptor] = []
+    _val: list[DatasetElementDescriptor] = []
+    _test: list[DatasetElementDescriptor] = []
 
     _face_detector: Optional[FaceDetector]
     _augmentation_steps: list[AugmentationStep]
@@ -52,6 +55,9 @@ class DatasetFactory:
         # Merge the datasets with their respective train, val and test percentages
         for dataset, loader in zip(config.datasets, loaders):
             dataset_xy = loader.load(dataset.path)
+            for elem in dataset_xy:
+                elem._dataset_name = dataset.name
+                elem._root_path = dataset.path
             bona_fide_xy = [e for e in dataset_xy if e.y == ElementClass.BONA_FIDE]
             morphed_xy = [e for e in dataset_xy if e.y == ElementClass.MORPHED]
 
