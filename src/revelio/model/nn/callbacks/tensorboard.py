@@ -2,6 +2,7 @@ from typing import Optional
 
 import torch
 import torch.utils.tensorboard as tb
+from torchvision.utils import make_grid
 
 from .callback import Callback
 
@@ -9,6 +10,12 @@ from .callback import Callback
 class TensorBoard(Callback):
     def __init__(self, log_dir: Optional[str] = None) -> None:
         self._writer = tb.SummaryWriter(log_dir=log_dir)
+
+    def before_training(self) -> None:
+        train_batch = next(iter(self.model.train_dataloader))
+        train_grid = make_grid(train_batch, normalize=True)
+        self._writer.add_image("train", train_grid)
+        self._writer.add_graph(self.model, train_batch)
 
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         self._writer.close()
