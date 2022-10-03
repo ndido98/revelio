@@ -16,10 +16,8 @@ class SqueezeNet(NeuralNetwork):  # pragma: no cover
                 raise ValueError("Cannot freeze a non-pretrained model")
             if pretrained:
                 weights = models.SqueezeNet1_1_Weights.DEFAULT
-                self.preprocess = weights.transforms()
             else:
                 weights = None
-                self.preprocess = None
             self.net = models.squeezenet1_1(weights=weights, progress=False)
             # Replace the classification head
             self.net.classifier[1] = torch.nn.Conv2d(
@@ -39,8 +37,7 @@ class SqueezeNet(NeuralNetwork):  # pragma: no cover
                     "The SqueezeNet classifier is only available for single images"
                 )
             img = batch[0]["image"]
-            preprocessed = self.preprocess(img) if self.preprocess is not None else img
-            logits: torch.Tensor = self.net(preprocessed)
+            logits: torch.Tensor = self.net(img)
             return logits
 
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:

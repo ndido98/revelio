@@ -16,10 +16,8 @@ class MobileNet(NeuralNetwork):  # pragma: no cover
                 raise ValueError("Cannot freeze a non-pretrained model")
             if pretrained:
                 weights = models.MobileNet_V2_Weights.DEFAULT
-                self.preprocess = weights.transforms()
             else:
                 weights = None
-                self.preprocess = None
             self.net = models.mobilenet_v2(weights=weights, progress=False)
             # Replace the classification head
             self.net.classifier[-1] = torch.nn.Linear(
@@ -38,8 +36,7 @@ class MobileNet(NeuralNetwork):  # pragma: no cover
                     "The MobileNet classifier is only available for single images"
                 )
             img = batch[0]["image"]
-            preprocessed = self.preprocess(img) if self.preprocess is not None else img
-            logits: torch.Tensor = self.net(preprocessed)
+            logits: torch.Tensor = self.net(img)
             return logits
 
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:

@@ -35,10 +35,8 @@ class VisionTransformer(NeuralNetwork):  # pragma: no cover
                     f"There is no ViT-{variant[0].capitalize()}/{patch_size}"
                 ) from e
             if pretrained:
-                self.preprocess = weights.transforms()
                 self.net = function(weights=weights, progress=False)
             else:
-                self.preprocess = None
                 self.net = function(weights=None, progress=False)
             # Replace the classification head
             self.net.heads[-1] = torch.nn.Linear(
@@ -57,8 +55,7 @@ class VisionTransformer(NeuralNetwork):  # pragma: no cover
                     "The ViT classifier is only available for single images"
                 )
             img = batch[0]["image"]
-            preprocessed = self.preprocess(img) if self.preprocess is not None else img
-            logits: torch.Tensor = self.net(preprocessed)
+            logits: torch.Tensor = self.net(img)
             return logits
 
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:
