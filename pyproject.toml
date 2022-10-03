@@ -62,7 +62,7 @@ flake8-eradicate = "~1.4.0"
 flake8-logging-format = "~0.8.0"
 hypothesis = "~6.56.0"
 isort = "~5.10"
-mkdocstrings = "~0.19"
+mkdocstrings = { version = "~0.19", extras = ["python"] }
 mkdocs-material = "~8.5.0"
 mypy = "~0.971"
 pep8-naming = "~0.13"
