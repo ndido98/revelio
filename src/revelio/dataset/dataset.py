@@ -92,18 +92,17 @@ class Dataset(IterableDataset):
                 )
             for preprocessing_step in self._preprocessing_steps:
                 elem = preprocessing_step.process(elem)
+            elem_xs = []
+            for x in elem.x:
+                rgb = cv.cvtColor(x.image, cv.COLOR_BGR2RGB)
+                chw = np.transpose(rgb, (2, 0, 1))
+                elem_x: dict[str, Any] = {"image": chw}
+                if x.landmarks is not None:
+                    elem_x["landmarks"] = x.landmarks
+                if len(x.features.keys()) > 0:
+                    elem_x["features"] = x.features
+                elem_xs.append(elem_x)
             yield {
-                "x": [
-                    {
-                        "image": x.image,
-                        "landmarks": (
-                            x.landmarks if x.landmarks is not None else np.array([])
-                        ),
-                        "features": (
-                            x.features if x.features is not None else np.array([])
-                        ),
-                    }
-                    for x in elem.x
-                ],
+                "x": elem_xs,
                 "y": elem.y.value,
             }
