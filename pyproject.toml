@@ -49,6 +49,7 @@ numpy = "~1.23"
 opencv-python = "~4.6"
 tensorboard = "~2.10"
 tqdm = "~4.64"
+matplotlib = "~3.6"
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.6.0"
@@ -125,4 +126,8 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "cv2.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "matplotlib.*"
 ignore_missing_imports = true
