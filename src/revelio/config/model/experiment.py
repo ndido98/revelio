@@ -40,7 +40,6 @@ class Metric(BaseModel):
 
 
 class Experiment(BaseModel):
-    seed: Optional[int] = None
     workers_count: NonNegativeInt = 0
     batch_size: PositiveInt
     model: Model

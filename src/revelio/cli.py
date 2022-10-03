@@ -112,8 +112,8 @@ def main() -> None:
     try:
         config = Config.from_string(args.config_file.read())
         # Set the seed as soon as possible
-        if config.experiment.seed is not None:
-            set_seed(config.experiment.seed)
+        if config.seed is not None:
+            set_seed(config.seed)
         else:
             seed = random.randint(0, 2**32 - 1)
             print(f"No seed was specified, using a random seed: {seed}")

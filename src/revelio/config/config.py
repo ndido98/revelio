@@ -1,3 +1,5 @@
+from typing import Optional
+
 import yaml
 from pydantic import BaseModel
 
@@ -13,6 +15,7 @@ from .model.utils import NonEmptyList
 
 
 class Config(BaseModel):
+    seed: Optional[int] = None
     datasets: NonEmptyList[Dataset]
     face_detection: FaceDetection
     augmentation: Augmentation
