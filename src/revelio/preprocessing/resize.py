@@ -28,7 +28,7 @@ class Resize(PreprocessingStep):
         *,
         width: int,
         height: int,
-        algorithm: str,
+        algorithm: str = "cubic",
         keep_aspect_ratio: bool = True,
         fill_mode: str = "constant",
         **kwargs: Any,
