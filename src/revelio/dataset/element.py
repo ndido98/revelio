@@ -4,7 +4,7 @@ from typing import Optional, TypeAlias
 
 import numpy as np
 
-Image: TypeAlias = np.ndarray[int, np.dtype[np.uint8]]
+Image: TypeAlias = np.ndarray[int, np.dtype[np.uint8 | np.float32]]
 
 
 class ElementClass(Enum):
