@@ -5,6 +5,11 @@ from pydantic import BaseModel, DirectoryPath, FilePath, root_validator
 from .utils import Percentage
 
 
+class Loader(BaseModel):
+    name: Optional[str] = None
+    args: dict[str, Any] = {}
+
+
 class DatasetSplit(BaseModel):
     train: Optional[Percentage]
     val: Optional[Percentage]
@@ -24,5 +29,6 @@ class DatasetSplit(BaseModel):
 
 class Dataset(BaseModel):
     name: str
+    loader: Optional[Loader] = None
     path: FilePath | DirectoryPath
     split: DatasetSplit

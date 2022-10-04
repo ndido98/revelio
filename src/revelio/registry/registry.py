@@ -50,12 +50,15 @@ class Registrable(ABC):  # noqa: B024
             _registry[parent_name] = {cls.__name__: cls}
 
     @classmethod
-    def find(cls: type[T], name: str, **kwargs: Any) -> T:
+    def find(cls: type[T], name: str, add_affixes: bool = True, **kwargs: Any) -> T:
         if cls.__name__ not in _registry:
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
         lowercase_classes = [k.lower().replace("_", "") for k in class_registry.keys()]
-        wanted_class = f"{cls.prefix.lower()}{name.lower()}{cls.suffix.lower()}"
+        if add_affixes:
+            wanted_class = f"{cls.prefix.lower()}{name.lower()}{cls.suffix.lower()}"
+        else:
+            wanted_class = name.lower()
         wanted_class = wanted_class.replace("_", "")
         if wanted_class not in lowercase_classes:
             raise ValueError(

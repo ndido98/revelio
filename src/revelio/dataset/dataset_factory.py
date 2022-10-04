@@ -98,7 +98,16 @@ class DatasetFactory:
         loader_errors = []
         for dataset in self._config.datasets:
             try:
-                loader = DatasetLoader.find(dataset.name)
+                if dataset.loader is None:
+                    loader = DatasetLoader.find(dataset.name)
+                elif dataset.loader.name is None:
+                    loader = DatasetLoader.find(dataset.name, **dataset.loader.args)
+                else:
+                    loader = DatasetLoader.find(
+                        dataset.loader.name,
+                        add_affixes=False,
+                        **dataset.loader.args,
+                    )
                 loaders.append(loader)
             except ValueError:
                 loader_errors.append(dataset.name)

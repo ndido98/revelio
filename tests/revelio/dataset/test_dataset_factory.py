@@ -15,6 +15,7 @@ from revelio.config.model import (
     FaceDetectionAlgorithm,
     FeatureExtraction,
     FeatureExtractionAlgorithm,
+    Loader,
 )
 from revelio.config.model.preprocessing import Preprocessing
 from revelio.config.model.preprocessing import (
@@ -34,6 +35,9 @@ from revelio.preprocessing.step import PreprocessingStep
 
 
 class DS1Loader(DatasetLoader):
+    def __init__(self, test: str) -> None:
+        assert test == "me"
+
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
         assert path == Path("/path/to/ds1")
         bona_fide = DatasetElementDescriptor(
@@ -103,6 +107,10 @@ def config() -> Config:
         datasets=[
             Dataset.construct(
                 name="ds1",
+                loader=Loader.construct(
+                    name="ds1loader",
+                    args={"test": "me"},
+                ),
                 path=Path("/path/to/ds1"),
                 split=DatasetSplit(train=0.5, val=0.25, test=0.25),
             ),
