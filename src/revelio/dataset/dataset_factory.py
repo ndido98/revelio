@@ -127,7 +127,8 @@ class DatasetFactory:
             Registrable.find(
                 AugmentationStep,
                 step.uses,
-                probability=step.probability,
+                _probability=step.probability,
+                _applies_to=step.applies_to,
                 **step.args,
             )
             for step in self._config.augmentation.steps

@@ -38,7 +38,7 @@ def is_white(img: ElementImage) -> bool:
 
 
 def test_probability_0(dataset_element: DatasetElement) -> None:
-    step = Invert(probability=0.0)
+    step = Invert(_probability=0.0, _applies_to="all")
     for _ in range(1000):
         processed = step.process(dataset_element)
         for img in processed.x:
@@ -46,7 +46,7 @@ def test_probability_0(dataset_element: DatasetElement) -> None:
 
 
 def test_probability_1(dataset_element: DatasetElement) -> None:
-    step = Invert(probability=1.0)
+    step = Invert(_probability=1.0, _applies_to="all")
     for _ in range(1000):
         processed = step.process(dataset_element)
         for img in processed.x:
@@ -54,7 +54,7 @@ def test_probability_1(dataset_element: DatasetElement) -> None:
 
 
 def test_probability_0_5(dataset_element: DatasetElement) -> None:
-    step = Invert(probability=0.5)
+    step = Invert(_probability=0.5, _applies_to="all")
     black_count = 0
     white_count = 0
     attempts = 1000
@@ -71,3 +71,10 @@ def test_probability_0_5(dataset_element: DatasetElement) -> None:
                     pytest.fail()
         assert black_count == 0
         assert white_count == attempts * 2
+
+
+def test_applies_to(dataset_element: DatasetElement) -> None:
+    step = Invert(_probability=1.0, _applies_to=[1])
+    processed = step.process(dataset_element)
+    assert is_black(processed.x[0])
+    assert is_white(processed.x[1])
