@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Optional, TypeVar
 
 __all__ = ("Registrable",)
 
-_registry: dict[str, dict[str, Type["Registrable"]]] = {}
+_registry: dict[str, dict[str, type["Registrable"]]] = {}
 
 
 T = TypeVar("T", bound="Registrable", covariant=True)
@@ -49,10 +49,8 @@ class Registrable(ABC):  # noqa: B024
         else:
             _registry[parent_name] = {cls.__name__: cls}
 
-    @staticmethod
-    # HACK: cls is Type[Any] and not Type[T],
-    # see https://github.com/python/mypy/issues/4717
-    def find(cls: Type, name: str, **kwargs: Any) -> T:
+    @classmethod
+    def find(cls: type[T], name: str, **kwargs: Any) -> T:
         if cls.__name__ not in _registry:
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
@@ -67,12 +65,12 @@ class Registrable(ABC):  # noqa: B024
         # Get the correct class name from the lowercase list
         class_index = lowercase_classes.index(wanted_class)
         class_name = list(class_registry.keys())[class_index]
-        class_type: Type[T] = class_registry[class_name]  # type: ignore
+        class_type: type[T] = class_registry[class_name]  # type: ignore
         # This cast is safe because the class registry has all classes of requested type
         return class_type(**kwargs)
 
 
-def _count_registrable_paths(cls: Type[T]) -> int:
+def _count_registrable_paths(cls: type[T]) -> int:
     if Registrable in cls.__bases__:
         return 1 + sum(
             _count_registrable_paths(base)
@@ -83,12 +81,12 @@ def _count_registrable_paths(cls: Type[T]) -> int:
         return sum(_count_registrable_paths(base) for base in cls.__bases__)
 
 
-def _check_only_one_registrable_in_hierarchy(cls: Type[T]) -> bool:
+def _check_only_one_registrable_in_hierarchy(cls: type[T]) -> bool:
     return _count_registrable_paths(cls) == 1
 
 
-def _get_parent_registrable(cls: Type[T]) -> str:
-    candidate_parent: Optional[Type] = None
+def _get_parent_registrable(cls: type[T]) -> str:
+    candidate_parent: Optional[type] = None
     for base in cls.__bases__:
         if base is Registrable or _count_registrable_paths(base) == 1:
             candidate_parent = base

@@ -23,9 +23,9 @@ def test_registrable_registers() -> None:
     class Concrete(Abstract):
         pass
 
-    assert type(Registrable.find(Abstract, "concrete")) is Concrete
+    assert type(Abstract.find("concrete")) is Concrete
     with pytest.raises(ValueError):
-        Registrable.find(Abstract, "nonexistent")
+        Abstract.find("nonexistent")
 
 
 def test_registrable_registers_with_suffix() -> None:
@@ -35,9 +35,9 @@ def test_registrable_registers_with_suffix() -> None:
     class ConcreteSuffix(AbstractSuffix):
         pass
 
-    assert type(Registrable.find(AbstractSuffix, "concrete")) is ConcreteSuffix
+    assert type(AbstractSuffix.find("concrete")) is ConcreteSuffix
     with pytest.raises(ValueError):
-        Registrable.find(AbstractSuffix, "concretesuffix")
+        AbstractSuffix.find("concretesuffix")
 
 
 def test_registrable_registers_with_prefix() -> None:
@@ -47,9 +47,9 @@ def test_registrable_registers_with_prefix() -> None:
     class PrefixConcrete(PrefixAbstract):
         pass
 
-    assert type(Registrable.find(PrefixAbstract, "concrete")) is PrefixConcrete
+    assert type(PrefixAbstract.find("concrete")) is PrefixConcrete
     with pytest.raises(ValueError):
-        Registrable.find(PrefixAbstract, "prefixconcrete")
+        PrefixAbstract.find("prefixconcrete")
 
 
 def test_registrable_registers_with_prefix_and_suffix() -> None:
@@ -60,9 +60,9 @@ def test_registrable_registers_with_prefix_and_suffix() -> None:
     class PreConcreteSuf(PreAbstractSuf):
         pass
 
-    assert type(Registrable.find(PreAbstractSuf, "concrete")) is PreConcreteSuf
+    assert type(PreAbstractSuf.find("concrete")) is PreConcreteSuf
     with pytest.raises(ValueError):
-        Registrable.find(PreAbstractSuf, "preconcretesuf")
+        PreAbstractSuf.find("preconcretesuf")
 
 
 def test_multiple_hierarchy_fails() -> None:
@@ -94,14 +94,6 @@ def test_conflicting_names_fails() -> None:
             pass
 
 
-def test_find_nonexistent_registry_fails() -> None:
-    class Foo:
-        pass
-
-    with pytest.raises(ValueError):
-        Registrable.find(Foo, "bar")
-
-
 def test_registrable_with_args_kwargs() -> None:
     class Foo(Registrable):
         def __init__(self, foo: str, bar: str):
@@ -114,7 +106,7 @@ def test_registrable_with_args_kwargs() -> None:
             self.baz = baz
             super().__init__(foo, bar, *args, **kwargs)
 
-    x: FooChild = Registrable.find(Foo, "foochild", foo="123", bar="456", baz="789")
+    x: FooChild = Foo.find("foochild", foo="123", bar="456", baz="789")  # type: ignore
     assert x.foo == "123"
     assert x.bar == "456"
     assert x.baz == "789"
@@ -130,9 +122,9 @@ def test_transparent() -> None:
     class Baz(Bar):
         pass
 
-    assert type(Registrable.find(Foo, "baz")) is Baz
+    assert type(Foo.find("baz")) is Baz
     with pytest.raises(ValueError):
-        Registrable.find(Bar, "baz")
+        Bar.find("baz")
 
 
 def test_snake_case() -> None:
@@ -143,11 +135,5 @@ def test_snake_case() -> None:
     class PreConcreteLongNameSuf(PreAbstractSuf):
         pass
 
-    assert (
-        type(Registrable.find(PreAbstractSuf, "concretelongname"))
-        is PreConcreteLongNameSuf
-    )
-    assert (
-        type(Registrable.find(PreAbstractSuf, "concrete_long_name"))
-        is PreConcreteLongNameSuf
-    )
+    assert type(PreAbstractSuf.find("concretelongname")) is PreConcreteLongNameSuf
+    assert type(PreAbstractSuf.find("concrete_long_name")) is PreConcreteLongNameSuf

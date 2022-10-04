@@ -26,8 +26,8 @@ class Model(Registrable):
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
         self.test_dataloader = test_dataloader
-        self.metrics: list[Metric] = [
-            Registrable.find(Metric, m.name, _device=device, **m.args)
+        self.metrics = [
+            Metric.find(m.name, _device=device, **m.args)
             for m in config.experiment.metrics
         ]
         self.device = device

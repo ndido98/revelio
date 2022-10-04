@@ -7,7 +7,6 @@ import torch
 from tqdm import tqdm
 
 from revelio.model.model import Model
-from revelio.registry.registry import Registrable
 
 from .callbacks.callback import Callback
 from .losses.loss import Loss
@@ -36,8 +35,7 @@ class NeuralNetwork(Model):
             raise ValueError("Missing optimizer in training configuration")
         if "name" not in self.config.experiment.training.args["optimizer"]:
             raise ValueError("Missing optimizer name in training configuration")
-        found_optimizer: Optimizer = Registrable.find(
-            Optimizer,
+        found_optimizer = Optimizer.find(
             self.config.experiment.training.args["optimizer"]["name"],
         )
         self.optimizer = found_optimizer.get(
@@ -48,8 +46,7 @@ class NeuralNetwork(Model):
             raise ValueError("Missing loss in training configuration")
         if "name" not in self.config.experiment.training.args["loss"]:
             raise ValueError("Missing loss name in training configuration")
-        found_loss: Loss = Registrable.find(
-            Loss,
+        found_loss = Loss.find(
             self.config.experiment.training.args["loss"]["name"],
         )
         self.loss_function = found_loss.get(
@@ -61,8 +58,7 @@ class NeuralNetwork(Model):
         for callback in self.config.experiment.training.args.get("callbacks", []):
             if "name" not in callback:
                 raise ValueError("Missing callback name in training configuration")
-            found_callback: Callback = Registrable.find(
-                Callback,
+            found_callback = Callback.find(
                 callback["name"],
                 **callback.get("args", {}),
             )

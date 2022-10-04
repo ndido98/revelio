@@ -6,7 +6,6 @@ from revelio.config import Config
 from revelio.face_detection import FaceDetector
 from revelio.feature_extraction import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
-from revelio.registry import Registrable
 
 from .dataset import Dataset
 from .element import DatasetElementDescriptor, ElementClass
@@ -99,9 +98,7 @@ class DatasetFactory:
         loader_errors = []
         for dataset in self._config.datasets:
             try:
-                # HACK: Type[T] where T is abstract is disallowed, see find definition
-                # for more details
-                loader: DatasetLoader = Registrable.find(DatasetLoader, dataset.name)
+                loader = DatasetLoader.find(dataset.name)
                 loaders.append(loader)
             except ValueError:
                 loader_errors.append(dataset.name)
@@ -115,8 +112,7 @@ class DatasetFactory:
         return loaders
 
     def _get_face_detector(self) -> FaceDetector:
-        return Registrable.find(
-            FaceDetector,
+        return FaceDetector.find(
             self._config.face_detection.algorithm.name,
             _config=self._config,
             **self._config.face_detection.algorithm.args,
@@ -124,8 +120,7 @@ class DatasetFactory:
 
     def _get_augmentation_steps(self) -> list[AugmentationStep]:
         return [
-            Registrable.find(
-                AugmentationStep,
+            AugmentationStep.find(
                 step.uses,
                 _probability=step.probability,
                 _applies_to=step.applies_to,
@@ -136,8 +131,7 @@ class DatasetFactory:
 
     def _get_feature_extractors(self) -> list[FeatureExtractor]:
         return [
-            Registrable.find(
-                FeatureExtractor,
+            FeatureExtractor.find(
                 extractor.name,
                 _config=self._config,
                 **extractor.args,
@@ -147,8 +141,7 @@ class DatasetFactory:
 
     def _get_preprocessing_steps(self) -> list[PreprocessingStep]:
         return [
-            Registrable.find(
-                PreprocessingStep,
+            PreprocessingStep.find(
                 step.uses,
                 **step.args,
             )

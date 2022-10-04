@@ -11,7 +11,6 @@ from tqdm import tqdm
 from revelio.config import Config
 from revelio.dataset import DatasetFactory
 from revelio.model import Model
-from revelio.registry import Registrable
 from revelio.utils.iterators import consume
 
 
@@ -176,8 +175,7 @@ def main() -> None:
             num_workers=args.workers_count,
             pin_memory=True,
         )
-        model: Model = Registrable.find(
-            Model,
+        model = Model.find(
             config.experiment.model.name,
             config=config,
             train_dataloader=train_dl,
