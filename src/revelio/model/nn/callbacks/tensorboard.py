@@ -46,8 +46,8 @@ class TensorBoard(Callback):
         elif len(batch["x"]) == 2:
             probe_grid = self._get_image(batch["x"][0]["image"], batch["y"])
             self._writer.add_figure(f"{phase}/probe", probe_grid, 0)
-            bona_fide_grid = self._get_image(batch["x"][1]["image"], batch["y"])
-            self._writer.add_figure(f"{phase}/bona fide", bona_fide_grid, 0)
+            live_grid = self._get_image(batch["x"][1]["image"], batch["y"])
+            self._writer.add_figure(f"{phase}/live", live_grid, 0)
         else:
             for i, x in enumerate(batch["x"]):
                 probe_grid = self._get_image(x["image"], batch["y"])
