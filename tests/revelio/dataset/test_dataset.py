@@ -12,7 +12,7 @@ from revelio.dataset import Dataset, DatasetElementDescriptor, ElementClass
 
 
 def black_img(*args: Any, **kwargs: Any) -> np.ndarray:
-    return np.array([[[0, 0, 0]]])
+    return np.array([[[0, 0, 0]]], dtype=np.uint8)
 
 
 def init_fn(worker_id: int) -> None:
