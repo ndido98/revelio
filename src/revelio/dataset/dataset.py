@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Generator, Iterator, Optional
 
 import cv2 as cv
@@ -10,15 +11,62 @@ from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
 from revelio.utils.iterators import consume
 
-from .element import DatasetElement, DatasetElementDescriptor, ElementImage
+from .element import (
+    DatasetElement,
+    DatasetElementDescriptor,
+    ElementClass,
+    ElementImage,
+)
 
 
-def _element_with_images(elem: DatasetElementDescriptor) -> DatasetElement:
+def _element_with_images(elem: Any) -> DatasetElement:
+    xs: tuple[ElementImage, ...]
+    if len(elem["x"].shape) == 0:
+        # We only have one x
+        xs = (ElementImage(path=Path(elem["x"]), image=cv.imread(elem["x"])),)
+    else:
+        xs = tuple(ElementImage(path=Path(x), image=cv.imread(x)) for x in elem["x"])
     return DatasetElement(
-        dataset_root_path=elem._root_path,
-        original_dataset=elem._dataset_name,
-        x=tuple(ElementImage(path=x, image=cv.imread(str(x))) for x in elem.x),
-        y=elem.y,
+        dataset_root_path=Path(elem["root_path"]),
+        original_dataset=elem["dataset_name"],
+        x=xs,
+        y=ElementClass(elem["y"]),
+    )
+
+
+def _descriptors_to_numpy(
+    paths: list[DatasetElementDescriptor],
+) -> np.ndarray[int, np.dtype[np.generic]]:
+    # We are sure that this number is always the same for all elements (it's checked
+    # during data loading in the dataset factory)
+    x_count = len(paths[0].x)
+    longest_path_length = 0
+    longest_root_path = 0
+    longest_dataset_name = 0
+    for elem in paths:
+        for x in elem.x:
+            longest_path_length = max(longest_path_length, len(str(x)))
+        longest_root_path = max(longest_root_path, len(str(elem._root_path)))
+        longest_dataset_name = max(longest_dataset_name, len(elem._dataset_name))
+    dt = np.dtype(
+        [
+            ("x", f"U{longest_path_length}", x_count),
+            ("y", np.uint8),
+            ("root_path", f"U{longest_root_path}"),
+            ("dataset_name", f"U{longest_dataset_name}"),
+        ]
+    )
+    return np.array(
+        [
+            (
+                *tuple(str(x) for x in elem.x),
+                elem.y.value,
+                str(elem._root_path),
+                elem._dataset_name,
+            )
+            for elem in paths
+        ],
+        dtype=dt,
     )
 
 
@@ -31,7 +79,7 @@ class Dataset(IterableDataset):
         feature_extractors: list[FeatureExtractor],
         preprocessing_steps: list[PreprocessingStep],
     ) -> None:
-        self._paths = paths
+        self._paths = _descriptors_to_numpy(paths)
         self._face_detector = face_detector
         self._augmentation_steps = augmentation_steps
         self._feature_extractors = feature_extractors
@@ -48,7 +96,7 @@ class Dataset(IterableDataset):
     def __len__(self) -> int:
         return len(self._paths)
 
-    def _get_elems_iterator(self) -> Iterator[DatasetElementDescriptor]:
+    def _get_elems_iterator(self) -> Iterator[Any]:
         worker_info = get_worker_info()
         if worker_info is None:
             for p in self._paths:
