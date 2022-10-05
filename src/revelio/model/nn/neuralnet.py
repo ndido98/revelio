@@ -123,17 +123,12 @@ class NeuralNetwork(Model):
         for callback in self.callbacks:
             callback.after_training(train_metrics | val_metrics)
 
-    def predict(self) -> npt.NDArray[np.double]:
+    def predict(self, batch: dict[str, Any]) -> npt.NDArray[np.float32]:
         with torch.no_grad():
-            scores = []
-            for batch in self.test_dataloader:
-                device_batch = _dict_to_device(batch, self.device)
-                # Use the classifier to get the batch classes
-                prediction = self.classifier(device_batch["x"])
-                prediction = torch.squeeze(prediction).cpu().numpy()
-                ground_truth = torch.squeeze(device_batch["y"]).cpu().numpy()
-                scores.append(np.stack((prediction, ground_truth), axis=1))
-            return np.concatenate(scores)
+            device_batch = _dict_to_device(batch, self.device)
+            # Use the classifier to get the batch classes
+            prediction = self.classifier(device_batch["x"])
+            return torch.squeeze(prediction).cpu().numpy()  # type: ignore
 
     def get_state_dict(self) -> dict[str, Any]:
         return {

@@ -1,6 +1,6 @@
 import unittest.mock as mock
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import numpy as np
 import numpy.typing as npt
@@ -59,16 +59,16 @@ class CorrectDummyModel(Model):
     def fit(self) -> None:
         pass
 
-    def predict(self) -> npt.NDArray[np.double]:
-        return np.array([[0.9, 1], [0.1, 0], [0.8, 1], [0.2, 0]])
+    def predict(self, batch: dict[str, Any]) -> npt.NDArray[np.double]:
+        return np.array([0.9, 0.1, 0.8, 0.2])
 
 
 class WrongDummyModel(Model):
     def fit(self) -> None:
         pass
 
-    def predict(self) -> npt.NDArray[np.double]:
-        return np.array([[0.9], [0.1], [0.8], [0.2]])
+    def predict(self, batch: dict[str, Any]) -> npt.NDArray[np.double]:
+        return np.array([[0.9, 1], [0.1, 0], [0.8, 1], [0.2, 0]])
 
 
 @pytest.fixture
@@ -92,12 +92,27 @@ def config() -> Config:
     )
 
 
-def test_model_evaluate(config: Config) -> None:
+@pytest.fixture
+def test_dataloader() -> Iterable[dict[str, Any]]:
+    return iter(
+        [
+            {
+                "x": None,
+                "y": torch.tensor([1, 0, 1, 0]),
+                "dataset": ["ds1", "ds1", "ds2", "ds2"],
+            }
+        ]
+    )
+
+
+def test_model_evaluate(
+    config: Config, test_dataloader: Iterable[dict[str, Any]]
+) -> None:
     model = CorrectDummyModel(
         config=config,
         train_dataloader=None,  # type: ignore
         val_dataloader=None,  # type: ignore
-        test_dataloader=None,  # type: ignore
+        test_dataloader=test_dataloader,  # type: ignore
         device="cpu",
     )
     with (
@@ -105,7 +120,6 @@ def test_model_evaluate(config: Config) -> None:
         mock.patch("numpy.savetxt") as mock_save,
     ):
         metrics = model.evaluate()
-        print(mock_save.call_args_list)
         # We have to manually check the call args because Numpy arrays override __eq__
         for call in mock_save.call_args_list:
             args, _ = call
@@ -113,15 +127,21 @@ def test_model_evaluate(config: Config) -> None:
                 assert np.array_equal(args[1], np.array([0.1, 0.2]))
             elif args[0] == "morphed_scores.txt":
                 assert np.array_equal(args[1], np.array([0.9, 0.8]))
-        assert metrics == {"accuracy": 1.0, "name1": 0.125, "test": 0.25}
+        assert metrics == {
+            "all": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
+            "ds1": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
+            "ds2": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
+        }
 
 
-def test_model_evaluate_shape_error(config: Config) -> None:
+def test_model_evaluate_shape_error(
+    config: Config, test_dataloader: Iterable[dict[str, Any]]
+) -> None:
     model = WrongDummyModel(
         config=config,
         train_dataloader=None,  # type: ignore
         val_dataloader=None,  # type: ignore
-        test_dataloader=None,  # type: ignore
+        test_dataloader=test_dataloader,  # type: ignore
         device="cpu",
     )
     with pytest.raises(ValueError):

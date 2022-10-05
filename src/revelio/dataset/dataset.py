@@ -105,4 +105,5 @@ class Dataset(IterableDataset):
             yield {
                 "x": elem_xs,
                 "y": elem.y.value,
+                "dataset": elem.original_dataset,
             }

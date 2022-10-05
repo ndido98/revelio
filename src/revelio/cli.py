@@ -128,7 +128,6 @@ def main() -> None:
             batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
-            pin_memory=True,
         )
         val_ds.warmup = True
         warmup_val_dl = DataLoader(
@@ -136,7 +135,6 @@ def main() -> None:
             batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
-            pin_memory=True,
         )
         test_ds.warmup = True
         warmup_test_dl = DataLoader(
@@ -144,7 +142,6 @@ def main() -> None:
             batch_size=1,
             shuffle=False,
             num_workers=args.workers_count,
-            pin_memory=True,
         )
         # Warmup (i.e. run the offline processing) the three data loaders so we don't
         # have an overhead when we start training
@@ -157,6 +154,7 @@ def main() -> None:
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            persistent_workers=True,
             pin_memory=True,
         )
         val_ds.warmup = False
@@ -165,6 +163,7 @@ def main() -> None:
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            persistent_workers=True,
             pin_memory=True,
         )
         test_ds.warmup = False
@@ -173,8 +172,13 @@ def main() -> None:
             batch_size=config.experiment.batch_size,
             shuffle=False,
             num_workers=args.workers_count,
+            persistent_workers=True,
             pin_memory=True,
         )
+        # Call the data loaders iterators to create now the persistent workers
+        print("Creating the workers...")
+        iter(train_dl)
+        iter(val_dl)
         model = Model.find(
             config.experiment.model.name,
             config=config,
@@ -184,9 +188,19 @@ def main() -> None:
             device=args.device,
         )
         if config.experiment.training.enabled:
+            print("Fitting the model...")
             model.fit()
+        print("Evaluating the model...")
+        iter(test_dl)
         metrics = model.evaluate()
-        print(metrics)
+        print("---- EXPERIMENT RESULTS ----")
+        for ds, metric in metrics.items():
+            print(f"Metrics for dataset {ds}:")
+            for k, v in metric.items():
+                print(f"\t{k}: {v!r}")
+        print("Scores have been saved in the following files:")
+        print(f"\tBona fide: {config.experiment.scores.bona_fide}")
+        print(f"\tMorphed: {config.experiment.scores.morphed}")
     except (TypeError, ValueError, ValidationError) as e:
         # Ignore pretty printing of exceptions and just re-raise them
         if args.verbose:
