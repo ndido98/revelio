@@ -52,9 +52,17 @@ class DatasetFactory:
         self._config = config
         loaders = self._get_loaders()
         # Merge the datasets with their respective train, val and test percentages
+        current_x_count: Optional[int] = None
         for dataset, loader in zip(config.datasets, loaders):
             dataset_xy = loader.load(dataset.path)
             for elem in dataset_xy:
+                if current_x_count is None:
+                    current_x_count = len(elem.x)
+                elif current_x_count != len(elem.x):
+                    raise ValueError(
+                        "The number of images in the dataset is not consistent "
+                        f"(expected {current_x_count}, got {len(elem.x)})"
+                    )
                 elem._dataset_name = dataset.name
                 elem._root_path = dataset.path
             bona_fide_xy = [e for e in dataset_xy if e.y == ElementClass.BONA_FIDE]
