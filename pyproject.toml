@@ -50,6 +50,7 @@ opencv-python = "~4.6"
 tensorboard = "~2.10"
 tqdm = "~4.64"
 matplotlib = "~3.6"
+PyWavelets = "~1.4"
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.6.0"
