@@ -31,7 +31,7 @@ packages = [
 revelio = "revelio.cli:main"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <4.0"
+python = ">=3.10, <3.12"
 pyyaml = "~6.0"
 pydantic = "~1.10"
 # HACK: Poetry does not yet support fetching from PyPI with extras fetched from a custom URL,
@@ -51,6 +51,8 @@ tensorboard = "~2.10"
 tqdm = "~4.64"
 matplotlib = "~3.6"
 PyWavelets = "~1.4"
+scipy = "~1.9"
+scikit-learn = "~1.1"
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.6.0"
