@@ -1,6 +1,7 @@
 import argparse
 import random
 import sys
+from typing import Any
 
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from revelio.config import Config
-from revelio.dataset import DatasetFactory
+from revelio.dataset import Dataset, DatasetFactory
 from revelio.model import Model
 from revelio.utils.iterators import consume
 
@@ -71,6 +72,106 @@ def _valid_device(device: str) -> str:
         raise
 
 
+def _create_warmup_data_loader(dataset: Dataset, workers_count: int) -> DataLoader:
+    return DataLoader(
+        dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=workers_count,
+    )
+
+
+def _create_data_loader(
+    dataset: Dataset, batch_size: int, workers_count: int, persistent_workers: bool
+) -> DataLoader:
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=workers_count,
+        persistent_workers=persistent_workers,
+        pin_memory=True,
+    )
+
+
+def _cli_program(args: Any) -> None:
+    config = Config.from_string(args.config_file.read())
+    # Set the seed as soon as possible
+    if config.seed is not None:
+        set_seed(config.seed)
+    else:
+        seed = random.randint(0, 2**32 - 1)
+        print(f"No seed was specified, using a random seed: {seed}")
+        set_seed(seed)
+    print("Loading the dataset...")
+    dataset = DatasetFactory(config)
+    train_ds = dataset.get_train_dataset()
+    val_ds = dataset.get_val_dataset()
+    test_ds = dataset.get_test_dataset()
+    if config.experiment.training.enabled:
+        train_ds.warmup = True
+        warmup_train_dl = _create_warmup_data_loader(train_ds, args.workers_count)
+        val_ds.warmup = True
+        warmup_val_dl = _create_warmup_data_loader(val_ds, args.workers_count)
+    test_ds.warmup = True
+    warmup_test_dl = _create_warmup_data_loader(test_ds, args.workers_count)
+    # Warmup (i.e. run the offline processing) the three data loaders so we don't
+    # have an overhead when we start training
+    if config.experiment.training.enabled:
+        consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
+        consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
+    consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
+    train_ds.warmup = False
+    train_dl = _create_data_loader(
+        train_ds,
+        batch_size=config.experiment.batch_size,
+        workers_count=args.workers_count,
+        persistent_workers=args.persistent_workers,
+    )
+    val_ds.warmup = False
+    val_dl = _create_data_loader(
+        val_ds,
+        batch_size=config.experiment.batch_size,
+        workers_count=args.workers_count,
+        persistent_workers=args.persistent_workers,
+    )
+    test_ds.warmup = False
+    test_dl = _create_data_loader(
+        test_ds,
+        batch_size=config.experiment.batch_size,
+        workers_count=args.workers_count,
+        persistent_workers=args.persistent_workers,
+    )
+    # Call the data loaders iterators to create now the persistent workers
+    if args.persistent_workers and config.experiment.training.enabled:
+        print("Creating the workers...")
+        iter(train_dl)
+        iter(val_dl)
+    model = Model.find(
+        config.experiment.model.name,
+        config=config,
+        train_dataloader=train_dl,
+        val_dataloader=val_dl,
+        test_dataloader=test_dl,
+        device=args.device,
+    )
+    if config.experiment.training.enabled:
+        print("Fitting the model...")
+        model.fit()
+    del train_dl, train_ds
+    del val_dl, val_ds
+    print("Evaluating the model...")
+    metrics = model.evaluate()
+    print("---- EXPERIMENT RESULTS ----")
+    for ds, metric in metrics.items():
+        print(f"Metrics for dataset {ds}:")
+        for k, v in metric.items():
+            print(f"\t{k}: {v!r}")
+    print("Scores have been saved in the following files:")
+    print(f"\tBona fide: {config.experiment.scores.bona_fide}")
+    print(f"\tMorphed: {config.experiment.scores.morphed}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
@@ -105,102 +206,19 @@ def main() -> None:
         default=False,
         help="Set this to true to enable verbose output",
     )
+    parser.add_argument(
+        "--no-persistent-workers",
+        action="store_const",
+        const=False,
+        default=True,
+        help="Set this to true to disable persistent workers during training",
+        dest="persistent_workers",
+    )
 
     args = parser.parse_args()
 
     try:
-        config = Config.from_string(args.config_file.read())
-        # Set the seed as soon as possible
-        if config.seed is not None:
-            set_seed(config.seed)
-        else:
-            seed = random.randint(0, 2**32 - 1)
-            print(f"No seed was specified, using a random seed: {seed}")
-            set_seed(seed)
-        print("Loading the dataset...")
-        dataset = DatasetFactory(config)
-        train_ds = dataset.get_train_dataset()
-        val_ds = dataset.get_val_dataset()
-        test_ds = dataset.get_test_dataset()
-        train_ds.warmup = True
-        warmup_train_dl = DataLoader(
-            train_ds,
-            batch_size=1,
-            shuffle=False,
-            num_workers=args.workers_count,
-        )
-        val_ds.warmup = True
-        warmup_val_dl = DataLoader(
-            val_ds,
-            batch_size=1,
-            shuffle=False,
-            num_workers=args.workers_count,
-        )
-        test_ds.warmup = True
-        warmup_test_dl = DataLoader(
-            test_ds,
-            batch_size=1,
-            shuffle=False,
-            num_workers=args.workers_count,
-        )
-        # Warmup (i.e. run the offline processing) the three data loaders so we don't
-        # have an overhead when we start training
-        consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
-        consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
-        consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
-        train_ds.warmup = False
-        train_dl = DataLoader(
-            train_ds,
-            batch_size=config.experiment.batch_size,
-            shuffle=False,
-            num_workers=args.workers_count,
-            persistent_workers=True,
-            pin_memory=True,
-        )
-        val_ds.warmup = False
-        val_dl = DataLoader(
-            val_ds,
-            batch_size=config.experiment.batch_size,
-            shuffle=False,
-            num_workers=args.workers_count,
-            persistent_workers=True,
-            pin_memory=True,
-        )
-        test_ds.warmup = False
-        test_dl = DataLoader(
-            test_ds,
-            batch_size=config.experiment.batch_size,
-            shuffle=False,
-            num_workers=args.workers_count,
-            persistent_workers=True,
-            pin_memory=True,
-        )
-        # Call the data loaders iterators to create now the persistent workers
-        print("Creating the workers...")
-        iter(train_dl)
-        iter(val_dl)
-        model = Model.find(
-            config.experiment.model.name,
-            config=config,
-            train_dataloader=train_dl,
-            val_dataloader=val_dl,
-            test_dataloader=test_dl,
-            device=args.device,
-        )
-        if config.experiment.training.enabled:
-            print("Fitting the model...")
-            model.fit()
-        print("Evaluating the model...")
-        iter(test_dl)
-        metrics = model.evaluate()
-        print("---- EXPERIMENT RESULTS ----")
-        for ds, metric in metrics.items():
-            print(f"Metrics for dataset {ds}:")
-            for k, v in metric.items():
-                print(f"\t{k}: {v!r}")
-        print("Scores have been saved in the following files:")
-        print(f"\tBona fide: {config.experiment.scores.bona_fide}")
-        print(f"\tMorphed: {config.experiment.scores.morphed}")
+        _cli_program(args)
     except (TypeError, ValueError, ValidationError) as e:
         # Ignore pretty printing of exceptions and just re-raise them
         if args.verbose:
