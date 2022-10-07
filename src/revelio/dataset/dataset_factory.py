@@ -33,7 +33,10 @@ def _split_train_val_test(
 ) -> tuple[list[T], list[T], list[T]]:
     train_val_percentage = train_percentage + val_percentage
     train_val, test = _split_dataset(dataset, train_val_percentage)
-    train, val = _split_dataset(train_val, train_percentage / train_val_percentage)
+    if train_val_percentage > 0:
+        train, val = _split_dataset(train_val, train_percentage / train_val_percentage)
+    else:
+        train, val = [], []
     return train, val, test
 
 
@@ -82,10 +85,40 @@ class DatasetFactory:
             self._train.extend(bona_fide_train + morphed_train)
             self._val.extend(bona_fide_val + morphed_val)
             self._test.extend(bona_fide_test + morphed_test)
+
+            print(f"Loaded dataset: {dataset.name}")
+            print("\tBona fide:")
+            print(f"\t\tTraining: {len(bona_fide_train)}")
+            print(f"\t\tValidation: {len(bona_fide_val)}")
+            print(f"\t\tTest: {len(bona_fide_test)}")
+            print("\tMorphed:")
+            print(f"\t\tTraining: {len(morphed_train)}")
+            print(f"\t\tValidation: {len(morphed_val)}")
+            print(f"\t\tTest: {len(morphed_test)}")
         # Shuffle the three complete datasets
         self._train = random.sample(self._train, len(self._train))
         self._val = random.sample(self._val, len(self._val))
         self._test = random.sample(self._test, len(self._test))
+
+        # Print some stats
+        bf_train_size = sum(1 for e in self._train if e.y == ElementClass.BONA_FIDE)
+        mr_train_size = sum(1 for e in self._train if e.y == ElementClass.MORPHED)
+        bf_val_size = sum(1 for e in self._val if e.y == ElementClass.BONA_FIDE)
+        mr_val_size = sum(1 for e in self._val if e.y == ElementClass.MORPHED)
+        bf_test_size = sum(1 for e in self._test if e.y == ElementClass.BONA_FIDE)
+        mr_test_size = sum(1 for e in self._test if e.y == ElementClass.MORPHED)
+        print("Loaded datasets:")
+        print(f"\tTotal training: {len(self._train)}")
+        print(f"\tTotal validation: {len(self._val)}")
+        print(f"\tTotal test: {len(self._test)}")
+        print("\tBona fide:")
+        print(f"\t\tTraining: {bf_train_size}")
+        print(f"\t\tValidation: {bf_val_size}")
+        print(f"\t\tTest: {bf_test_size}")
+        print("\tMorphed:")
+        print(f"\t\tTraining: {mr_train_size}")
+        print(f"\t\tValidation: {mr_val_size}")
+        print(f"\t\tTest: {mr_test_size}")
 
         if self._config.face_detection.enabled:
             self._face_detector = self._get_face_detector()
