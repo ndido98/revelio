@@ -56,9 +56,9 @@ def test_file_name_formatting() -> None:
         assert mock_save.call_count == 4
         mock_save.assert_has_calls(
             [
-                mock.call(mock_nn.get_state_dict(), Path("model_0_10.0.pt")),
-                mock.call(mock_nn.get_state_dict(), Path("model_1_5.0.pt")),
-                mock.call(mock_nn.get_state_dict(), Path("model_2_15.0.pt")),
-                mock.call(mock_nn.get_state_dict(), Path("model_3_12.5.pt")),
+                mock.call(mock_nn.get_state_dict(), Path("model_1_10.0.pt")),
+                mock.call(mock_nn.get_state_dict(), Path("model_2_5.0.pt")),
+                mock.call(mock_nn.get_state_dict(), Path("model_3_15.0.pt")),
+                mock.call(mock_nn.get_state_dict(), Path("model_4_12.5.pt")),
             ]
         )
