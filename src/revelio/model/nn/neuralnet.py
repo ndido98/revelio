@@ -171,9 +171,9 @@ class NeuralNetwork(Model):
             device_batch = _dict_to_device(batch, self.device)
             for callback in self.callbacks:
                 if training:
-                    callback.before_training_step(epoch, step)
+                    callback.before_training_step(epoch, step, device_batch)
                 else:
-                    callback.before_validation_step(epoch, step)
+                    callback.before_validation_step(epoch, step, device_batch)
             # Use the classifier to get the batch classes
             if training:
                 self.optimizer.zero_grad()
@@ -200,9 +200,9 @@ class NeuralNetwork(Model):
             display_metrics = {k: v.item() for k, v in metrics.items()}
             for callback in self.callbacks:
                 if training:
-                    callback.after_training_step(epoch, step, metrics)
+                    callback.after_training_step(epoch, step, device_batch, metrics)
                 else:
-                    callback.after_validation_step(epoch, step, metrics)
+                    callback.after_validation_step(epoch, step, device_batch, metrics)
             pbar.update(1)
             pbar.set_postfix(display_metrics)
         # At the end the metrics dictionary will contain the metrics for the whole epoch
@@ -222,7 +222,8 @@ class NeuralNetwork(Model):
         self, loss: torch.Tensor, metric_prefix: str = ""
     ) -> dict[str, torch.Tensor]:
         with torch.no_grad():
-            metrics = {}
+            loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
+            metrics = {loss_name: loss.cpu()}
             for metric in self.metrics:
                 metric_name = metric.name
                 metric_result = metric.compute().cpu()
@@ -251,6 +252,4 @@ class NeuralNetwork(Model):
                     if metric_prefix != "":
                         metric_name = f"{metric_prefix}_{metric_name}"
                     metrics[metric_name] = metric_result
-            loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
-            metrics[loss_name] = loss.cpu()
             return metrics

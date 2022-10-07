@@ -1,21 +1,71 @@
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import torch
+import torch.profiler as profiler
 import torch.utils.tensorboard as tb
-from torch.utils.data import DataLoader
 
-from ..utils import _dict_to_device
 from .callback import Callback
 
 
 class TensorBoard(Callback):
-    def __init__(self, log_dir: Optional[str] = None) -> None:
-        self._writer = tb.SummaryWriter(log_dir=log_dir)
+    _writer: tb.SummaryWriter
+    _profiler: Optional[profiler.profile]
 
-    def before_training(self) -> None:
-        self._add_images_view(self.model.train_dataloader, "train")
-        self._add_images_view(self.model.val_dataloader, "val")
+    def __init__(self, log_dir: str, profile: bool = False) -> None:
+        self._run_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        log_dir_with_run = Path(log_dir) / self._run_name
+        self._writer = tb.SummaryWriter(log_dir=str(log_dir_with_run))
+        if profile:
+            self._profiler = profiler.profile(
+                activities=[
+                    profiler.ProfilerActivity.CPU,
+                    profiler.ProfilerActivity.CUDA,
+                ],
+                on_trace_ready=profiler.tensorboard_trace_handler(self._writer.log_dir),
+                record_shapes=True,
+                profile_memory=True,
+                # with_stack=True,  # FIXME: this is bugged on Windows (shocker)
+            )
+        else:
+            self._profiler = None
+
+    def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
+        self._writer.close()
+
+    def before_training_epoch(self, epoch: int, steps_count: int) -> None:
+        if self._profiler is not None:
+            self._profiler.start()
+
+    def after_training_epoch(
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    ) -> None:
+        if self._profiler is not None:
+            self._profiler.stop()
+
+    def before_training_step(
+        self, epoch: int, step: int, batch: dict[str, Any]
+    ) -> None:
+        if epoch == 0 and step == 0:
+            self._add_images_view(batch, "train")
+
+    def after_training_step(
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
+    ) -> None:
+        if self._profiler is not None:
+            self._profiler.step()
+
+    def before_validation_step(
+        self, epoch: int, step: int, batch: dict[str, Any]
+    ) -> None:
+        if epoch == 0 and step == 0:
+            self._add_images_view(batch, "val")
 
     def _get_image(
         self, imgs: torch.Tensor, labels: torch.Tensor, nrow: int = 8
@@ -38,8 +88,7 @@ class TensorBoard(Callback):
                     axs[i, j].remove()
         return fig
 
-    def _add_images_view(self, data_loader: DataLoader, phase: str) -> None:
-        batch = _dict_to_device(next(iter(data_loader)), self.model.device)
+    def _add_images_view(self, batch: dict[str, Any], phase: str) -> None:
         if len(batch["x"]) == 1:
             probe_grid = self._get_image(batch["x"][0]["image"], batch["y"])
             self._writer.add_figure(f"{phase}/probe", probe_grid, 0)
@@ -53,9 +102,6 @@ class TensorBoard(Callback):
                 probe_grid = self._get_image(x["image"], batch["y"])
                 self._writer.add_image(f"{phase}/image {i}", probe_grid, 0)
         self._writer.add_graph(self.model.classifier, [batch["x"]])
-
-    def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
-        self._writer.close()
 
     def after_validation_epoch(
         self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]

@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -47,5 +48,9 @@ class ModelCheckpoint(Callback):
 
     def _parse_file_path(self, epoch: int, metrics: dict[str, torch.Tensor]) -> Path:
         return self._file_path.with_name(
-            self._file_path.name.format(epoch=epoch, **metrics)
+            self._file_path.name.format(
+                now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                epoch=epoch + 1,
+                **metrics,
+            )
         )

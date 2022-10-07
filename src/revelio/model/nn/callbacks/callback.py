@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import torch
 
@@ -25,11 +25,17 @@ class Callback(Registrable):
     ) -> None:
         pass
 
-    def before_training_step(self, epoch: int, step: int) -> None:
+    def before_training_step(
+        self, epoch: int, step: int, batch: dict[str, Any]
+    ) -> None:
         pass
 
     def after_training_step(
-        self, epoch: int, step: int, metrics: dict[str, torch.Tensor]
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
     ) -> None:
         pass
 
@@ -41,10 +47,16 @@ class Callback(Registrable):
     ) -> None:
         pass
 
-    def before_validation_step(self, epoch: int, step: int) -> None:
+    def before_validation_step(
+        self, epoch: int, step: int, batch: dict[str, Any]
+    ) -> None:
         pass
 
     def after_validation_step(
-        self, epoch: int, step: int, metrics: dict[str, torch.Tensor]
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
     ) -> None:
         pass
