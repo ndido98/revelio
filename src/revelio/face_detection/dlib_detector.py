@@ -5,6 +5,8 @@ import cv2 as cv
 import dlib
 import numpy as np
 
+from revelio.dataset.element import Image
+
 from .detector import BoundingBox, FaceDetector, Landmarks
 
 
@@ -20,9 +22,7 @@ class DLIBDetector(FaceDetector):
         else:
             self._landmark_predictor = None
 
-    def process_element(
-        self, elem: np.ndarray
-    ) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         rgb_elem = cv.cvtColor(elem, cv.COLOR_BGR2RGB)
         faces, scores, _ = self._face_detector.run(rgb_elem, 1)
         if len(faces) == 0:
