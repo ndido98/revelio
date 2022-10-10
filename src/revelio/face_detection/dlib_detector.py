@@ -10,7 +10,7 @@ from revelio.dataset.element import Image
 from .detector import BoundingBox, FaceDetector, Landmarks
 
 
-class DLIBDetector(FaceDetector):
+class DLIBDetector(FaceDetector):  # pragma: no cover
     def __init__(self, landmark_predictor_path: Optional[Path] = None, **kwargs: Any):
         super().__init__(**kwargs)
         self._face_detector = dlib.get_frontal_face_detector()
