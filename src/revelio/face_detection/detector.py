@@ -54,7 +54,10 @@ class FaceDetector(Registrable):
                 else:
                     raise ValueError(f"No bounding box found in {meta_path}")
             else:
-                bb, landmarks = self.process_element(x.image)
+                try:
+                    bb, landmarks = self.process_element(x.image)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to process {x.path}: {e}") from e
                 x1, y1, x2, y2 = bb
                 new_x = ElementImage(
                     path=x.path,

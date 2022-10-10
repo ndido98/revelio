@@ -45,7 +45,10 @@ class FeatureExtractor(Registrable):
                 )
                 new_xs.append(new_x)
             else:
-                features = self.process_element(x)
+                try:
+                    features = self.process_element(x)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to process {x.path}: {e}") from e
                 if not force_online:  # TODO: is it correct?
                     # We don't need to save the features if we're forced to do it online
                     # (that means we have one or more augmentation steps)
