@@ -173,14 +173,14 @@ class AMSLLoader(DatasetLoader):  # pragma: no cover
         morphed: list[DatasetElementDescriptor] = []
         for pose in self._poses:
             dir_name = f"londondb_genuine_{pose}_passport-scale_15kb"
-            files = (path / dir_name).rglob("*.jpg")
+            files = sorted((path / dir_name).rglob("*.jpg"))
             bona_fide.extend(
                 DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
                 for image in files
             )
         if self._load_morphs:
             dir_name = "londondb_morph_combined_alpha0.5_passport-scale_15kb"
-            files = (path / dir_name).rglob("*.jpg")
+            files = sorted((path / dir_name).rglob("*.jpg"))
             morphed.extend(
                 DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
                 for image in files
