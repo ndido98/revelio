@@ -61,7 +61,10 @@ class Dataset(IterableDataset):
                 if i % worker_info.num_workers == worker_info.id:
                     yield p
 
-    def _apply_face_detection(self, elem: DatasetElement) -> DatasetElement:
+    def _apply_face_detection(
+        self, elem: DatasetElement
+    ) -> tuple[DatasetElement, bool]:
+        success = True
         if self._face_detector is not None:
             try:
                 elem = self._face_detector.process(elem)
@@ -71,11 +74,13 @@ class Dataset(IterableDataset):
                     elem,
                     exc_info=True,
                 )
-        return elem
+                success = False
+        return elem, success
 
     def _apply_feature_extraction(
         self, elem: DatasetElement, force_online: bool
-    ) -> DatasetElement:
+    ) -> tuple[DatasetElement, bool]:
+        success = True
         for feature_extractor in self._feature_extractors:
             try:
                 elem = feature_extractor.process(elem, force_online=force_online)
@@ -85,17 +90,18 @@ class Dataset(IterableDataset):
                     elem,
                     exc_info=True,
                 )
-                continue
-        return elem
+                success = False
+                break
+        return elem, success
 
     def _offline_processing(self) -> Iterator:
         descriptors = self._get_elems_iterator()
         for descriptor in descriptors:
             elem = _element_with_images(descriptor)
-            elem = self._apply_face_detection(elem)
+            elem, _ = self._apply_face_detection(elem)
             # Feature extraction is offline only if augmentation is disabled
             if len(self._augmentation_steps) == 0 and len(self._feature_extractors) > 0:
-                elem = self._apply_feature_extraction(elem, False)
+                elem, _ = self._apply_feature_extraction(elem, False)
             # HACK: the data loader expects something it can collate to a tensor,
             # so we return a dummy value
             yield 0
@@ -106,15 +112,19 @@ class Dataset(IterableDataset):
             elem = _element_with_images(descriptor)
             # We can safely call the face detector again, as this time it will load
             # the precomputed bounding boxes and landmarks
-            elem = self._apply_face_detection(elem)
+            elem, fd_success = self._apply_face_detection(elem)
+            if not fd_success:
+                continue
             # Augment the dataset; this is always done online
             for augmentation_step in self._augmentation_steps:
                 elem = augmentation_step.process(elem)
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
-            elem = self._apply_feature_extraction(
+            elem, fe_success = self._apply_feature_extraction(
                 elem, len(self._augmentation_steps) > 0
             )
+            if not fe_success:
+                continue
             for preprocessing_step in self._preprocessing_steps:
                 elem = preprocessing_step.process(elem)
             elem_xs = []
