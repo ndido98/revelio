@@ -128,6 +128,7 @@ class NeuralNetwork(Model):
             device_batch = _dict_to_device(batch, self.device)
             # Use the classifier to get the batch classes
             prediction = self.classifier(device_batch["x"])
+            prediction = torch.sigmoid(prediction)
             return torch.squeeze(prediction).cpu().numpy()  # type: ignore
 
     def get_state_dict(self) -> dict[str, Any]:
@@ -163,7 +164,6 @@ class NeuralNetwork(Model):
         pbar: tqdm,
         initial_metrics: dict[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
-        cumulative_loss = torch.tensor(0.0, device=self.device)
         metrics = {}
         dl = self.train_dataloader if training else self.val_dataloader
         self._reset_metrics()
@@ -190,11 +190,8 @@ class NeuralNetwork(Model):
             if training:
                 loss.backward()
                 self.optimizer.step()
-            cumulative_loss += loss
             # Compute the metrics up until this point
-            metrics = self._compute_metrics_dict(
-                cumulative_loss / (step + 1), "val" if not training else ""
-            )
+            metrics = self._compute_metrics_dict(loss, "val" if not training else "")
             metrics = initial_metrics | metrics
             # Call .item() so we don't have tensor() around each number
             display_metrics = {k: v.item() for k, v in metrics.items()}
