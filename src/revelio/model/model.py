@@ -73,8 +73,8 @@ class Model(Registrable):
             parents=True, exist_ok=True
         )
         self.config.experiment.scores.morphed.parent.mkdir(parents=True, exist_ok=True)
-        np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores)
-        np.savetxt(self.config.experiment.scores.morphed, morphed_scores)
+        np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores, "%.5f")
+        np.savetxt(self.config.experiment.scores.morphed, morphed_scores, "%.5f")
         return metrics
 
     def _compute_metrics(
