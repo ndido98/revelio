@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import Optional, TypeVar
 
@@ -13,6 +14,7 @@ from .loaders.loader import DatasetLoader
 
 __all__ = ("DatasetFactory",)
 
+log = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
@@ -54,6 +56,7 @@ class DatasetFactory:
     def __init__(self, config: Config) -> None:
         self._config = config
         loaders = self._get_loaders()
+        log.debug("Found %d loaders", len(loaders))
         # Merge the datasets with their respective train, val and test percentages
         current_x_count: Optional[int] = None
         for dataset, loader in zip(config.datasets, loaders):

@@ -1,4 +1,5 @@
 import argparse
+import logging
 import random
 import sys
 from typing import Any
@@ -13,6 +14,7 @@ from revelio.config import Config
 from revelio.dataset import Dataset, DatasetFactory
 from revelio.model import Model
 from revelio.utils.iterators import consume
+from revelio.utils.logging import TqdmLoggingHandler
 
 
 def set_seed(seed: int) -> None:
@@ -70,6 +72,16 @@ def _valid_device(device: str) -> str:
         )
     except argparse.ArgumentTypeError:
         raise
+
+
+def _verbose_count_to_logging_level(level: int) -> int:
+    match level:
+        case 0:
+            return logging.WARNING
+        case 1:
+            return logging.INFO
+        case _:
+            return logging.DEBUG
 
 
 def _create_warmup_data_loader(dataset: Dataset, workers_count: int) -> DataLoader:
@@ -201,10 +213,10 @@ def main() -> None:
     parser.add_argument(
         "-v",
         "--verbose",
-        action="store_const",
-        const=True,
-        default=False,
+        action="count",
+        default=0,
         help="Set this to true to enable verbose output",
+        dest="logging_level",
     )
     parser.add_argument(
         "--no-persistent-workers",
@@ -217,11 +229,18 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    logging_level = _verbose_count_to_logging_level(args.logging_level)
+    logging.basicConfig(
+        handlers=[TqdmLoggingHandler(logging_level)],
+        level=logging_level,
+        force=True,
+    )
+
     try:
         _cli_program(args)
     except (TypeError, ValueError, ValidationError) as e:
         # Ignore pretty printing of exceptions and just re-raise them
-        if args.verbose:
+        if logging_level > 0:
             raise
         print(
             "---------------------------- FATAL ERROR ----------------------------\n"

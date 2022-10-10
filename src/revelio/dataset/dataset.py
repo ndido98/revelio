@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Generator, Iterator, Optional
 
 import cv2 as cv
@@ -11,6 +12,8 @@ from revelio.preprocessing.step import PreprocessingStep
 from revelio.utils.iterators import consume
 
 from .element import DatasetElement, DatasetElementDescriptor, ElementImage
+
+log = logging.getLogger(__name__)
 
 
 def _element_with_images(elem: DatasetElementDescriptor) -> DatasetElement:
@@ -58,16 +61,41 @@ class Dataset(IterableDataset):
                 if i % worker_info.num_workers == worker_info.id:
                     yield p
 
+    def _apply_face_detection(self, elem: DatasetElement) -> DatasetElement:
+        if self._face_detector is not None:
+            try:
+                elem = self._face_detector.process(elem)
+            except RuntimeError:
+                log.warning(
+                    "Skipping %s due to face detection failure",
+                    elem,
+                    exc_info=True,
+                )
+        return elem
+
+    def _apply_feature_extraction(
+        self, elem: DatasetElement, force_online: bool
+    ) -> DatasetElement:
+        for feature_extractor in self._feature_extractors:
+            try:
+                elem = feature_extractor.process(elem, force_online=force_online)
+            except RuntimeError:
+                log.warning(
+                    "Skipping %s due to feature extraction failure",
+                    elem,
+                    exc_info=True,
+                )
+                continue
+        return elem
+
     def _offline_processing(self) -> Iterator:
         descriptors = self._get_elems_iterator()
         for descriptor in descriptors:
             elem = _element_with_images(descriptor)
-            if self._face_detector is not None:
-                elem = self._face_detector.process(elem)
+            elem = self._apply_face_detection(elem)
             # Feature extraction is offline only if augmentation is disabled
             if len(self._augmentation_steps) == 0 and len(self._feature_extractors) > 0:
-                for feature_extractor in self._feature_extractors:
-                    elem = feature_extractor.process(elem)
+                elem = self._apply_feature_extraction(elem, False)
             # HACK: the data loader expects something it can collate to a tensor,
             # so we return a dummy value
             yield 0
@@ -78,18 +106,15 @@ class Dataset(IterableDataset):
             elem = _element_with_images(descriptor)
             # We can safely call the face detector again, as this time it will load
             # the precomputed bounding boxes and landmarks
-            if self._face_detector is not None:
-                elem = self._face_detector.process(elem)
+            elem = self._apply_face_detection(elem)
             # Augment the dataset; this is always done online
             for augmentation_step in self._augmentation_steps:
                 elem = augmentation_step.process(elem)
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
-            for feature_extractor in self._feature_extractors:
-                elem = feature_extractor.process(
-                    elem,
-                    force_online=len(self._augmentation_steps) > 0,
-                )
+            elem = self._apply_feature_extraction(
+                elem, len(self._augmentation_steps) > 0
+            )
             for preprocessing_step in self._preprocessing_steps:
                 elem = preprocessing_step.process(elem)
             elem_xs = []

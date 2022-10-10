@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from typing import Any, Optional, TypeVar
 
@@ -5,6 +6,7 @@ __all__ = ("Registrable",)
 
 _registry: dict[str, dict[str, type["Registrable"]]] = {}
 
+log = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="Registrable", covariant=True)
 
@@ -54,6 +56,12 @@ class Registrable(ABC):  # noqa: B024
         if cls.__name__ not in _registry:
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
+        log.debug(
+            "Looking for %s in registry %s with keys %s",
+            name,
+            cls.__name__,
+            class_registry.keys(),
+        )
         lowercase_classes = [k.lower().replace("_", "") for k in class_registry.keys()]
         if add_affixes:
             wanted_class = f"{cls.prefix.lower()}{name.lower()}{cls.suffix.lower()}"
