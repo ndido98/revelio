@@ -4,16 +4,44 @@ from pathlib import Path
 from typing import Optional, TypeAlias
 
 import numpy as np
+import numpy.typing as npt
 
 from revelio.config.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage, Image
 from revelio.registry.registry import Registrable
 
 BoundingBox: TypeAlias = tuple[int, int, int, int]
-Landmarks: TypeAlias = np.ndarray
+Landmarks: TypeAlias = npt.NDArray[np.int32]
 
 
 class FaceDetector(Registrable):
+    """
+    A face detector is responsible for detecting faces in the dataset images.
+    It is also responsible for cropping the images to only contain the face, and for
+    detecting the facial landmarks (if the algorithm supports it).
+
+    A face detector must implement the `process_element` method, which takes an image
+    and returns the bounding box of the face and the facial landmarks, if the algorithm
+    supports such extraction, or else None.
+
+    The bounding box is a tuple of 4 integers, representing the top-left and
+    bottom-right coordinates of the bounding box, while the landmarks is a NumPy array
+    of variable length, where each row represents a landmark and each column represents
+    the x and y integer coordinates of the landmark, with origin at the top-left corner
+    of the image.
+    If no landmarks can be computed from the image (e.g. because the chosen face
+    detection algorithm does not support landmark extraction), the returned value for
+    the landmarks should be None.
+
+    If the `process_element` method raises an exception, the dataset element will be
+    skipped and the exception will be logged.
+
+    The `process` method is responsible for loading the bounding box and landmarks from
+    the disk, if they have been already computed, or else calling `process_element`
+    and saving the results.
+    The user should not override this method, but instead implement `process_element`.
+    """
+
     def __init__(self, *, _config: Config) -> None:
         self._config = _config
 
@@ -31,9 +59,50 @@ class FaceDetector(Registrable):
 
     @abstractmethod
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
+        """
+        Processes a single image and returns the bounding box of the face and the
+        facial landmarks, if the algorithm supports such extraction, or else None.
+
+        The bounding box is a tuple of 4 integers, representing the top-left and
+        bottom-right coordinates of the bounding box, while the landmarks is a NumPy
+        array of variable length, where each row represents a landmark and each column
+        represents the x and y integer coordinates of the landmark, with origin at the
+        top-left corner of the image.
+        If no landmarks can be computed from the image (e.g. because the chosen face
+        detection algorithm does not support landmark extraction), the returned value
+        for the landmarks should be None.
+
+        If the `process_element` method raises an exception, the dataset element will
+        be skipped and the exception will be logged.
+
+        Args:
+            elem: The image to process.
+
+        Returns:
+            A tuple containing the bounding box (required) and the facial landmarks
+            (optional).
+        """
         raise NotImplementedError  # pragma: no cover
 
     def process(self, elem: DatasetElement) -> DatasetElement:
+        """
+        Processes a dataset element and returns an element with the same data, but
+        with each image cropped to only contain the face.
+        Also, if the algorithm supports it, the facial landmarks are extracted and
+        saved for each image of the element.
+
+        This method saves the bounding box and the facial landmarks to the disk, so
+        that they can be loaded later without having to recompute them.
+
+        This method should not be overridden by the user, but instead the
+        `process_element` method should be implemented.
+
+        Args:
+            elem: The dataset element to process.
+
+        Returns:
+            A dataset element with cropped images and facial landmarks.
+        """
         new_xs = []
         for i, x in enumerate(elem.x):
             meta_path = self._get_meta_path(elem, i)
