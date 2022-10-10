@@ -122,11 +122,13 @@ def _cli_program(args: Any) -> None:
     test_ds = dataset.get_test_dataset()
     if config.experiment.training.enabled:
         train_ds.warmup = True
-        warmup_train_dl = _create_warmup_data_loader(train_ds, args.workers_count)
+        warmup_train_dl = _create_warmup_data_loader(
+            train_ds, args.warmup_workers_count
+        )
         val_ds.warmup = True
-        warmup_val_dl = _create_warmup_data_loader(val_ds, args.workers_count)
+        warmup_val_dl = _create_warmup_data_loader(val_ds, args.warmup_workers_count)
     test_ds.warmup = True
-    warmup_test_dl = _create_warmup_data_loader(test_ds, args.workers_count)
+    warmup_test_dl = _create_warmup_data_loader(test_ds, args.warmup_workers_count)
     # Warmup (i.e. run the offline processing) the three data loaders so we don't
     # have an overhead when we start training
     if config.experiment.training.enabled:
@@ -209,6 +211,13 @@ def main() -> None:
         type=int,
         default=0,
         help="The number of workers that the data loader should use",
+    )
+    parser.add_argument(
+        "-W",
+        "--warmup-workers-count",
+        type=int,
+        default=0,
+        help="The number of workers that the data loader should use for the warmup",
     )
     parser.add_argument(
         "-v",
