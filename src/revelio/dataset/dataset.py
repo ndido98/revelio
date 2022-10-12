@@ -9,7 +9,6 @@ from revelio.augmentation.step import AugmentationStep
 from revelio.face_detection.detector import FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
-from revelio.utils.iterators import consume
 
 from .element import DatasetElement, DatasetElementDescriptor, ElementImage
 
@@ -45,7 +44,6 @@ class Dataset(IterableDataset):
         if self.warmup:
             return self._offline_processing()
         else:
-            consume(self._offline_processing())
             return self._online_processing()
 
     def __len__(self) -> int:
@@ -62,34 +60,36 @@ class Dataset(IterableDataset):
                     yield p
 
     def _apply_face_detection(
-        self, elem: DatasetElement
+        self, elem: DatasetElement, silent: bool = False
     ) -> tuple[DatasetElement, bool]:
         success = True
         if self._face_detector is not None:
             try:
                 elem = self._face_detector.process(elem)
             except RuntimeError:
-                log.warning(
-                    "Skipping %s due to face detection failure",
-                    elem,
-                    exc_info=True,
-                )
+                if not silent:
+                    log.warning(
+                        "Skipping %s due to face detection failure",
+                        elem,
+                        exc_info=True,
+                    )
                 success = False
         return elem, success
 
     def _apply_feature_extraction(
-        self, elem: DatasetElement, force_online: bool
+        self, elem: DatasetElement, force_online: bool, silent: bool = False
     ) -> tuple[DatasetElement, bool]:
         success = True
         for feature_extractor in self._feature_extractors:
             try:
                 elem = feature_extractor.process(elem, force_online=force_online)
             except RuntimeError:
-                log.warning(
-                    "Skipping %s due to feature extraction failure",
-                    elem,
-                    exc_info=True,
-                )
+                if not silent:
+                    log.warning(
+                        "Skipping %s due to feature extraction failure",
+                        elem,
+                        exc_info=True,
+                    )
                 success = False
                 break
         return elem, success
@@ -112,7 +112,7 @@ class Dataset(IterableDataset):
             elem = _element_with_images(descriptor)
             # We can safely call the face detector again, as this time it will load
             # the precomputed bounding boxes and landmarks
-            elem, fd_success = self._apply_face_detection(elem)
+            elem, fd_success = self._apply_face_detection(elem, silent=True)
             if not fd_success:
                 continue
             # Augment the dataset; this is always done online
@@ -121,7 +121,7 @@ class Dataset(IterableDataset):
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
             elem, fe_success = self._apply_feature_extraction(
-                elem, len(self._augmentation_steps) > 0
+                elem, len(self._augmentation_steps) > 0, silent=True
             )
             if not fe_success:
                 continue
