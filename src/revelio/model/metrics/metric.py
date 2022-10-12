@@ -29,3 +29,31 @@ class Metric(Registrable):
     @abstractmethod
     def reset(self) -> None:
         raise NotImplementedError  # pragma: no cover
+
+    def compute_to_dict(self) -> dict[str, torch.Tensor]:
+        with torch.no_grad():
+            name = self.name
+            result = self.compute().cpu()
+            if isinstance(name, list):
+                if len(name) != len(result):
+                    raise ValueError(
+                        f"The metric {type(self).__name__} returned "
+                        f"{len(name)} metric names, "
+                        f"but {len(result)} metric results"
+                    )
+                # Make sure the metric names don't start with a reserved prefix
+                for n in name:
+                    self._check_metric_name_valid(n)
+                return {n: v for n, v in zip(name, result)}
+            else:
+                self._check_metric_name_valid(name)
+                return {name: result}
+
+    def _check_metric_name_valid(self, name: str) -> None:
+        reserved_prefixes = ("val_", "epoch_val_", "epoch_")
+        for prefix in reserved_prefixes:
+            if name.startswith(prefix):
+                raise ValueError(
+                    f"The metric {type(self).__name__} contains a value "
+                    f"which starts with the reserved prefix '{prefix}'"
+                )

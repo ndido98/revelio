@@ -90,33 +90,9 @@ class Model(Registrable):
                 torch.from_numpy(scores[mask]).to(self.device),
                 torch.from_numpy(labels[mask]).to(self.device),
             )
-            metric_name = metric.name
-            metric_result: torch.Tensor = metric.compute().cpu()
-            if isinstance(metric_name, list):
-                if len(metric_name) != len(metric_result):
-                    raise ValueError(
-                        f"The metric {type(metric).__name__} returned "
-                        f"{len(metric_name)} metric names, "
-                        f"but {len(metric_result)} metric results"
-                    )
-                for name, value in zip(metric_name, metric_result):
-                    if name.startswith("val_"):
-                        raise ValueError(
-                            f"The metric {type(metric).__name__} contains a value "
-                            "which starts with the reserved prefix 'val_'"
-                        )
-                    np_value = value.numpy()
-                    computed_metrics[name] = (
-                        np_value if np_value.size > 1 else np_value.item()
-                    )
-            else:
-                if metric_name.startswith("val_"):
-                    raise ValueError(
-                        f"The metric {type(metric).__name__} contains a value "
-                        "which starts with the reserved prefix 'val_'"
-                    )
-                np_result = metric_result.numpy()
-                computed_metrics[metric_name] = (
-                    np_result if np_result.size > 1 else np_result.item()
-                )
+            metric_dict = metric.compute_to_dict()
+            for key, value in metric_dict.items():
+                np_value = value.numpy()
+                metric_dict[key] = np_value if np_value.size > 1 else np_value.item()
+            computed_metrics.update(metric_dict)
         return computed_metrics

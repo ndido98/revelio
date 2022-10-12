@@ -52,7 +52,6 @@ class NeuralNetwork(Model):
         self.loss_function = found_loss.get(
             **self.config.experiment.training.args["loss"].get("args", {}),
         )
-        self.loss_function = self.loss_function.to(self.device, non_blocking=True)
         # Load the callbacks
         self.callbacks = []
         for callback in self.config.experiment.training.args.get("callbacks", []):
@@ -75,6 +74,7 @@ class NeuralNetwork(Model):
             self._initial_epoch = 0
         self._last_epoch: Optional[int] = None
         # Move the model to the device
+        self.loss_function = self.loss_function.to(self.device, non_blocking=True)
         self.classifier = self.classifier.to(self.device, non_blocking=True)
         # Once the model is fully initialized, pass a reference to it to the callbacks
         for callback in self.callbacks:
@@ -140,6 +140,10 @@ class NeuralNetwork(Model):
 
     def load_state_dict(self, state_dict: dict[str, Any]) -> None:
         self.classifier.load_state_dict(state_dict["model_state_dict"])
+        # HACK: we need to move the model to the desired device *before* loading the
+        # optimizer's state dict, otherwise the optimizer will complain that the model
+        # is on the wrong device
+        self.classifier = self.classifier.to(self.device, non_blocking=True)
         self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
         last_epoch = state_dict["epoch"]
         self._initial_epoch = last_epoch + 1 if last_epoch is not None else 0
@@ -222,31 +226,10 @@ class NeuralNetwork(Model):
             loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
             metrics = {loss_name: loss.cpu()}
             for metric in self.metrics:
-                metric_name = metric.name
-                metric_result = metric.compute().cpu()
-                if isinstance(metric_name, list):
-                    if len(metric_name) != len(metric_result):
-                        raise ValueError(
-                            f"The metric {type(metric).__name__} returned "
-                            f"{len(metric_name)} metric names, "
-                            f"but {len(metric_result)} metric results"
-                        )
-                    for name, value in zip(metric_name, metric_result):
-                        if name.startswith("val_"):
-                            raise ValueError(
-                                f"The metric {type(metric).__name__} contains a value "
-                                "which starts with the reserved prefix 'val_'"
-                            )
-                        if metric_prefix != "":
-                            name = f"{metric_prefix}_{name}"
-                        metrics[name] = value
-                else:
-                    if metric_name.startswith("val_"):
-                        raise ValueError(
-                            f"The metric {type(metric).__name__} contains a value "
-                            "which starts with the reserved prefix 'val_'"
-                        )
+                metric_dict = metric.compute_to_dict()
+                for k, v in metric_dict.items():
                     if metric_prefix != "":
-                        metric_name = f"{metric_prefix}_{metric_name}"
-                    metrics[metric_name] = metric_result
+                        metrics[f"{metric_prefix}_{k}"] = v
+                    else:
+                        metrics[k] = v
             return metrics
