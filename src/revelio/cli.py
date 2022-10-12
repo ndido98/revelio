@@ -101,7 +101,7 @@ def _create_data_loader(
         batch_size=batch_size,
         shuffle=False,
         num_workers=workers_count,
-        persistent_workers=persistent_workers,
+        persistent_workers=persistent_workers if workers_count > 0 else False,
         pin_memory=True,
     )
 
