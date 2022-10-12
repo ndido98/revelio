@@ -31,19 +31,35 @@ class TensorBoard(Callback):
             )
         else:
             self._profiler = None
+        self._train_epoch_steps = 0
+        self._val_epoch_steps = 0
+        self._accumulated_metrics: dict[str, torch.Tensor] = {}
+
+    def before_training(self) -> None:
+        if self._profiler is not None:
+            self._profiler.start()
 
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         self._writer.close()
 
     def before_training_epoch(self, epoch: int, steps_count: int) -> None:
-        if self._profiler is not None:
-            self._profiler.start()
+        if epoch == 0:
+            self._train_epoch_steps = steps_count
 
     def after_training_epoch(
         self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
     ) -> None:
-        if self._profiler is not None:
+        if self._profiler is not None and epoch == 0:
             self._profiler.stop()
+        # Write the average metrics for the epoch
+        # If we iterate through metrics we won't have any validation metric, because
+        # they are not yet computed
+        for metric_name in metrics.keys():
+            self._writer.add_scalar(
+                f"{metric_name}/epoch_train",
+                self._accumulated_metrics[metric_name] / steps_count,
+                epoch,
+            )
 
     def before_training_step(
         self, epoch: int, step: int, batch: dict[str, Any]
@@ -58,14 +74,65 @@ class TensorBoard(Callback):
         batch: dict[str, Any],
         metrics: dict[str, torch.Tensor],
     ) -> None:
+        global_step = epoch * self._train_epoch_steps + step
+        for metric_name in metrics.keys():
+            self._writer.add_scalar(
+                f"{metric_name}/train", metrics[metric_name], global_step
+            )
+            # Accumulate the metrics to compute the average at the end of the epoch
+            if metric_name not in self._accumulated_metrics:
+                self._accumulated_metrics[metric_name] = metrics[metric_name]
+            else:
+                self._accumulated_metrics[metric_name] += metrics[metric_name]
         if self._profiler is not None:
             self._profiler.step()
+
+    def before_validation_epoch(self, epoch: int, steps_count: int) -> None:
+        if epoch == 0:
+            self._val_epoch_steps = steps_count
+
+    def after_validation_epoch(
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    ) -> None:
+        # Write the average val metrics for the epoch
+        for metric_name in metrics.keys():
+            if metric_name.startswith("val_"):
+                original_metric_name = metric_name[4:]
+                self._writer.add_scalar(
+                    f"{original_metric_name}/epoch_val",
+                    self._accumulated_metrics[metric_name] / steps_count,
+                    epoch,
+                )
+        # Reset the accumulated metrics
+        self._accumulated_metrics = {}
 
     def before_validation_step(
         self, epoch: int, step: int, batch: dict[str, Any]
     ) -> None:
         if epoch == 0 and step == 0:
             self._add_images_view(batch, "val")
+
+    def after_validation_step(
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
+    ) -> None:
+        val_metrics = {k: v for k, v in metrics.items() if k.startswith("val_")}
+        global_step = epoch * self._val_epoch_steps + step
+        for metric_name in val_metrics.keys():
+            original_metric_name = metric_name[4:]
+            self._writer.add_scalar(
+                f"{original_metric_name}/val", val_metrics[metric_name], global_step
+            )
+            # Accumulate the metrics to compute the average at the end of the epoch
+            if metric_name not in self._accumulated_metrics:
+                self._accumulated_metrics[metric_name] = val_metrics[metric_name]
+            else:
+                self._accumulated_metrics[metric_name] += val_metrics[metric_name]
+        if self._profiler is not None:
+            self._profiler.step()
 
     def _get_image(
         self, imgs: torch.Tensor, labels: torch.Tensor, nrow: int = 8
@@ -91,29 +158,14 @@ class TensorBoard(Callback):
     def _add_images_view(self, batch: dict[str, Any], phase: str) -> None:
         if len(batch["x"]) == 1:
             probe_grid = self._get_image(batch["x"][0]["image"], batch["y"])
-            self._writer.add_figure(f"{phase}/probe", probe_grid, 0)
+            self._writer.add_figure(f"{phase}_images/probe", probe_grid, 0)
         elif len(batch["x"]) == 2:
             probe_grid = self._get_image(batch["x"][0]["image"], batch["y"])
-            self._writer.add_figure(f"{phase}/probe", probe_grid, 0)
+            self._writer.add_figure(f"{phase}_images/probe", probe_grid, 0)
             live_grid = self._get_image(batch["x"][1]["image"], batch["y"])
-            self._writer.add_figure(f"{phase}/live", live_grid, 0)
+            self._writer.add_figure(f"{phase}_images/live", live_grid, 0)
         else:
             for i, x in enumerate(batch["x"]):
                 probe_grid = self._get_image(x["image"], batch["y"])
-                self._writer.add_image(f"{phase}/image {i}", probe_grid, 0)
+                self._writer.add_image(f"{phase}_images/image {i}", probe_grid, 0)
         self._writer.add_graph(self.model.classifier, [batch["x"]])
-
-    def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
-    ) -> None:
-        train_metrics = {k: v for k, v in metrics.items() if not k.startswith("val_")}
-        val_metrics = {k: v for k, v in metrics.items() if k.startswith("val_")}
-        for metric_name in train_metrics.keys():
-            self._writer.add_scalars(
-                metric_name,
-                {
-                    "train": train_metrics[metric_name],
-                    "val": val_metrics[f"val_{metric_name}"],
-                },
-                epoch,
-            )

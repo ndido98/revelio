@@ -19,6 +19,7 @@ class EarlyStopping(Callback):
         self._patience = patience
         self._direction = direction
         self._restore_best_weights = restore_best_weights
+        self._epoch_metric_value = torch.tensor(0.0, dtype=torch.float32)
         self._best_metric_value = (
             torch.tensor(float("inf"))
             if direction == "min"
@@ -27,12 +28,22 @@ class EarlyStopping(Callback):
         self._best_weights: Optional[dict[str, Any]] = None
         self._wait = 0
 
-    def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    def after_validation_step(
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
     ) -> None:
         if self._monitor not in metrics:
             raise ValueError(f"{self._monitor} is not a valid metric")
-        metric_value = metrics[self._monitor]
+        self._epoch_metric_value += metrics[self._monitor]
+
+    def after_validation_epoch(
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    ) -> None:
+        metric_value = self._epoch_metric_value / steps_count
+        self._epoch_metric_value = torch.tensor(0.0, dtype=torch.float32)
         if self._direction == "min":
             has_improved = metric_value < self._best_metric_value - self._min_delta
         else:

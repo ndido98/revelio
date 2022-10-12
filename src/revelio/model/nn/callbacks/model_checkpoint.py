@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import torch
 
@@ -21,18 +21,29 @@ class ModelCheckpoint(Callback):
         self._min_delta = min_delta
         self._direction = direction
         self._save_best_only = save_best_only
+        self._epoch_metric_value = torch.tensor(0.0, dtype=torch.float32)
         self._best_metric_value = (
             torch.tensor(float("inf"))
             if direction == "min"
             else torch.tensor(float("-inf"))
         )
 
-    def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    def after_validation_step(
+        self,
+        epoch: int,
+        step: int,
+        batch: dict[str, Any],
+        metrics: dict[str, torch.Tensor],
     ) -> None:
         if self._monitor not in metrics:
             raise ValueError(f"{self._monitor} is not a valid metric")
-        metric_value = metrics[self._monitor]
+        self._epoch_metric_value += metrics[self._monitor]
+
+    def after_validation_epoch(
+        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+    ) -> None:
+        metric_value = self._epoch_metric_value / steps_count
+        self._epoch_metric_value = torch.tensor(0.0, dtype=torch.float32)
         if self._direction == "min":
             has_improved = metric_value < self._best_metric_value - self._min_delta
         else:
