@@ -7,6 +7,7 @@ from revelio.config import Config
 from revelio.face_detection import FaceDetector
 from revelio.feature_extraction import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
+from revelio.utils.rounding import round_half_up
 
 from .dataset import Dataset
 from .element import DatasetElementDescriptor, ElementClass
@@ -24,21 +25,48 @@ def _split_dataset(
     split: float,
 ) -> tuple[list[T], list[T]]:
     shuffled = random.sample(dataset, len(dataset))
-    split_index = round(len(shuffled) * split)
-    return dataset[:split_index], dataset[split_index:]
+    split_index = round_half_up(len(shuffled) * split)
+    return shuffled[:split_index], shuffled[split_index:]
 
 
 def _split_train_val_test(
     dataset: list[T],
     train_percentage: float,
     val_percentage: float,
+    test_percentage: float,
 ) -> tuple[list[T], list[T], list[T]]:
-    train_val_percentage = train_percentage + val_percentage
-    train_val, test = _split_dataset(dataset, train_val_percentage)
-    if train_val_percentage > 0:
-        train, val = _split_dataset(train_val, train_percentage / train_val_percentage)
-    else:
-        train, val = [], []
+    if train_percentage == 0.0 and val_percentage == 0.0 and test_percentage == 0.0:
+        return [], [], []
+    if train_percentage + val_percentage + test_percentage > 1:
+        raise ValueError("Train, val and test percentages must sum to 1 or less")
+    if train_percentage == 0.0 and val_percentage == 0.0:
+        test, _ = _split_dataset(dataset, test_percentage)
+        return [], [], test
+    if train_percentage == 0.0 and test_percentage == 0.0:
+        val, _ = _split_dataset(dataset, val_percentage)
+        return [], val, []
+    if val_percentage == 0.0 and test_percentage == 0.0:
+        train, _ = _split_dataset(dataset, train_percentage)
+        return train, [], []
+    if train_percentage == 0.0:
+        test, rest = _split_dataset(dataset, test_percentage)
+        print(test_percentage, len(test), len(rest))
+        val, _ = _split_dataset(rest, val_percentage / (1 - test_percentage))
+        print(val_percentage, val_percentage / (1 - test_percentage), len(val))
+        return [], val, test
+    if val_percentage == 0.0:
+        test, rest = _split_dataset(dataset, test_percentage)
+        train, _ = _split_dataset(rest, train_percentage / (1 - test_percentage))
+        return train, [], test
+    if test_percentage == 0.0:
+        val, rest = _split_dataset(dataset, val_percentage)
+        train, _ = _split_dataset(rest, train_percentage / (1 - val_percentage))
+        return train, val, []
+    test, rest = _split_dataset(dataset, test_percentage)
+    val, rest = _split_dataset(rest, val_percentage / (1 - test_percentage))
+    train, _ = _split_dataset(
+        rest, train_percentage / (1 - test_percentage - val_percentage)
+    )
     return train, val, test
 
 
@@ -78,11 +106,13 @@ class DatasetFactory:
                 bona_fide_xy,
                 dataset.split.train,
                 dataset.split.val,
+                dataset.split.test,
             )
             morphed_train, morphed_val, morphed_test = _split_train_val_test(
                 morphed_xy,
                 dataset.split.train,
                 dataset.split.val,
+                dataset.split.test,
             )
 
             self._train.extend(bona_fide_train + morphed_train)

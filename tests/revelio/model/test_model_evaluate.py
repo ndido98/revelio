@@ -11,6 +11,7 @@ from revelio.config import Config
 from revelio.config.model import Experiment
 from revelio.config.model import Metric as ConfigMetric
 from revelio.config.model import Scores
+from revelio.config.model.dataset import Dataset
 from revelio.model import Model
 from revelio.model.metrics import Metric
 
@@ -74,6 +75,10 @@ class WrongDummyModel(Model):
 @pytest.fixture
 def config() -> Config:
     return Config.construct(
+        datasets=[
+            Dataset.construct(name="ds1", testing_groups=["group1"]),
+            Dataset.construct(name="ds2", testing_groups=["group1"]),
+        ],
         experiment=Experiment.construct(
             scores=Scores.construct(
                 bona_fide=Path("bona_fide_scores.txt"),
@@ -88,7 +93,7 @@ def config() -> Config:
                     args={"test_arg": "test"},
                 ),
             ],
-        )
+        ),
     )
 
 
@@ -129,8 +134,7 @@ def test_model_evaluate(
                 assert np.array_equal(args[1], np.array([0.9, 0.8]))
         assert metrics == {
             "all": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
-            "ds1": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
-            "ds2": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
+            "group1": {"accuracy": 1.0, "name1": 0.125, "test": 0.25},
         }
 
 

@@ -1,3 +1,4 @@
+import logging
 from abc import abstractmethod
 from typing import Any, Mapping
 
@@ -10,6 +11,8 @@ from revelio.config.config import Config
 from revelio.registry.registry import Registrable
 
 from .metrics.metric import Metric
+
+log = logging.getLogger(__name__)
 
 
 class Model(Registrable):
@@ -44,6 +47,9 @@ class Model(Registrable):
         scores_list: list[npt.NDArray[np.float32]] = []
         labels_list: list[int] = []
         original_datasets_list: list[str] = []
+        testing_groups = self._get_testing_groups_datasets()
+        log.debug("Found testing groups: %s", testing_groups)
+        # Predict on each element of the test set
         for elem in self.test_dataloader:
             batch_scores = self.predict(elem)
             if batch_scores.ndim != 1:
@@ -59,14 +65,13 @@ class Model(Registrable):
         scores = np.concatenate(scores_list)
         labels = np.concatenate(labels_list)
         original_datasets = np.array(original_datasets_list)
+        # Compute metrics for each testing group
         metrics: dict[str, Mapping[str, npt.ArrayLike]] = {}
-        metrics["all"] = self._compute_metrics(
-            scores, labels, mask=np.ones_like(scores, dtype=bool)
-        )
-        for dataset in np.unique(original_datasets):
-            dataset_mask = original_datasets == dataset
-            dataset_metrics = self._compute_metrics(scores, labels, mask=dataset_mask)
-            metrics[dataset] = dataset_metrics
+        for testing_group, datasets in testing_groups.items():
+            mask = np.zeros_like(original_datasets, dtype=bool)
+            for dataset in datasets:
+                mask |= original_datasets == dataset
+            metrics[testing_group] = self._compute_metrics(scores, labels, mask=mask)
         bona_fide_scores = scores[labels == 0]
         morphed_scores = scores[labels == 1]
         self.config.experiment.scores.bona_fide.parent.mkdir(
@@ -96,3 +101,14 @@ class Model(Registrable):
                 metric_dict[key] = np_value if np_value.size > 1 else np_value.item()
             computed_metrics.update(metric_dict)
         return computed_metrics
+
+    def _get_testing_groups_datasets(self) -> dict[str, set[str]]:
+        testing_groups = {}
+        for dataset in self.config.datasets:
+            for testing_group in dataset.testing_groups:
+                if testing_group not in testing_groups:
+                    testing_groups[testing_group] = set(dataset.name)
+                else:
+                    testing_groups[testing_group].add(dataset.name)
+        testing_groups["all"] = {ds.name for ds in self.config.datasets}
+        return testing_groups

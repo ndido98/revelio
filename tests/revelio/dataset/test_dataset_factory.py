@@ -1,8 +1,10 @@
 from pathlib import Path
 from typing import Any, Optional, cast
 
+import hypothesis.strategies as st
 import numpy as np
 import pytest
+from hypothesis import given
 
 from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
@@ -28,6 +30,7 @@ from revelio.dataset import (
     ElementImage,
     Image,
 )
+from revelio.dataset.dataset_factory import _split_train_val_test
 from revelio.dataset.loaders import DatasetLoader
 from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
 from revelio.feature_extraction.extractor import FeatureExtractor
@@ -173,6 +176,62 @@ def bad_config_dataset() -> Config:
         ],
         face_detection=None,
     )
+
+
+@given(
+    to_split=st.lists(st.integers(), min_size=100, unique=True),
+    split=(
+        st.tuples(
+            st.floats(
+                0.0,
+                1.0,
+                width=16,
+                allow_nan=False,
+                allow_infinity=False,
+                allow_subnormal=False,
+            ),
+            st.floats(
+                0.0,
+                1.0,
+                width=16,
+                allow_nan=False,
+                allow_infinity=False,
+                allow_subnormal=False,
+            ),
+            st.floats(
+                0.0,
+                1.0,
+                width=16,
+                allow_nan=False,
+                allow_infinity=False,
+                allow_subnormal=False,
+            ),
+        ).filter(lambda t: 0 <= sum(t) <= 1.0)
+    ),
+)
+def test_split_simple(to_split: list[int], split: tuple[float, float, float]) -> None:
+    train_percentage, val_percentage, test_percentage = split
+    train, val, test = _split_train_val_test(
+        to_split, train_percentage, val_percentage, test_percentage
+    )
+    if test_percentage > 0:
+        assert len(test) / len(to_split) == pytest.approx(test_percentage, abs=0.01)
+    if val_percentage > 0:
+        assert len(val) / len(to_split) == pytest.approx(val_percentage, abs=0.01)
+    if train_percentage > 0:
+        assert len(train) / len(to_split) == pytest.approx(train_percentage, abs=0.01)
+    assert len(train) + len(val) + len(test) <= len(to_split)
+    # Make sure we don't have any duplicate elements
+    assert len(train) == len(set(train))
+    assert len(val) == len(set(val))
+    assert len(test) == len(set(test))
+    # Make sure we don't have any duplicate elements between the three splits
+    assert len(train) + len(val) + len(test) == len(set(train + val + test))
+    if train_percentage == 0 and val_percentage == 0 and test_percentage == 0:
+        # Special case: all percentages are 0, so we should have no elements
+        assert len(train) == 0
+        assert len(val) == 0
+        assert len(test) == 0
 
 
 def test_split(config: Config) -> None:
