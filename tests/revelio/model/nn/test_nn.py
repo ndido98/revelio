@@ -16,15 +16,14 @@ from revelio.model.nn.callbacks import Callback
 
 class DebugCallback(Callback):
     def __init__(self) -> None:
-        self.first_loss = float("inf")
-        self.last_loss = float("inf")
+        self.first_loss = 0.0
+        self.last_loss = 0.0
 
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         assert "loss" in metrics
         assert "val_loss" in metrics
         assert "accuracy" in metrics
         assert "val_accuracy" in metrics
-        self.last_loss = metrics["loss"].item()
         # The last loss must be less than the first loss
         assert self.last_loss < self.first_loss
 
@@ -36,7 +35,9 @@ class DebugCallback(Callback):
         assert "accuracy" in metrics
         assert "val_accuracy" not in metrics
         if epoch == 0:
-            self.first_loss = metrics["loss"].item()
+            self.first_loss /= steps_count
+        if epoch == 9:
+            self.last_loss /= steps_count
 
     def after_training_step(
         self,
@@ -49,6 +50,10 @@ class DebugCallback(Callback):
         assert "val_loss" not in metrics
         assert "accuracy" in metrics
         assert "val_accuracy" not in metrics
+        if epoch == 0:
+            self.first_loss += metrics["loss"].item()
+        if epoch == 9:
+            self.last_loss += metrics["loss"].item()
 
     def after_validation_epoch(
         self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
