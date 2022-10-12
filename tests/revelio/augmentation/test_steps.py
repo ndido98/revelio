@@ -33,7 +33,6 @@ def is_black(img: ElementImage) -> bool:
 
 
 def is_white(img: ElementImage) -> bool:
-    print(img.image)
     return np.all(img.image[0, 0] == np.array([255, 255, 255]))  # type: ignore
 
 
