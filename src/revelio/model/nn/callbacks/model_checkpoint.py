@@ -40,9 +40,9 @@ class ModelCheckpoint(Callback):
         self._epoch_metric_value += metrics[self._monitor]
 
     def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
-        metric_value = self._epoch_metric_value / steps_count
+        metric_value = self._epoch_metric_value / self.model.val_steps_per_epoch[-1]
         self._epoch_metric_value = torch.tensor(0.0, dtype=torch.float32)
         if self._direction == "min":
             has_improved = metric_value < self._best_metric_value - self._min_delta

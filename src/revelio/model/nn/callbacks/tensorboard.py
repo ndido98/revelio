@@ -31,8 +31,6 @@ class TensorBoard(Callback):
             )
         else:
             self._profiler = None
-        self._train_epoch_steps = 0
-        self._val_epoch_steps = 0
         self._accumulated_metrics: dict[str, torch.Tensor] = {}
 
     def before_training(self) -> None:
@@ -42,12 +40,8 @@ class TensorBoard(Callback):
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         self._writer.close()
 
-    def before_training_epoch(self, epoch: int, steps_count: int) -> None:
-        if epoch == 0:
-            self._train_epoch_steps = steps_count
-
     def after_training_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         if self._profiler is not None and epoch == 0:
             self._profiler.stop()
@@ -57,7 +51,8 @@ class TensorBoard(Callback):
         for metric_name in metrics.keys():
             self._writer.add_scalar(
                 f"{metric_name}/epoch_train",
-                self._accumulated_metrics[metric_name] / steps_count,
+                self._accumulated_metrics[metric_name]
+                / self.model.train_steps_per_epoch[-1],
                 epoch,
             )
 
@@ -74,7 +69,7 @@ class TensorBoard(Callback):
         batch: dict[str, Any],
         metrics: dict[str, torch.Tensor],
     ) -> None:
-        global_step = epoch * self._train_epoch_steps + step
+        global_step = sum(self.model.train_steps_per_epoch) + step
         for metric_name in metrics.keys():
             self._writer.add_scalar(
                 f"{metric_name}/train", metrics[metric_name], global_step
@@ -87,12 +82,8 @@ class TensorBoard(Callback):
         if self._profiler is not None:
             self._profiler.step()
 
-    def before_validation_epoch(self, epoch: int, steps_count: int) -> None:
-        if epoch == 0:
-            self._val_epoch_steps = steps_count
-
     def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         # Write the average val metrics for the epoch
         for metric_name in metrics.keys():
@@ -100,7 +91,8 @@ class TensorBoard(Callback):
                 original_metric_name = metric_name[4:]
                 self._writer.add_scalar(
                     f"{original_metric_name}/epoch_val",
-                    self._accumulated_metrics[metric_name] / steps_count,
+                    self._accumulated_metrics[metric_name]
+                    / self.model.val_steps_per_epoch[-1],
                     epoch,
                 )
         # Reset the accumulated metrics
@@ -120,7 +112,7 @@ class TensorBoard(Callback):
         metrics: dict[str, torch.Tensor],
     ) -> None:
         val_metrics = {k: v for k, v in metrics.items() if k.startswith("val_")}
-        global_step = epoch * self._val_epoch_steps + step
+        global_step = sum(self.model.val_steps_per_epoch) + step
         for metric_name in val_metrics.keys():
             original_metric_name = metric_name[4:]
             self._writer.add_scalar(

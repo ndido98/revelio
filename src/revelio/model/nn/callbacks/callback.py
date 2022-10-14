@@ -17,11 +17,11 @@ class Callback(Registrable):
     def after_training(self, metrics: dict[str, torch.Tensor]) -> None:
         pass
 
-    def before_training_epoch(self, epoch: int, steps_count: int) -> None:
+    def before_training_epoch(self, epoch: int) -> None:
         pass
 
     def after_training_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         pass
 
@@ -39,11 +39,11 @@ class Callback(Registrable):
     ) -> None:
         pass
 
-    def before_validation_epoch(self, epoch: int, steps_count: int) -> None:
+    def before_validation_epoch(self, epoch: int) -> None:
         pass
 
     def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         pass
 

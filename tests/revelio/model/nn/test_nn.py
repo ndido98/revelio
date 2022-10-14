@@ -28,16 +28,16 @@ class DebugCallback(Callback):
         assert self.last_loss < self.first_loss
 
     def after_training_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         assert "loss" in metrics
         assert "val_loss" not in metrics
         assert "accuracy" in metrics
         assert "val_accuracy" not in metrics
         if epoch == 0:
-            self.first_loss /= steps_count
+            self.first_loss /= sum(self.model.train_steps_per_epoch)
         if epoch == 9:
-            self.last_loss /= steps_count
+            self.last_loss /= sum(self.model.train_steps_per_epoch)
 
     def after_training_step(
         self,
@@ -56,7 +56,7 @@ class DebugCallback(Callback):
             self.last_loss += metrics["loss"].item()
 
     def after_validation_epoch(
-        self, epoch: int, steps_count: int, metrics: dict[str, torch.Tensor]
+        self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
         assert "loss" in metrics
         assert "val_loss" in metrics

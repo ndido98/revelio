@@ -18,7 +18,10 @@ class NeuralNetwork(Model):
 
     transparent: bool = True
 
+    initial_epoch: int
     epochs: int
+    train_steps_per_epoch: list[int] = []
+    val_steps_per_epoch: list[int] = []
     optimizer: torch.optim.Optimizer
     loss_function: torch.nn.Module
     callbacks: list[Callback]
@@ -71,8 +74,10 @@ class NeuralNetwork(Model):
             )
             self.load_state_dict(checkpoint)
         else:
-            self._initial_epoch = 0
+            self.initial_epoch = 0
         self._last_epoch: Optional[int] = None
+        self._train_batches_count: Optional[int] = None
+        self._val_batches_count: Optional[int] = None
         # Move the model to the device
         self.loss_function = self.loss_function.to(self.device, non_blocking=True)
         self.classifier = self.classifier.to(self.device, non_blocking=True)
@@ -89,30 +94,30 @@ class NeuralNetwork(Model):
         for callback in self.callbacks:
             callback.before_training()
 
-        pbar_len = len(self.train_dataloader) + len(self.val_dataloader)
-        for epoch in range(self._initial_epoch, self.epochs):
+        for epoch in range(self.initial_epoch, self.epochs):
+            if self._train_batches_count is None or self._val_batches_count is None:
+                # We don't know how many batches are there yet
+                pbar_len = float("inf")
+            else:
+                pbar_len = self._train_batches_count + self._val_batches_count
             with tqdm(total=pbar_len) as pbar:
                 if self.should_stop:
                     break
                 self._last_epoch = epoch
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs}")
                 for callback in self.callbacks:
-                    callback.before_training_epoch(epoch, len(self.train_dataloader))
+                    callback.before_training_epoch(epoch)
                 train_metrics = self._train(epoch, pbar)
                 for callback in self.callbacks:
-                    callback.after_training_epoch(
-                        epoch, len(self.train_dataloader), train_metrics
-                    )
+                    callback.after_training_epoch(epoch, train_metrics)
 
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs} (validation)")
                 for callback in self.callbacks:
-                    callback.before_validation_epoch(epoch, len(self.val_dataloader))
+                    callback.before_validation_epoch(epoch)
                 with torch.no_grad():
                     val_metrics = self._validate(epoch, pbar, train_metrics)
                 for callback in self.callbacks:
-                    callback.after_validation_epoch(
-                        epoch, len(self.val_dataloader), train_metrics | val_metrics
-                    )
+                    callback.after_validation_epoch(epoch, train_metrics | val_metrics)
 
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs} (done)")
                 display_metrics = {
@@ -135,7 +140,8 @@ class NeuralNetwork(Model):
         return {
             "model_state_dict": self.classifier.state_dict(),
             "optimizer_state_dict": self.optimizer.state_dict(),
-            "epoch": self._last_epoch,
+            "train_steps_per_epoch": self.train_steps_per_epoch,
+            "val_steps_per_epoch": self.val_steps_per_epoch,
         }
 
     def load_state_dict(self, state_dict: dict[str, Any]) -> None:
@@ -145,12 +151,24 @@ class NeuralNetwork(Model):
         # is on the wrong device
         self.classifier = self.classifier.to(self.device, non_blocking=True)
         self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
-        last_epoch = state_dict["epoch"]
-        self._initial_epoch = last_epoch + 1 if last_epoch is not None else 0
+        self.train_steps_per_epoch = state_dict["train_steps_per_epoch"]
+        self.val_steps_per_epoch = state_dict["val_steps_per_epoch"]
+        if len(self.train_steps_per_epoch) != len(self.val_steps_per_epoch):
+            raise ValueError(
+                "The number of training and validation steps per epoch must be the same"
+            )
+        last_epoch = len(self.train_steps_per_epoch)
+        self.initial_epoch = last_epoch + 1 if last_epoch > 0 else 0
 
     def _train(self, epoch: int, pbar: tqdm) -> dict[str, torch.Tensor]:
         self.classifier.train()
-        return self._run_epoch(True, epoch, pbar, {})
+        metrics, batches_count = self._run_epoch(True, epoch, pbar, {})
+        if self._train_batches_count is None:
+            self._train_batches_count = batches_count
+        else:
+            assert self._train_batches_count == batches_count
+        self.train_steps_per_epoch.append(batches_count)
+        return metrics
 
     def _validate(
         self,
@@ -159,7 +177,13 @@ class NeuralNetwork(Model):
         train_metrics: dict[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
         self.classifier.eval()
-        return self._run_epoch(False, epoch, pbar, train_metrics)
+        metrics, batches_count = self._run_epoch(False, epoch, pbar, train_metrics)
+        if self._val_batches_count is None:
+            self._val_batches_count = batches_count
+        else:
+            assert self._val_batches_count == batches_count
+        self.val_steps_per_epoch.append(batches_count)
+        return metrics
 
     def _run_epoch(
         self,
@@ -167,11 +191,13 @@ class NeuralNetwork(Model):
         epoch: int,
         pbar: tqdm,
         initial_metrics: dict[str, torch.Tensor],
-    ) -> dict[str, torch.Tensor]:
+    ) -> tuple[dict[str, torch.Tensor], int]:
         metrics = {}
         dl = self.train_dataloader if training else self.val_dataloader
         self._reset_metrics()
+        batches_count = 0
         for step, batch in enumerate(dl):
+            batches_count += 1
             device_batch = _dict_to_device(batch, self.device)
             for callback in self.callbacks:
                 if training:
@@ -207,7 +233,7 @@ class NeuralNetwork(Model):
             pbar.update(1)
             pbar.set_postfix(display_metrics)
         # At the end the metrics dictionary will contain the metrics for the whole epoch
-        return metrics
+        return metrics, batches_count
 
     def _reset_metrics(self) -> None:
         with torch.no_grad():
