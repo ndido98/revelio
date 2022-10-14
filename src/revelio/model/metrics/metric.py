@@ -33,7 +33,12 @@ class Metric(Registrable):
     def compute_to_dict(self) -> dict[str, torch.Tensor]:
         with torch.no_grad():
             name = self.name
-            result = self.compute().cpu()
+            try:
+                result = self.compute().cpu()
+            except Exception as e:
+                raise RuntimeError(
+                    f"Error while computing metric {type(self).__name__}"
+                ) from e
             if isinstance(name, list):
                 if len(name) != len(result):
                     raise ValueError(

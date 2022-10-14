@@ -1,5 +1,7 @@
 import logging
 from abc import abstractmethod
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Mapping
 
 import numpy as np
@@ -13,6 +15,10 @@ from revelio.registry.registry import Registrable
 from .metrics.metric import Metric
 
 log = logging.getLogger(__name__)
+
+
+def _format_path(path: Path, **format: Any) -> Path:
+    return Path(str(path).format(**format))
 
 
 class Model(Registrable):
@@ -65,21 +71,41 @@ class Model(Registrable):
         scores = np.concatenate(scores_list)
         labels = np.concatenate(labels_list)
         original_datasets = np.array(original_datasets_list)
-        # Compute metrics for each testing group
-        metrics: dict[str, Mapping[str, npt.ArrayLike]] = {}
-        for testing_group, datasets in testing_groups.items():
-            mask = np.zeros_like(original_datasets, dtype=bool)
-            for dataset in datasets:
-                mask |= original_datasets == dataset
-            metrics[testing_group] = self._compute_metrics(scores, labels, mask=mask)
-        bona_fide_scores = scores[labels == 0]
-        morphed_scores = scores[labels == 1]
+        # Create the directories for the scores
         self.config.experiment.scores.bona_fide.parent.mkdir(
             parents=True, exist_ok=True
         )
         self.config.experiment.scores.morphed.parent.mkdir(parents=True, exist_ok=True)
-        np.savetxt(self.config.experiment.scores.bona_fide, bona_fide_scores, "%.5f")
-        np.savetxt(self.config.experiment.scores.morphed, morphed_scores, "%.5f")
+        # Compute metrics for each testing group and save the scores to file
+        metrics: dict[str, Mapping[str, npt.ArrayLike]] = {}
+        for group, datasets in testing_groups.items():
+            mask = np.zeros_like(original_datasets, dtype=bool)
+            for dataset in datasets:
+                mask |= original_datasets == dataset
+            try:
+                metrics[group] = self._compute_metrics(scores, labels, mask=mask)
+            except Exception as e:
+                raise RuntimeError(
+                    f"Error while computing metrics for testing group {group}"
+                ) from e
+            bona_fide_scores = scores[mask][labels[mask] == 0]
+            morphed_scores = scores[mask][labels[mask] == 1]
+            formatted_bona_fide = _format_path(
+                self.config.experiment.scores.bona_fide,
+                group=group,
+                now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                timestamp=datetime.now().timestamp(),
+                today=datetime.now().strftime("%Y-%m-%d"),
+            )
+            formatted_morphed = _format_path(
+                self.config.experiment.scores.morphed,
+                group=group,
+                now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                timestamp=datetime.now().timestamp(),
+                today=datetime.now().strftime("%Y-%m-%d"),
+            )
+            np.savetxt(formatted_bona_fide, bona_fide_scores, "%.5f")
+            np.savetxt(formatted_morphed, morphed_scores, "%.5f")
         return metrics
 
     def _compute_metrics(
@@ -107,7 +133,7 @@ class Model(Registrable):
         for dataset in self.config.datasets:
             for testing_group in dataset.testing_groups:
                 if testing_group not in testing_groups:
-                    testing_groups[testing_group] = set(dataset.name)
+                    testing_groups[testing_group] = {dataset.name}
                 else:
                     testing_groups[testing_group].add(dataset.name)
         testing_groups["all"] = {ds.name for ds in self.config.datasets}

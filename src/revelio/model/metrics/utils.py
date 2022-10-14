@@ -12,6 +12,10 @@ def _compute_roc(
     num_preds = y_pred.shape[0]
     num_positives = torch.count_nonzero(y_true_n)
     num_negatives = num_preds - num_positives
+    if num_positives == 0:
+        raise ValueError("No positive samples in y_true")
+    if num_negatives == 0:
+        raise ValueError("No negative samples in y_true")
     predicted_positives = torch.arange(1, num_preds + 1, device=device)
     # Sort the predictions by their confidence, then by their descending label
     _, sorted_true = torch.sort(y_true_n, stable=True, descending=True)

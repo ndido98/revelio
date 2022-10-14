@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -29,15 +28,6 @@ class Training(BaseModel):
 class Scores(BaseModel):
     bona_fide: Path
     morphed: Path
-
-    @validator("bona_fide", "morphed", pre=True)
-    def parse_file_path(cls, v: Path) -> Path:
-        parsed = str(v).format(
-            now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-            timestamp=datetime.now().timestamp(),
-            today=datetime.now().strftime("%Y-%m-%d"),
-        )
-        return Path(parsed)
 
 
 class Metric(BaseModel):
