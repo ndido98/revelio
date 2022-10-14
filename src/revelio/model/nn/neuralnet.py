@@ -75,7 +75,6 @@ class NeuralNetwork(Model):
             self.load_state_dict(checkpoint)
         else:
             self.initial_epoch = 0
-        self._last_epoch: Optional[int] = None
         self._train_batches_count: Optional[int] = None
         self._val_batches_count: Optional[int] = None
         # Move the model to the device
@@ -103,7 +102,6 @@ class NeuralNetwork(Model):
             with tqdm(total=pbar_len) as pbar:
                 if self.should_stop:
                     break
-                self._last_epoch = epoch
                 pbar.set_description(f"Epoch {epoch + 1}/{self.epochs}")
                 for callback in self.callbacks:
                     callback.before_training_epoch(epoch)
@@ -129,6 +127,7 @@ class NeuralNetwork(Model):
             callback.after_training(train_metrics | val_metrics)
 
     def predict(self, batch: dict[str, Any]) -> npt.NDArray[np.float32]:
+        self.classifier.eval()
         with torch.no_grad():
             device_batch = _dict_to_device(batch, self.device)
             # Use the classifier to get the batch classes
@@ -158,7 +157,7 @@ class NeuralNetwork(Model):
                 "The number of training and validation steps per epoch must be the same"
             )
         last_epoch = len(self.train_steps_per_epoch)
-        self.initial_epoch = last_epoch + 1 if last_epoch > 0 else 0
+        self.initial_epoch = last_epoch
 
     def _train(self, epoch: int, pbar: tqdm) -> dict[str, torch.Tensor]:
         self.classifier.train()

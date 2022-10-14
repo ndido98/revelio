@@ -4,7 +4,6 @@ import random
 import sys
 from typing import Any
 
-import numpy as np
 import torch
 from pydantic import ValidationError
 from torch.utils.data import DataLoader
@@ -15,17 +14,7 @@ from revelio.dataset import Dataset, DatasetFactory
 from revelio.model import Model
 from revelio.utils.iterators import consume
 from revelio.utils.logging import TqdmLoggingHandler
-
-
-def set_seed(seed: int) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.backends.cudnn.enabled = True
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
+from revelio.utils.random import set_seed
 
 
 def _is_valid_device(

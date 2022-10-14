@@ -1,5 +1,4 @@
 import logging
-import random
 from typing import Optional, TypeVar
 
 from revelio.augmentation import AugmentationStep
@@ -7,6 +6,7 @@ from revelio.config import Config
 from revelio.face_detection import FaceDetector
 from revelio.feature_extraction import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
+from revelio.utils.random import shuffled
 from revelio.utils.rounding import round_half_up
 
 from .dataset import Dataset
@@ -24,9 +24,9 @@ def _split_dataset(
     dataset: list[T],
     split: float,
 ) -> tuple[list[T], list[T]]:
-    shuffled = random.sample(dataset, len(dataset))
-    split_index = round_half_up(len(shuffled) * split)
-    return shuffled[:split_index], shuffled[split_index:]
+    shuffled_dataset = shuffled(dataset)
+    split_index = round_half_up(len(shuffled_dataset) * split)
+    return shuffled_dataset[:split_index], shuffled_dataset[split_index:]
 
 
 def _split_train_val_test(
@@ -129,9 +129,9 @@ class DatasetFactory:
             print(f"\t\tValidation: {len(morphed_val)}")
             print(f"\t\tTest: {len(morphed_test)}")
         # Shuffle the three complete datasets
-        self._train = random.sample(self._train, len(self._train))
-        self._val = random.sample(self._val, len(self._val))
-        self._test = random.sample(self._test, len(self._test))
+        self._train = shuffled(self._train)
+        self._val = shuffled(self._val)
+        self._test = shuffled(self._test)
 
         # Print some stats
         bf_train_size = sum(1 for e in self._train if e.y == ElementClass.BONA_FIDE)
@@ -238,6 +238,7 @@ class DatasetFactory:
             self._augmentation_steps,
             self._feature_extractors,
             self._preprocessing_steps,
+            True,
         )
 
     def get_val_dataset(self) -> Dataset:
@@ -247,6 +248,7 @@ class DatasetFactory:
             [],
             self._feature_extractors,
             self._preprocessing_steps,
+            True,
         )
 
     def get_test_dataset(self) -> Dataset:
@@ -256,4 +258,5 @@ class DatasetFactory:
             [],
             self._feature_extractors,
             self._preprocessing_steps,
+            False,
         )

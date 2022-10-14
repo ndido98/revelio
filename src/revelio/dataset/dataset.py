@@ -1,4 +1,5 @@
 import logging
+from math import ceil
 from typing import Any, Generator, Iterator, Optional
 
 import cv2 as cv
@@ -9,6 +10,7 @@ from revelio.augmentation.step import AugmentationStep
 from revelio.face_detection.detector import FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
+from revelio.utils.random import shuffled
 
 from .element import DatasetElement, DatasetElementDescriptor, ElementImage
 
@@ -32,12 +34,14 @@ class Dataset(IterableDataset):
         augmentation_steps: list[AugmentationStep],
         feature_extractors: list[FeatureExtractor],
         preprocessing_steps: list[PreprocessingStep],
+        shuffle: bool,
     ) -> None:
         self._paths = paths
         self._face_detector = face_detector
         self._augmentation_steps = augmentation_steps
         self._feature_extractors = feature_extractors
         self._preprocessing_steps = preprocessing_steps
+        self._shuffle = shuffle
         self.warmup = False
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
@@ -49,15 +53,20 @@ class Dataset(IterableDataset):
     def __len__(self) -> int:
         return len(self._paths)
 
-    def _get_elems_iterator(self) -> Iterator[DatasetElementDescriptor]:
+    def _get_elems_list(self) -> list[DatasetElementDescriptor]:
         worker_info = get_worker_info()
         if worker_info is None:
-            for p in self._paths:
-                yield p
+            return shuffled(self._paths) if self._shuffle else self._paths
         else:
-            for i, p in enumerate(self._paths):
-                if i % worker_info.num_workers == worker_info.id:
-                    yield p
+            # Split the dataset across workers
+            per_worker = int(ceil(len(self._paths) / worker_info.num_workers))
+            worker_id = worker_info.id
+            from_idx = worker_id * per_worker
+            to_idx = (worker_id + 1) * per_worker
+            if self._shuffle:
+                return shuffled(self._paths[from_idx:to_idx])
+            else:
+                return self._paths[from_idx:to_idx]
 
     def _apply_face_detection(
         self, elem: DatasetElement, silent: bool = False
@@ -95,7 +104,7 @@ class Dataset(IterableDataset):
         return elem, success
 
     def _offline_processing(self) -> Iterator:
-        descriptors = self._get_elems_iterator()
+        descriptors = self._get_elems_list()
         for descriptor in descriptors:
             elem = _element_with_images(descriptor)
             elem, _ = self._apply_face_detection(elem)
@@ -107,7 +116,7 @@ class Dataset(IterableDataset):
             yield 0
 
     def _online_processing(self) -> Generator[dict[str, Any], None, None]:
-        descriptors = self._get_elems_iterator()
+        descriptors = self._get_elems_list()
         for descriptor in descriptors:
             elem = _element_with_images(descriptor)
             # We can safely call the face detector again, as this time it will load
