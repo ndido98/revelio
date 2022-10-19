@@ -34,37 +34,9 @@ class NeuralNetwork(Model):
         if "epochs" not in self.config.experiment.training.args:
             raise ValueError("Missing epochs in training configuration")
         self.epochs = int(self.config.experiment.training.args["epochs"])
-        if "optimizer" not in self.config.experiment.training.args:
-            raise ValueError("Missing optimizer in training configuration")
-        if "name" not in self.config.experiment.training.args["optimizer"]:
-            raise ValueError("Missing optimizer name in training configuration")
-        found_optimizer = Optimizer.find(
-            self.config.experiment.training.args["optimizer"]["name"],
-        )
-        self.optimizer = found_optimizer.get(
-            params=self.classifier.parameters(),
-            **self.config.experiment.training.args["optimizer"].get("args", {}),
-        )
-        if "loss" not in self.config.experiment.training.args:
-            raise ValueError("Missing loss in training configuration")
-        if "name" not in self.config.experiment.training.args["loss"]:
-            raise ValueError("Missing loss name in training configuration")
-        found_loss = Loss.find(
-            self.config.experiment.training.args["loss"]["name"],
-        )
-        self.loss_function = found_loss.get(
-            **self.config.experiment.training.args["loss"].get("args", {}),
-        )
-        # Load the callbacks
-        self.callbacks = []
-        for callback in self.config.experiment.training.args.get("callbacks", []):
-            if "name" not in callback:
-                raise ValueError("Missing callback name in training configuration")
-            found_callback = Callback.find(
-                callback["name"],
-                **callback.get("args", {}),
-            )
-            self.callbacks.append(found_callback)
+        self._load_optimizer()
+        self._load_loss()
+        self._load_callbacks()
         self.should_stop = False
         # Load a checkpoint if present
         if self.config.experiment.model.checkpoint is not None:
@@ -83,6 +55,44 @@ class NeuralNetwork(Model):
         # Once the model is fully initialized, pass a reference to it to the callbacks
         for callback in self.callbacks:
             callback.model = self
+
+    def _load_optimizer(self) -> None:
+        if "optimizer" not in self.config.experiment.training.args:
+            raise ValueError("Missing optimizer in training configuration")
+        if "name" not in self.config.experiment.training.args["optimizer"]:
+            raise ValueError("Missing optimizer name in training configuration")
+        found_optimizer = Optimizer.find(
+            self.config.experiment.training.args["optimizer"]["name"],
+        )
+        self.optimizer = found_optimizer.get(
+            params=self.classifier.parameters(),
+            **self.config.experiment.training.args["optimizer"].get("args", {}),
+        )
+
+    def _load_loss(self) -> None:
+        if "loss" not in self.config.experiment.training.args:
+            raise ValueError("Missing loss in training configuration")
+        if "name" not in self.config.experiment.training.args["loss"]:
+            raise ValueError("Missing loss name in training configuration")
+        found_loss = Loss.find(
+            self.config.experiment.training.args["loss"]["name"],
+        )
+        self.loss_function = found_loss.get(
+            **self.config.experiment.training.args["loss"].get("args", {}),
+        )
+
+    def _load_callbacks(self) -> None:
+        # Load the callbacks if training is enabled
+        self.callbacks = []
+        if self.config.experiment.training.enabled:
+            for callback in self.config.experiment.training.args.get("callbacks", []):
+                if "name" not in callback:
+                    raise ValueError("Missing callback name in training configuration")
+                found_callback = Callback.find(
+                    callback["name"],
+                    **callback.get("args", {}),
+                )
+                self.callbacks.append(found_callback)
 
     @abstractmethod
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:
