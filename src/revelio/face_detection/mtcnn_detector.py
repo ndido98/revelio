@@ -17,6 +17,10 @@ class MTCNNDetector(FaceDetector):  # pragma: no cover
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         rgb_elem = cv.cvtColor(elem, cv.COLOR_BGR2RGB)
         boxes, _, landmarks = self._mtcnn.detect(rgb_elem, landmarks=True)
-        boxes = tuple(np.squeeze(boxes).astype(int))
-        landmarks = np.squeeze(landmarks).astype(int)
-        return boxes, landmarks
+        if len(boxes) == 0:
+            raise ValueError("Expected 1 face, got 0")
+        biggest_box = np.argmax(np.prod(boxes[:, 2:] - boxes[:, :2], axis=1))
+        box = boxes[biggest_box].astype(int)
+        box = tuple(int(n) for n in box)
+        landmarks = landmarks[biggest_box].astype(int)
+        return box, landmarks
