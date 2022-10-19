@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, validator
 
-from .utils import NonEmptyList, args_cannot_start_with_underscores
+from .utils import args_cannot_start_with_underscores
 
 
 class PreprocessingStep(BaseModel):
@@ -15,4 +15,4 @@ class PreprocessingStep(BaseModel):
 
 
 class Preprocessing(BaseModel):
-    steps: NonEmptyList[PreprocessingStep]
+    steps: list[PreprocessingStep]
