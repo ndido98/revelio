@@ -108,7 +108,11 @@ class FaceDetector(Registrable):
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
                 meta = json.loads(meta_path.read_text())
-                landmarks = np.array(meta["landmarks"]) if "landmarks" in meta else None
+                landmarks = (
+                    np.array(meta["landmarks"])
+                    if meta.get("landmarks", None) is not None
+                    else None
+                )
                 if "bb" in meta:
                     # We have the bounding boxes, skip loading a new image
                     # and instead crop the one we already have
@@ -127,14 +131,21 @@ class FaceDetector(Registrable):
                     bb, landmarks = self.process_element(x.image)
                 except Exception as e:
                     raise RuntimeError(f"Failed to process {x.path}: {e}") from e
-                x1, y1, x2, y2 = bb
+                # Make sure that the bounding box is always inside the image
+                clipped_bb = (
+                    max(0, bb[0]),
+                    max(0, bb[1]),
+                    min(x.image.shape[1], bb[2]),
+                    min(x.image.shape[0], bb[3]),
+                )
+                x1, y1, x2, y2 = clipped_bb
                 new_x = ElementImage(
                     path=x.path,
                     image=x.image[y1:y2, x1:x2],
                     landmarks=landmarks,
                 )
                 meta = {
-                    "bb": bb,
+                    "bb": clipped_bb,
                     "landmarks": landmarks.tolist() if landmarks is not None else None,
                 }
                 # Create the meta file
