@@ -40,7 +40,7 @@ class Registrable(ABC):  # noqa: B024
             parent_registry = _registry[parent_name]
             # Make sure there is no other algorithm with the same case-insensitive name
             lowercase_classes = [
-                k.lower().replace("_", "") for k in parent_registry.keys()
+                _sanitize_name(k.lower()) for k in parent_registry.keys()
             ]
             if cls.__name__.lower() not in lowercase_classes:
                 _registry[parent_name][cls.__name__] = cls
@@ -57,17 +57,18 @@ class Registrable(ABC):  # noqa: B024
             raise ValueError(f"Could not find a registry for {cls.__name__}")
         class_registry = _registry[cls.__name__]
         log.debug(
-            "Looking for %s in registry %s with keys %s",
+            "Looking for %s (sanitized in %s) in registry %s with keys {%s}",
             name,
+            _sanitize_name(name.lower()),
             cls.__name__,
-            class_registry.keys(),
+            ", ".join(class_registry.keys()),
         )
-        lowercase_classes = [k.lower().replace("_", "") for k in class_registry.keys()]
+        lowercase_classes = [_sanitize_name(k.lower()) for k in class_registry.keys()]
         if add_affixes:
             wanted_class = f"{cls.prefix.lower()}{name.lower()}{cls.suffix.lower()}"
         else:
             wanted_class = name.lower()
-        wanted_class = wanted_class.replace("_", "")
+        wanted_class = _sanitize_name(wanted_class)
         if wanted_class not in lowercase_classes:
             raise ValueError(
                 f"Could not find {name} in {cls.__name__} registry "
@@ -79,6 +80,11 @@ class Registrable(ABC):  # noqa: B024
         class_type: type[T] = class_registry[class_name]  # type: ignore
         # This cast is safe because the class registry has all classes of requested type
         return class_type(**kwargs)
+
+
+def _sanitize_name(name: str) -> str:
+    ignored_chars = (" ", "_", "-")
+    return "".join(c for c in name if c not in ignored_chars)
 
 
 def _count_registrable_paths(cls: type[T]) -> int:
