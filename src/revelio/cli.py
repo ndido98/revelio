@@ -95,6 +95,37 @@ def _create_data_loader(
     )
 
 
+def _warmup(
+    config: Config,
+    warmup_workers_count: int,
+    train_ds: Dataset,
+    val_ds: Dataset,
+    test_ds: Dataset,
+) -> None:
+    if config.experiment.training.enabled:
+        train_ds.warmup = True
+        val_ds.warmup = True
+        warmup_train_dl = _create_warmup_data_loader(train_ds, warmup_workers_count)
+        warmup_val_dl = _create_warmup_data_loader(val_ds, warmup_workers_count)
+    test_ds.warmup = True
+    warmup_test_dl = _create_warmup_data_loader(test_ds, warmup_workers_count)
+    # Warmup (i.e. run the offline processing) the three data loaders so we don't
+    # have an overhead when we start training
+    if config.experiment.training.enabled:
+        if config.seed is not None:
+            set_seed(config.seed)
+        consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
+        if config.seed is not None:
+            set_seed(config.seed)
+        consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
+    if config.seed is not None:
+        set_seed(config.seed)
+    consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
+    train_ds.warmup = False
+    val_ds.warmup = False
+    test_ds.warmup = False
+
+
 def _cli_program(args: Any) -> None:
     config = Config.from_string(args.config_file.read())
     # Set the seed as soon as possible
@@ -109,36 +140,19 @@ def _cli_program(args: Any) -> None:
     train_ds = dataset.get_train_dataset()
     val_ds = dataset.get_val_dataset()
     test_ds = dataset.get_test_dataset()
-    if config.experiment.training.enabled:
-        train_ds.warmup = True
-        warmup_train_dl = _create_warmup_data_loader(
-            train_ds, args.warmup_workers_count
-        )
-        val_ds.warmup = True
-        warmup_val_dl = _create_warmup_data_loader(val_ds, args.warmup_workers_count)
-    test_ds.warmup = True
-    warmup_test_dl = _create_warmup_data_loader(test_ds, args.warmup_workers_count)
-    # Warmup (i.e. run the offline processing) the three data loaders so we don't
-    # have an overhead when we start training
-    if config.experiment.training.enabled:
-        consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
-        consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
-    consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
-    train_ds.warmup = False
+    _warmup(config, args.warmup_workers_count, train_ds, val_ds, test_ds)
     train_dl = _create_data_loader(
         train_ds,
         batch_size=config.experiment.batch_size,
         workers_count=args.workers_count,
         persistent_workers=args.persistent_workers,
     )
-    val_ds.warmup = False
     val_dl = _create_data_loader(
         val_ds,
         batch_size=config.experiment.batch_size,
         workers_count=args.workers_count,
         persistent_workers=args.persistent_workers,
     )
-    test_ds.warmup = False
     test_dl = _create_data_loader(
         test_ds,
         batch_size=config.experiment.batch_size,

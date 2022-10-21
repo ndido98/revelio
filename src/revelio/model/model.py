@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 
 from revelio.config.config import Config
 from revelio.registry.registry import Registrable
+from revelio.utils.random import set_seed
 
 from .metrics.metric import Metric
 
@@ -50,6 +51,9 @@ class Model(Registrable):
         raise NotImplementedError  # pragma: no cover
 
     def evaluate(self) -> Mapping[str, Mapping[str, npt.ArrayLike]]:
+        # Reset the seed so we are sure to get the same results
+        if self.config.seed is not None:
+            set_seed(self.config.seed)
         scores_list: list[npt.NDArray[np.float32]] = []
         labels_list: list[int] = []
         original_datasets_list: list[str] = []
@@ -58,6 +62,7 @@ class Model(Registrable):
         # Predict on each element of the test set
         for elem in self.test_dataloader:
             batch_scores = self.predict(elem)
+            batch_scores = np.atleast_1d(batch_scores)
             if batch_scores.ndim != 1:
                 raise ValueError("predict() must return a 1D-array of scores")
             batch_gt = elem["y"].cpu().numpy()
