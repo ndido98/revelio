@@ -186,3 +186,12 @@ class AMSLLoader(DatasetLoader):  # pragma: no cover
                 for image in files
             )
         return bona_fide + morphed
+
+
+class BiometixMorphedLoader(DatasetLoader):  # pragma: no cover
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        all_images = sorted(path.rglob("*.jpg"))
+        return [
+            DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
+            for image in all_images
+        ]
