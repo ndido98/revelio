@@ -33,7 +33,14 @@ class BPCERAtAPCER(Metric):
         d2 = torch.abs(self._thresholds_tensor - Pmiss[idx])
         w1 = d1 / (d1 + d2)
         w2 = d2 / (d1 + d2)
-        return Pmiss[idx - 1] * w1 + Pmiss[idx] * w2
+        res = torch.where(
+            Pmiss[idx - 1] == Pmiss[idx],
+            Pmiss[idx],
+            Pmiss[idx - 1] * w1 + Pmiss[idx] * w2,
+        )
+        if torch.any(torch.isnan(res)):
+            raise RuntimeError("NaN values encountered in BPCERAtAPCER")
+        return res
 
     def reset(self) -> None:
         self._preds: list[torch.Tensor] = []
