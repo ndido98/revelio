@@ -22,14 +22,18 @@ class Normalize(PreprocessingStep):
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
-        if preset is None and (mean is None or std is None):
-            raise ValueError("Either preset or mean and std must be specified")
-        else:
+        if preset is not None:
+            # If a preset is specified, we can't have a custom mean or std
             if mean is not None or std is not None:
-                raise ValueError("Either preset or mean and std must be specified")
+                raise ValueError(
+                    "Cannot specify a custom mean or std when a preset is specified"
+                )
             if preset not in _PRESETS:
                 raise ValueError(f"Unknown preset: {preset}")
             mean, std = _PRESETS[preset]
+        else:
+            if mean is None or std is None:
+                raise ValueError("Must specify a preset or a custom mean and std")
 
         if len(mean) != 3 or len(std) != 3:
             raise ValueError("Mean and std must have length 3")
