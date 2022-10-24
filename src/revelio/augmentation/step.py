@@ -1,3 +1,11 @@
+"""
+This module contains the class that defines an augmentation step, from which all
+augmentation steps inherit.
+
+A user can define their own augmentation steps by subclassing this class and
+overriding the `process_element` method.
+"""
+
 import random
 from abc import abstractmethod
 from typing import Literal
@@ -9,11 +17,11 @@ from revelio.registry.registry import Registrable
 class AugmentationStep(Registrable):
     """
     An augmentation step is applied to a dataset element with a certain probability.
-    The affected images of the dataset element can be specified with the applies_to
+    The affected images of the dataset element can be specified with the `applies_to`
     parameter in the configuration file.
-    If applies_to is set to "all", the augmentation step is applied to all images
+    If `applies_to` is set to "all", the augmentation step is applied to all images
     of the dataset element.
-    If applies_to is set to a list of integers, the augmentation step is applied
+    If `applies_to` is set to a list of integers, the augmentation step is applied
     to the images with the specified indices.
 
     The probability parameter specifies the probability (between 0 and 1 inclusive)

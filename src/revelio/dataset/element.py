@@ -72,7 +72,7 @@ class ElementImage:
         image: The image.
         landmarks: The facial landmarks of the image (if present).
         features: The features of the image produced by each feature extractor
-        (if present).
+            (if present).
     """
 
     _path: Path
@@ -95,7 +95,7 @@ class ElementImage:
             image: The image.
             landmarks: The facial landmarks of the image (if present).
             features: The features of the image produced by each feature extractor
-            (if present).
+                (if present).
         """
         self._path = path
         self._image = image
@@ -142,8 +142,8 @@ class DatasetElement:
         x: The image(s) of the dataset element.
         y: The class of the dataset element.
         original_dataset: The name of the original dataset from which the element
-        was taken. It is equal to the dataset name specified in the configuration
-        file.
+            was taken. It is equal to the dataset name specified in the configuration
+            file.
         dataset_root_path: The path to the root directory of the dataset.
     """
 
@@ -168,7 +168,7 @@ class DatasetElement:
             y: The class of the dataset element.
             dataset_root_path: The path to the root directory of the dataset.
             original_dataset: The name of the original dataset from which the element
-            was taken.
+                was taken.
         """
         self._x = x
         self._y = y
