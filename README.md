@@ -16,7 +16,7 @@
 
 ---
 
-A declarative data augmentation framework
+A declarative framework for Morphing Attack Detection experiments
 
 ## Installation
 
