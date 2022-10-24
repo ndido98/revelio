@@ -21,9 +21,9 @@ def init_fn(worker_id: int) -> None:
 
 
 @given(
-    workers_count=st.integers(min_value=0, max_value=4),
+    workers_count=st.integers(min_value=0, max_value=2),
     elems_count=st.integers(min_value=5, max_value=100),
-    batch_size=st.integers(min_value=1, max_value=10),
+    batch_size=st.integers(min_value=1, max_value=7),
 )
 @settings(deadline=timedelta(seconds=10))
 def test_worker_sharding_correct(

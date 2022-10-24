@@ -179,7 +179,7 @@ def bad_config_dataset() -> Config:
 
 
 @given(
-    to_split=st.lists(st.integers(), min_size=100, unique=True),
+    to_split=st.lists(st.integers(), min_size=100, max_size=1000, unique=True),
     split=(
         st.tuples(
             st.floats(
