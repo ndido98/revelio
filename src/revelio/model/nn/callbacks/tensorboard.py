@@ -160,4 +160,3 @@ class TensorBoard(Callback):
             for i, x in enumerate(batch["x"]):
                 probe_grid = self._get_image(x["image"], batch["y"])
                 self._writer.add_image(f"{phase}_images/image {i}", probe_grid, 0)
-        self._writer.add_graph(self.model.classifier, [batch["x"]])
