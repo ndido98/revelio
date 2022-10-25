@@ -7,12 +7,14 @@ import numpy as np
 from torch.utils.data import IterableDataset, get_worker_info
 
 from revelio.augmentation.step import AugmentationStep
+from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
 from revelio.face_detection.detector import FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
-from revelio.utils.random import shuffled
 
 from .element import DatasetElement, DatasetElementDescriptor, ElementImage
+
+__all__ = ("Dataset",)
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +31,7 @@ def _element_with_images(elem: DatasetElementDescriptor) -> DatasetElement:
 class Dataset(IterableDataset):
     def __init__(
         self,
-        paths: list[DatasetElementDescriptor],
+        paths: DatasetElementDescriptorsList,
         face_detector: Optional[FaceDetector],
         augmentation_steps: list[AugmentationStep],
         feature_extractors: list[FeatureExtractor],
@@ -53,10 +55,10 @@ class Dataset(IterableDataset):
     def __len__(self) -> int:
         return len(self._paths)
 
-    def _get_elems_list(self) -> list[DatasetElementDescriptor]:
+    def _get_elems_list(self) -> DatasetElementDescriptorsList:
         worker_info = get_worker_info()
         if worker_info is None:
-            return shuffled(self._paths) if self._shuffle else self._paths
+            return self._paths.shuffled() if self._shuffle else self._paths
         else:
             # Split the dataset across workers
             per_worker = int(ceil(len(self._paths) / worker_info.num_workers))
@@ -64,7 +66,7 @@ class Dataset(IterableDataset):
             from_idx = worker_id * per_worker
             to_idx = (worker_id + 1) * per_worker
             if self._shuffle:
-                return shuffled(self._paths[from_idx:to_idx])
+                return self._paths[from_idx:to_idx].shuffled()
             else:
                 return self._paths[from_idx:to_idx]
 

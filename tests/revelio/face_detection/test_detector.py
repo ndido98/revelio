@@ -1,5 +1,4 @@
 import unittest.mock as mock
-from json import JSONDecodeError
 from pathlib import Path
 from typing import Optional
 
@@ -57,10 +56,10 @@ def dataset_element() -> DatasetElement:
 
 def test_meta_path(dummy2: FaceDetector, dataset_element: DatasetElement) -> None:
     assert dummy2._get_meta_path(dataset_element, 0) == Path(
-        "/path/to/fd/dummy2/ds1/image1.meta.json"
+        "/path/to/fd/dummy2/ds1/image1.meta.npz"
     )
     assert dummy2._get_meta_path(dataset_element, 1) == Path(
-        "/path/to/fd/dummy2/ds1/image2.meta.json"
+        "/path/to/fd/dummy2/ds1/image2.meta.npz"
     )
 
 
@@ -68,7 +67,7 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "write_text") as mock_write_text,
+        mock.patch("numpy.savez_compressed") as mock_savez,
     ):
         new_elem = dummy2.process(dataset_element)
         assert new_elem.x[0].image is not None
@@ -79,20 +78,24 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
         assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
         assert new_elem.x[1].landmarks is not None
         assert new_elem.x[1].landmarks.tolist() == [1, 2, 3]
-        assert mock_write_text.call_count == 2
-        mock_write_text.assert_called_with(
-            '{"bb": [5, 5, 15, 15], "landmarks": [1, 2, 3]}'
-        )
+        assert mock_savez.call_count == 2
+        # We have to manually check the call args because Numpy arrays override __eq__
+        for call in mock_savez.call_args_list:
+            _, kwargs = call
+            assert np.array_equal(kwargs["bb"], np.array([5, 5, 15, 15]))
+            assert np.array_equal(kwargs["landmarks"], np.array([1, 2, 3]))
 
 
 def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -> None:
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(
-            Path,
-            "read_text",
-            return_value='{"bb": [5, 5, 15, 15], "landmarks": [1, 2, 3]}',
+        mock.patch(
+            "numpy.load",
+            return_value={
+                "bb": np.array([5, 5, 15, 15]),
+                "landmarks": np.array([1, 2, 3]),
+            },
         ),
     ):
         new_elem = dummy2.process(dataset_element)
@@ -104,29 +107,3 @@ def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -
         assert new_elem.x[0].landmarks.tolist() == [1, 2, 3]
         assert new_elem.x[1].landmarks is not None
         assert new_elem.x[1].landmarks.tolist() == [1, 2, 3]
-
-
-def test_meta_file_read_error(
-    dummy2: FaceDetector, dataset_element: DatasetElement
-) -> None:
-    with (
-        mock.patch("pathlib.Path.is_file", return_value=True),
-        mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(
-            Path, "read_text", return_value='{"bb": [5, 5, 15, 15], "landmarks": [1, 2,'
-        ),
-        pytest.raises(JSONDecodeError),
-    ):
-        dummy2.process(dataset_element)
-
-
-def test_meta_file_without_bounding_boxes(
-    dummy2: FaceDetector, dataset_element: DatasetElement
-) -> None:
-    with (
-        mock.patch("pathlib.Path.is_file", return_value=True),
-        mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "read_text", return_value='{"landmarks": [1, 2, 3]}'),
-        pytest.raises(ValueError),
-    ):
-        dummy2.process(dataset_element)

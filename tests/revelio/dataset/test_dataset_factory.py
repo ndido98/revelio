@@ -299,18 +299,18 @@ def test_preprocessing_is_loaded(config: Config) -> None:
 def test_train_dataset(config: Config) -> None:
     factory = DatasetFactory(config)
     ds = factory.get_train_dataset()
-    assert ds._paths == factory._train
+    assert list(ds._paths) == factory._train
 
 
 def test_val_dataset(config: Config) -> None:
     factory = DatasetFactory(config)
     ds = factory.get_val_dataset()
-    assert ds._paths == factory._val
+    assert list(ds._paths) == factory._val
     assert len(ds._augmentation_steps) == 0
 
 
 def test_test_dataset(config: Config) -> None:
     factory = DatasetFactory(config)
     ds = factory.get_test_dataset()
-    assert ds._paths == factory._test
+    assert list(ds._paths) == factory._test
     assert len(ds._augmentation_steps) == 0

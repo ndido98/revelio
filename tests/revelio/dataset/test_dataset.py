@@ -10,6 +10,7 @@ from hypothesis import strategies as st
 from torch.utils.data import DataLoader
 
 from revelio.dataset import Dataset, DatasetElementDescriptor, ElementClass
+from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
 
 
 def black_img(*args: Any, **kwargs: Any) -> np.ndarray:
@@ -38,7 +39,9 @@ def test_worker_sharding_correct(
         elem._dataset_name = f"ds{i}"
         elem._root_path = Path(f"/path/to/ds{i}")
     with mock.patch("cv2.imread", side_effect=black_img):
-        ds = Dataset(dataset_elements, None, [], [], [], False)
+        ds = Dataset(
+            DatasetElementDescriptorsList(dataset_elements), None, [], [], [], False
+        )
         dl = DataLoader(
             ds,
             batch_size=batch_size,

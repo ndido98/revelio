@@ -67,10 +67,10 @@ def test_features_path(
     dummy1: FeatureExtractor, dataset_element: DatasetElement
 ) -> None:
     assert dummy1._get_features_path(dataset_element, 0) == Path(
-        "/path/to/fe/dummy1/ds1/image1.features.json"
+        "/path/to/fe/dummy1/ds1/image1.features.npz"
     )
     assert dummy1._get_features_path(dataset_element, 1) == Path(
-        "/path/to/fe/dummy1/ds1/image2.features.json"
+        "/path/to/fe/dummy1/ds1/image2.features.npz"
     )
 
 
@@ -80,7 +80,7 @@ def test_features_present_non_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "read_text", return_value="[1, 2, 3]"),
+        mock.patch("numpy.load", return_value={"features": np.array([1, 2, 3])}),
     ):
         new_elem = dummy1.process(dataset_element)
         for i in range(len(new_elem.x)):
@@ -94,13 +94,13 @@ def test_features_present_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "write_text") as mock_write_text,
+        mock.patch("numpy.savez_compressed") as mock_savez,
     ):
         new_elem = dummy1.process(dataset_element, force_online=True)
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
-        mock_write_text.assert_not_called()
+        mock_savez.assert_not_called()
 
 
 def test_features_not_present_not_forced(
@@ -109,13 +109,13 @@ def test_features_not_present_not_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "write_text") as mock_write_text,
+        mock.patch("numpy.savez_compressed") as mock_savez,
     ):
         new_elem = dummy1.process(dataset_element)
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
-        mock_write_text.assert_called()
+        mock_savez.assert_called()
 
 
 def test_features_not_present_forced(
@@ -124,13 +124,13 @@ def test_features_not_present_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch.object(Path, "write_text") as mock_write_text,
+        mock.patch("numpy.savez_compressed") as mock_savez,
     ):
         new_elem = dummy1.process(dataset_element, force_online=True)
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
-        mock_write_text.assert_not_called()
+        mock_savez.assert_not_called()
 
 
 def test_multiple_features(

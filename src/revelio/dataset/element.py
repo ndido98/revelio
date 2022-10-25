@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -57,6 +57,19 @@ class DatasetElementDescriptor:
 
     def __repr__(self) -> str:
         return f"DatasetElementDescriptor(x={self.x}, y={self.y})"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, DatasetElementDescriptor):
+            return NotImplemented
+        return (
+            self.x == other.x
+            and self.y == other.y
+            and self._root_path == other._root_path
+            and self._dataset_name == other._dataset_name
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.x, self.y, self._root_path, self._dataset_name))
 
 
 class ElementImage:

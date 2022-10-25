@@ -3,6 +3,7 @@ from typing import Optional, TypeVar
 
 from revelio.augmentation import AugmentationStep
 from revelio.config import Config
+from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
 from revelio.face_detection import FaceDetector
 from revelio.feature_extraction import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
@@ -233,7 +234,7 @@ class DatasetFactory:
 
     def get_train_dataset(self) -> Dataset:
         return Dataset(
-            self._train,
+            DatasetElementDescriptorsList(self._train),
             self._face_detector,
             self._augmentation_steps,
             self._feature_extractors,
@@ -243,7 +244,7 @@ class DatasetFactory:
 
     def get_val_dataset(self) -> Dataset:
         return Dataset(
-            self._val,
+            DatasetElementDescriptorsList(self._val),
             self._face_detector,
             [],
             self._feature_extractors,
@@ -253,7 +254,7 @@ class DatasetFactory:
 
     def get_test_dataset(self) -> Dataset:
         return Dataset(
-            self._test,
+            DatasetElementDescriptorsList(self._test),
             self._face_detector,
             [],
             self._feature_extractors,
