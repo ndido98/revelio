@@ -49,13 +49,19 @@ class Resize(PreprocessingStep):
             new_img = cv.resize(
                 elem.image,
                 (self._height, self._width),
-                nterpolation=_VALID_ALGORITHMS[self._algorithm],
+                interpolation=_VALID_ALGORITHMS[self._algorithm],
             )
         else:
             new_size = (self._height, self._width)
             old_size = elem.image.shape[:2]
             scale_factor = min(n / o for n, o in zip(new_size, old_size))
-            rescaled = cv.resize(elem.image, None, fx=scale_factor, fy=scale_factor)
+            rescaled = cv.resize(
+                elem.image,
+                None,
+                fx=scale_factor,
+                fy=scale_factor,
+                interpolation=_VALID_ALGORITHMS[self._algorithm],
+            )
             top_bottom, left_right = tuple(
                 d - s for d, s in zip(new_size, rescaled.shape[:2])
             )
