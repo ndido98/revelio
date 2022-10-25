@@ -145,3 +145,7 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "facenet_pytorch.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pywt.*"
+ignore_missing_imports = true

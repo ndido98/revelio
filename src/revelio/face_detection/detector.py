@@ -1,4 +1,3 @@
-import json
 from abc import abstractmethod
 from pathlib import Path
 from typing import Optional, TypeAlias
@@ -54,7 +53,7 @@ class FaceDetector(Registrable):
             / algorithm_name
             / elem.original_dataset
             / relative_img_path.parent
-            / f"{relative_img_path.stem}.meta.json"
+            / f"{relative_img_path.stem}.meta.npz"
         )
 
     @abstractmethod
@@ -107,12 +106,11 @@ class FaceDetector(Registrable):
         for i, x in enumerate(elem.x):
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
-                meta = json.loads(meta_path.read_text())
-                landmarks = (
-                    np.array(meta["landmarks"])
-                    if meta.get("landmarks", None) is not None
-                    else None
-                )
+                try:
+                    meta = np.load(meta_path)
+                except ValueError as e:
+                    raise RuntimeError(f"Failed to load meta file: {meta_path}") from e
+                landmarks = meta["landmarks"] if "landmarks" in meta else None
                 if "bb" in meta:
                     # We have the bounding boxes, skip loading a new image
                     # and instead crop the one we already have
@@ -144,13 +142,12 @@ class FaceDetector(Registrable):
                     image=x.image[y1:y2, x1:x2],
                     landmarks=landmarks,
                 )
-                meta = {
-                    "bb": clipped_bb,
-                    "landmarks": landmarks.tolist() if landmarks is not None else None,
-                }
                 # Create the meta file
                 meta_path.parent.mkdir(parents=True, exist_ok=True)
-                meta_path.write_text(json.dumps(meta))
+                if landmarks is not None:
+                    np.savez_compressed(meta_path, bb=clipped_bb, landmarks=landmarks)
+                else:
+                    np.savez_compressed(meta_path, bb=clipped_bb)
                 new_xs.append(new_x)
         return DatasetElement(
             dataset_root_path=elem.dataset_root_path,

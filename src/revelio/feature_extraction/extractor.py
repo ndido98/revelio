@@ -1,4 +1,3 @@
-import json
 from abc import abstractmethod
 from pathlib import Path
 
@@ -22,7 +21,7 @@ class FeatureExtractor(Registrable):
             / algorithm_name
             / elem.original_dataset
             / relative_img_path.parent
-            / f"{relative_img_path.stem}.features.json"
+            / f"{relative_img_path.stem}.features.npz"
         )
 
     @abstractmethod
@@ -34,10 +33,16 @@ class FeatureExtractor(Registrable):
     ) -> DatasetElement:
         new_xs = []
         algorithm_name = type(self).__name__.lower()
+        algorithm_name = algorithm_name.replace("extractor", "")
         for i, x in enumerate(elem.x):
             features_path = self._get_features_path(elem, i)
             if features_path.is_file() and not force_online:
-                features = np.array(json.loads(features_path.read_text()))
+                try:
+                    features = np.load(features_path)["features"]
+                except ValueError as e:
+                    raise RuntimeError(
+                        f"Failed to load features: {features_path}"
+                    ) from e
                 new_x = ElementImage(
                     path=x.path,
                     image=x.image,
@@ -53,7 +58,7 @@ class FeatureExtractor(Registrable):
                     # We don't need to save the features if we're forced to do it online
                     # (that means we have one or more augmentation steps)
                     features_path.parent.mkdir(parents=True, exist_ok=True)
-                    features_path.write_text(json.dumps(features.tolist()))
+                    np.savez_compressed(features_path, features=features)
                 new_x = ElementImage(
                     path=x.path,
                     image=x.image,
