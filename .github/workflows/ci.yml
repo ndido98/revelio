@@ -61,6 +61,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.PERSONAL_TOKEN }}
       - name: Setup Python and Poetry environment
         uses: ./.github/actions/python-poetry-env
       - name: Run semantic-release
@@ -69,4 +70,4 @@ jobs:
           npm install
           npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
