@@ -25,7 +25,7 @@ class InceptionResNetV1(NeuralNetwork):  # pragma: no cover
                 num_classes=1,
                 dropout_prob=dropout_prob,
             )
-            # Replace the classification head
+            # Freeze everything but the classification head
             if freeze:
                 for param in self.net.parameters():
                     param.requires_grad = False
