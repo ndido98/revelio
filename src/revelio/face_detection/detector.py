@@ -83,7 +83,7 @@ class FaceDetector(Registrable):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def process(self, elem: DatasetElement) -> DatasetElement:
+    def process(self, elem: DatasetElement) -> tuple[DatasetElement, bool]:
         """
         Processes a dataset element and returns an element with the same data, but
         with each image cropped to only contain the face.
@@ -100,9 +100,11 @@ class FaceDetector(Registrable):
             elem: The dataset element to process.
 
         Returns:
-            A dataset element with cropped images and facial landmarks.
+            A tuple containing the processed dataset element and a boolean indicating
+            whether the face detection was loaded from cache.
         """
         new_xs = []
+        cached = True
         for i, x in enumerate(elem.x):
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
@@ -125,6 +127,7 @@ class FaceDetector(Registrable):
                 else:
                     raise ValueError(f"No bounding box found in {meta_path}")
             else:
+                cached = False
                 try:
                     bb, landmarks = self.process_element(x.image)
                 except Exception as e:
@@ -149,9 +152,12 @@ class FaceDetector(Registrable):
                 else:
                     np.savez_compressed(meta_path, bb=clipped_bb)
                 new_xs.append(new_x)
-        return DatasetElement(
-            dataset_root_path=elem.dataset_root_path,
-            original_dataset=elem.original_dataset,
-            x=tuple(new_xs),
-            y=elem.y,
+        return (
+            DatasetElement(
+                dataset_root_path=elem.dataset_root_path,
+                original_dataset=elem.original_dataset,
+                x=tuple(new_xs),
+                y=elem.y,
+            ),
+            cached,
         )

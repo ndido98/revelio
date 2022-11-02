@@ -82,7 +82,8 @@ def test_features_present_non_forced(
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch("numpy.load", return_value={"features": np.array([1, 2, 3])}),
     ):
-        new_elem = dummy1.process(dataset_element)
+        new_elem, cached = dummy1.process(dataset_element)
+        assert cached
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
@@ -96,7 +97,8 @@ def test_features_present_forced(
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch("numpy.savez_compressed") as mock_savez,
     ):
-        new_elem = dummy1.process(dataset_element, force_online=True)
+        new_elem, cached = dummy1.process(dataset_element, force_online=True)
+        assert not cached
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
@@ -111,7 +113,8 @@ def test_features_not_present_not_forced(
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch("numpy.savez_compressed") as mock_savez,
     ):
-        new_elem = dummy1.process(dataset_element)
+        new_elem, cached = dummy1.process(dataset_element)
+        assert not cached
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
@@ -126,7 +129,8 @@ def test_features_not_present_forced(
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch("numpy.savez_compressed") as mock_savez,
     ):
-        new_elem = dummy1.process(dataset_element, force_online=True)
+        new_elem, cached = dummy1.process(dataset_element, force_online=True)
+        assert not cached
         for i in range(len(new_elem.x)):
             assert "dummy1" in new_elem.x[i].features
             assert np.all(new_elem.x[i].features["dummy1"] == np.array([1, 2, 3]))
@@ -140,8 +144,10 @@ def test_multiple_features(
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
     ):
-        elem = dummy1.process(dataset_element, force_online=True)
-        elem = dummy2.process(elem, force_online=True)
+        elem, cached1 = dummy1.process(dataset_element, force_online=True)
+        elem, cached2 = dummy2.process(elem, force_online=True)
+        assert not cached1
+        assert not cached2
         for i in range(len(elem.x)):
             assert "dummy1" in elem.x[i].features
             assert np.all(elem.x[i].features["dummy1"] == np.array([1, 2, 3]))

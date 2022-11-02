@@ -69,7 +69,8 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch("numpy.savez_compressed") as mock_savez,
     ):
-        new_elem = dummy2.process(dataset_element)
+        new_elem, cached = dummy2.process(dataset_element)
+        assert not cached
         assert new_elem.x[0].image is not None
         assert new_elem.x[0].image.shape == (10, 10, 3)
         assert new_elem.x[1].image is not None
@@ -98,7 +99,8 @@ def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -
             },
         ),
     ):
-        new_elem = dummy2.process(dataset_element)
+        new_elem, cached = dummy2.process(dataset_element)
+        assert cached
         assert new_elem.x[0].image is not None
         assert new_elem.x[0].image.shape == (10, 10, 3)
         assert new_elem.x[1].image is not None
