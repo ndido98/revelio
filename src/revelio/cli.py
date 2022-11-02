@@ -4,6 +4,7 @@ import random
 import sys
 from typing import Any
 
+import matplotlib.pyplot as plt
 import torch
 from pydantic import ValidationError
 from torch.utils.data import DataLoader
@@ -140,7 +141,8 @@ def _cli_program(args: Any) -> None:
     train_ds = dataset.get_train_dataset()
     val_ds = dataset.get_val_dataset()
     test_ds = dataset.get_test_dataset()
-    _warmup(config, args.warmup_workers_count, train_ds, val_ds, test_ds)
+    if args.warmup:
+        _warmup(config, args.warmup_workers_count, train_ds, val_ds, test_ds)
     train_dl = _create_data_loader(
         train_ds,
         batch_size=config.experiment.batch_size,
@@ -238,6 +240,14 @@ def main() -> None:
         help="Set this to true to disable persistent workers during training",
         dest="persistent_workers",
     )
+    parser.add_argument(
+        "--no-warmup",
+        action="store_const",
+        const=False,
+        default=True,
+        help="Set this to true to disable the warmup",
+        dest="warmup",
+    )
 
     args = parser.parse_args()
 
@@ -247,6 +257,7 @@ def main() -> None:
         level=logging_level,
         force=True,
     )
+    plt.switch_backend("agg")
 
     try:
         _cli_program(args)
