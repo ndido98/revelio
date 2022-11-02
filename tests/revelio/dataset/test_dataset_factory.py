@@ -4,7 +4,7 @@ from typing import Any, Optional, cast
 import hypothesis.strategies as st
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 
 from revelio.augmentation.step import AugmentationStep
 from revelio.config import Config
@@ -209,6 +209,7 @@ def bad_config_dataset() -> Config:
         ).filter(lambda t: 0 <= sum(t) <= 1.0)
     ),
 )
+@settings(suppress_health_check=(HealthCheck.too_slow,))
 def test_split_simple(to_split: list[int], split: tuple[float, float, float]) -> None:
     train_percentage, val_percentage, test_percentage = split
     train, val, test = _split_train_val_test(

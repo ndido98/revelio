@@ -51,7 +51,6 @@ def _split_train_val_test(
         return train, [], []
     if train_percentage == 0.0:
         test, rest = _split_dataset(dataset, test_percentage)
-        print(test_percentage, len(test), len(rest))
         val, _ = _split_dataset(rest, val_percentage / (1 - test_percentage))
         print(val_percentage, val_percentage / (1 - test_percentage), len(val))
         return [], val, test
