@@ -1,0 +1,2245 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
+    
+    
+      
+        <title>Changelog - Revelio</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#100-2022-11-02" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Revelio" class="md-header__button md-logo" aria-label="Revelio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revelio
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ndido98/revelio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Revelio" class="md-nav__button md-logo" aria-label="Revelio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Revelio
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ndido98/revelio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../config-reference/">Configuration file reference</a>
+          
+            <label for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Configuration file reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Configuration file reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/augmentation/" class="md-nav__link">
+        Augmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/datasets/" class="md-nav__link">
+        Datasets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_3" type="checkbox" id="__nav_2_3" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../config-reference/experiment/">Experiment</a>
+          
+            <label for="__nav_2_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Experiment" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Experiment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/experiment/metrics/" class="md-nav__link">
+        Metrics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/experiment/neural-network/" class="md-nav__link">
+        Neural network
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/face-detection/" class="md-nav__link">
+        Face detection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/feature-extraction/" class="md-nav__link">
+        Feature extraction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/preprocessing/" class="md-nav__link">
+        Preprocessing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-reference/seed/" class="md-nav__link">
+        Seed
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1" type="checkbox" id="__nav_3_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/">revelio</a>
+          
+            <label for="__nav_3_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="revelio" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_1">
+          <span class="md-nav__icon md-icon"></span>
+          revelio
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_1" type="checkbox" id="__nav_3_1_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/augmentation/">augmentation</a>
+          
+            <label for="__nav_3_1_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="augmentation" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          augmentation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/augmentation/step/" class="md-nav__link">
+        step
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/cli/" class="md-nav__link">
+        cli
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_3" type="checkbox" id="__nav_3_1_3" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/config/">config</a>
+          
+            <label for="__nav_3_1_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="config" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_3">
+          <span class="md-nav__icon md-icon"></span>
+          config
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_3_2" type="checkbox" id="__nav_3_1_3_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/config/model/">model</a>
+          
+            <label for="__nav_3_1_3_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="model" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          model
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/augmentation/" class="md-nav__link">
+        augmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/dataset/" class="md-nav__link">
+        dataset
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/experiment/" class="md-nav__link">
+        experiment
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/face_detection/" class="md-nav__link">
+        face_detection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/feature_extraction/" class="md-nav__link">
+        feature_extraction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/preprocessing/" class="md-nav__link">
+        preprocessing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/config/model/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_4" type="checkbox" id="__nav_3_1_4" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/dataset/">dataset</a>
+          
+            <label for="__nav_3_1_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="dataset" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_4">
+          <span class="md-nav__icon md-icon"></span>
+          dataset
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/dataset/" class="md-nav__link">
+        dataset
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/dataset_factory/" class="md-nav__link">
+        dataset_factory
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/descriptors_list/" class="md-nav__link">
+        descriptors_list
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/element/" class="md-nav__link">
+        element
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_4_5" type="checkbox" id="__nav_3_1_4_5" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/dataset/loaders/">loaders</a>
+          
+            <label for="__nav_3_1_4_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="loaders" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          loaders
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/loaders/loader/" class="md-nav__link">
+        loader
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/dataset/loaders/loaders/" class="md-nav__link">
+        loaders
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_5" type="checkbox" id="__nav_3_1_5" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/face_detection/">face_detection</a>
+          
+            <label for="__nav_3_1_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="face_detection" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_5">
+          <span class="md-nav__icon md-icon"></span>
+          face_detection
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/face_detection/detector/" class="md-nav__link">
+        detector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/face_detection/dlib_detector/" class="md-nav__link">
+        dlib_detector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/face_detection/mtcnn_detector/" class="md-nav__link">
+        mtcnn_detector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/face_detection/opencv_detector/" class="md-nav__link">
+        opencv_detector
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_6" type="checkbox" id="__nav_3_1_6" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/feature_extraction/">feature_extraction</a>
+          
+            <label for="__nav_3_1_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="feature_extraction" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_6">
+          <span class="md-nav__icon md-icon"></span>
+          feature_extraction
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/feature_extraction/extractor/" class="md-nav__link">
+        extractor
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7" type="checkbox" id="__nav_3_1_7" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/">model</a>
+          
+            <label for="__nav_3_1_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="model" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_7">
+          <span class="md-nav__icon md-icon"></span>
+          model
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7_1" type="checkbox" id="__nav_3_1_7_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/metrics/">metrics</a>
+          
+            <label for="__nav_3_1_7_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="metrics" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_7_1">
+          <span class="md-nav__icon md-icon"></span>
+          metrics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/accuracy/" class="md-nav__link">
+        accuracy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/bpcer_at_apcer/" class="md-nav__link">
+        bpcer_at_apcer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/eer/" class="md-nav__link">
+        eer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/metric/" class="md-nav__link">
+        metric
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/tnr/" class="md-nav__link">
+        tnr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/tpr/" class="md-nav__link">
+        tpr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/metrics/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/model/" class="md-nav__link">
+        model
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7_3" type="checkbox" id="__nav_3_1_7_3" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/nn/">nn</a>
+          
+            <label for="__nav_3_1_7_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="nn" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_7_3">
+          <span class="md-nav__icon md-icon"></span>
+          nn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/alexnet/" class="md-nav__link">
+        alexnet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7_3_2" type="checkbox" id="__nav_3_1_7_3_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/nn/callbacks/">callbacks</a>
+          
+            <label for="__nav_3_1_7_3_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="callbacks" data-md-level="5">
+        <label class="md-nav__title" for="__nav_3_1_7_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          callbacks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/callbacks/callback/" class="md-nav__link">
+        callback
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/callbacks/early_stopping/" class="md-nav__link">
+        early_stopping
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/callbacks/model_checkpoint/" class="md-nav__link">
+        model_checkpoint
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/callbacks/tensorboard/" class="md-nav__link">
+        tensorboard
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/inception_resnet/" class="md-nav__link">
+        inception_resnet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7_3_4" type="checkbox" id="__nav_3_1_7_3_4" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/nn/losses/">losses</a>
+          
+            <label for="__nav_3_1_7_3_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="losses" data-md-level="5">
+        <label class="md-nav__title" for="__nav_3_1_7_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          losses
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/losses/loss/" class="md-nav__link">
+        loss
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/losses/losses/" class="md-nav__link">
+        losses
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/mobilenet/" class="md-nav__link">
+        mobilenet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/neuralnet/" class="md-nav__link">
+        neuralnet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_7_3_7" type="checkbox" id="__nav_3_1_7_3_7" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/model/nn/optimizers/">optimizers</a>
+          
+            <label for="__nav_3_1_7_3_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="optimizers" data-md-level="5">
+        <label class="md-nav__title" for="__nav_3_1_7_3_7">
+          <span class="md-nav__icon md-icon"></span>
+          optimizers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/optimizers/optimizer/" class="md-nav__link">
+        optimizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/optimizers/optimizers/" class="md-nav__link">
+        optimizers
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/resnet/" class="md-nav__link">
+        resnet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/squeezenet/" class="md-nav__link">
+        squeezenet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/vgg/" class="md-nav__link">
+        vgg
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/nn/vision_transformer/" class="md-nav__link">
+        vision_transformer
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/model/random_guess/" class="md-nav__link">
+        random_guess
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_8" type="checkbox" id="__nav_3_1_8" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/preprocessing/">preprocessing</a>
+          
+            <label for="__nav_3_1_8">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="preprocessing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_8">
+          <span class="md-nav__icon md-icon"></span>
+          preprocessing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/preprocessing/normalize/" class="md-nav__link">
+        normalize
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/preprocessing/resize/" class="md-nav__link">
+        resize
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/preprocessing/step/" class="md-nav__link">
+        step
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/preprocessing/to_float/" class="md-nav__link">
+        to_float
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_9" type="checkbox" id="__nav_3_1_9" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/registry/">registry</a>
+          
+            <label for="__nav_3_1_9">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="registry" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_9">
+          <span class="md-nav__icon md-icon"></span>
+          registry
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/registry/registry/" class="md-nav__link">
+        registry
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_10" type="checkbox" id="__nav_3_1_10" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/revelio/utils/">utils</a>
+          
+            <label for="__nav_3_1_10">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="utils" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_1_10">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/utils/iterators/" class="md-nav__link">
+        iterators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/utils/logging/" class="md-nav__link">
+        logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/utils/random/" class="md-nav__link">
+        random
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/revelio/utils/rounding/" class="md-nav__link">
+        rounding
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Changelog
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Changelog
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#100-2022-11-02" class="md-nav__link">
+    1.0.0 (2022-11-02)
+  </a>
+  
+    <nav class="md-nav" aria-label="1.0.0 (2022-11-02)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#100-2022-11-02" class="md-nav__link">
+    1.0.0 (2022-11-02)
+  </a>
+  
+    <nav class="md-nav" aria-label="1.0.0 (2022-11-02)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    Bug Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/ndido98/revelio/edit/master/docs/changelog.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+  <h1>Changelog</h1>
+
+<h2 id="100-2022-11-02">1.0.0 (2022-11-02)</h2>
+<h3 id="features">Features</h3>
+<ul>
+<li>add logging (<a href="https://github.com/ndido98/revelio/commit/474f39f0419ef88282a4a7e3d89a387a56dd1d56">474f39f</a>)</li>
+<li><strong>augmentation:</strong> add applies_to field (<a href="https://github.com/ndido98/revelio/commit/8a1a21e03ffd56b6f73fdd5d4cbf4d032a827e06">8a1a21e</a>)</li>
+<li><strong>augmentation:</strong> add augmentation steps (<a href="https://github.com/ndido98/revelio/commit/2eb2b8ef0e48c6ac8f7c75f05f13ed1f4822713f">2eb2b8e</a>)</li>
+<li><strong>callbacks:</strong> add early stopping (<a href="https://github.com/ndido98/revelio/commit/ad48f033de95f635d82dd12a5f9e1a9e2e94af2f">ad48f03</a>)</li>
+<li><strong>callbacks:</strong> add memory profiling to tensorboard (<a href="https://github.com/ndido98/revelio/commit/5fdd28fc8a7832f0114472c8d217d7cbee50a384">5fdd28f</a>)</li>
+<li><strong>callbacks:</strong> add model checkpoint (<a href="https://github.com/ndido98/revelio/commit/b5ffef815de8d4043d86e02915edfdfc7b04afeb">b5ffef8</a>)</li>
+<li><strong>callbacks:</strong> add steps count (<a href="https://github.com/ndido98/revelio/commit/13b7ea49b7e972dc2971f8cacac6f2417e105b07">13b7ea4</a>)</li>
+<li><strong>callbacks:</strong> add tensorboard batch viz, graph (<a href="https://github.com/ndido98/revelio/commit/c7c868e06c396fdcdcca074786e34484b700bc3f">c7c868e</a>)</li>
+<li><strong>callbacks:</strong> add tensorboard callback (<a href="https://github.com/ndido98/revelio/commit/a86ddeb9b254455a149dedca8ba3ec5f5bff5c6d">a86ddeb</a>)</li>
+<li><strong>cli:</strong> add --no-warmup argument to skip warmup (<a href="https://github.com/ndido98/revelio/commit/c9fce895a816cdde4d23be98439ef67c84b90716">c9fce89</a>)</li>
+<li><strong>cli:</strong> add cli argparser (<a href="https://github.com/ndido98/revelio/commit/ac5cc8c242b1539d9e28ce3e0033ecb7c3047fa1">ac5cc8c</a>)</li>
+<li><strong>cli:</strong> add configurable warmup workers count (<a href="https://github.com/ndido98/revelio/commit/171bc212ce04b751a97f04774326c52f37dfc1f0">171bc21</a>)</li>
+<li><strong>cli:</strong> add model fitting to cli (<a href="https://github.com/ndido98/revelio/commit/21e0d0c61cc6888a9885355424341af7a299daa3">21e0d0c</a>)</li>
+<li><strong>cli:</strong> avoid creating train/val workers when only inferencing (<a href="https://github.com/ndido98/revelio/commit/0258090a27b34ecf1f80f90d79340e792d2ba4d5">0258090</a>)</li>
+<li><strong>config:</strong> add config model (<a href="https://github.com/ndido98/revelio/commit/6060d8900a36113a413f95ee3f05265b06f6b7c5">6060d89</a>)</li>
+<li><strong>config:</strong> add configurable seed (<a href="https://github.com/ndido98/revelio/commit/0f43c1a2be2d7c97f425ce885e80dffadd0ed38a">0f43c1a</a>)</li>
+<li><strong>config:</strong> add templating to scores files path (<a href="https://github.com/ndido98/revelio/commit/1a2c3e56352ad056c57888212be1e28e3caded76">1a2c3e5</a>)</li>
+<li><strong>dataset:</strong> add check to make sure all elements have the same number of x (<a href="https://github.com/ndido98/revelio/commit/97993c9c046dfe7ed3efe410d892a1112ebb40fa">97993c9</a>)</li>
+<li><strong>dataset:</strong> add dataset element object (<a href="https://github.com/ndido98/revelio/commit/4754cfbff0323519708617eecce8bba5adc9b5be">4754cfb</a>)</li>
+<li><strong>dataset:</strong> add dataset factory and torch dataset (<a href="https://github.com/ndido98/revelio/commit/c1080f918ad7d8fb8372cd498e63e04924a7dca8">c1080f9</a>)</li>
+<li><strong>dataset:</strong> add dataset loader (<a href="https://github.com/ndido98/revelio/commit/962707158978e086f1d2325bb5d524f390c7e800">9627071</a>)</li>
+<li><strong>dataset:</strong> add explicit loader with args (<a href="https://github.com/ndido98/revelio/commit/e105f534561dd32b6cfd95521a38598bcc670013">e105f53</a>)</li>
+<li><strong>dataset:</strong> add length (<a href="https://github.com/ndido98/revelio/commit/fec1bae861a5f447f329e7603e1cdc4c4223fd9f">fec1bae</a>)</li>
+<li><strong>dataset:</strong> add stats printing (<a href="https://github.com/ndido98/revelio/commit/8bc2a73598bd48ccc1a8e400a06c1092b5d400d8">8bc2a73</a>)</li>
+<li><strong>dataset:</strong> add warmup function (<a href="https://github.com/ndido98/revelio/commit/3b78208607b743e94182d1f9bab00588957b6c9e">3b78208</a>)</li>
+<li><strong>dataset:</strong> create testing groups and rework splitting (<a href="https://github.com/ndido98/revelio/commit/ac433b3479bc2295d4f60827490b34be6c1b4bfc">ac433b3</a>)</li>
+<li><strong>face-detection:</strong> add dlib detector (<a href="https://github.com/ndido98/revelio/commit/b78add17480c7f0fe88b77e1265b65e5d96d7649">b78add1</a>)</li>
+<li><strong>face-detection:</strong> add face detector module (<a href="https://github.com/ndido98/revelio/commit/37677620e628ae63ff2212fa301800f3a08c4965">3767762</a>)</li>
+<li><strong>face-detection:</strong> add opencv and mtcnn detectors (<a href="https://github.com/ndido98/revelio/commit/cf0cc4ed773ab01ff6524c9d5d1e46cb92556eea">cf0cc4e</a>)</li>
+<li><strong>feature-extraction:</strong> add feature extractors (<a href="https://github.com/ndido98/revelio/commit/2dafd04f09386b631476a173dbddae69a74e49d3">2dafd04</a>)</li>
+<li><strong>loaders:</strong> add biometix morphed loader (<a href="https://github.com/ndido98/revelio/commit/1ecc55a2a7315bbe9231bbf6107f5aa85b172117">1ecc55a</a>)</li>
+<li><strong>loaders:</strong> add morphdb loader (<a href="https://github.com/ndido98/revelio/commit/6de92b8cd85776d68e489d5c788e5cd3eae8f4d1">6de92b8</a>)</li>
+<li><strong>loaders:</strong> add pmdb loader (<a href="https://github.com/ndido98/revelio/commit/a74c60b5cfc6c53eb6863d6a41c9d57b39d89c4e">a74c60b</a>)</li>
+<li><strong>loaders:</strong> add several loaders (<a href="https://github.com/ndido98/revelio/commit/553f258ef16a7bcec51a33261642670a38f5fd7b">553f258</a>)</li>
+<li><strong>losses:</strong> add adam (<a href="https://github.com/ndido98/revelio/commit/56992b38950b15c62e4612c10964376e9d0b8aeb">56992b3</a>)</li>
+<li><strong>metrics:</strong> add accuracy (<a href="https://github.com/ndido98/revelio/commit/2ebd8627d59d2da443a1ba8a062446265b4cda29">2ebd862</a>)</li>
+<li><strong>metrics:</strong> add eer and bpcer@apcer (<a href="https://github.com/ndido98/revelio/commit/0f25bc7d0cdb2012d0174bfb46a08e0867832932">0f25bc7</a>)</li>
+<li><strong>metrics:</strong> add epoch_* metrics for tensorboard, checkpoint and early stopping callbacks (<a href="https://github.com/ndido98/revelio/commit/212351a4d77dda8019a18df146e7e76447e5752d">212351a</a>)</li>
+<li><strong>metrics:</strong> add metrics (<a href="https://github.com/ndido98/revelio/commit/7938b00cd05893917ccd50cf2d7256a24ef0cd0a">7938b00</a>)</li>
+<li><strong>metrics:</strong> add tpr and tnr (<a href="https://github.com/ndido98/revelio/commit/cea5757b50125c52a0dc8b2233d488db9125a859">cea5757</a>)</li>
+<li><strong>metrics:</strong> allow multiple values in one metric (<a href="https://github.com/ndido98/revelio/commit/e45cdddfe90d8df04b07e7802f94d4d43be0cb21">e45cddd</a>)</li>
+<li><strong>metrics:</strong> expose device in which metrics are run (<a href="https://github.com/ndido98/revelio/commit/c50a2fca2121d38ce79ea61470fa0502dd208971">c50a2fc</a>)</li>
+<li><strong>model:</strong> add alexnet, vgg and resnet (<a href="https://github.com/ndido98/revelio/commit/81b603f416a34f2f5992991b00ca82a625500385">81b603f</a>)</li>
+<li><strong>model:</strong> add base model class (<a href="https://github.com/ndido98/revelio/commit/ded81c99ee86dc3c14cdcc2e9ef91a34c58ab616">ded81c9</a>)</li>
+<li><strong>model:</strong> add inception resnet (<a href="https://github.com/ndido98/revelio/commit/6fbe362be4cf239493fb3d81b2e84e077ebd138b">6fbe362</a>)</li>
+<li><strong>model:</strong> add mobilenet (<a href="https://github.com/ndido98/revelio/commit/cbdfa5f08399a00ccd0138bbf711739d89623eba">cbdfa5f</a>)</li>
+<li><strong>model:</strong> add neural network class (<a href="https://github.com/ndido98/revelio/commit/4d0eff24ee32d00b596c9eb6c946050eb9f7cccb">4d0eff2</a>)</li>
+<li><strong>model:</strong> add random guesser (<a href="https://github.com/ndido98/revelio/commit/a4dd65af3320236aa55e75075b9584c2d50b581d">a4dd65a</a>)</li>
+<li><strong>model:</strong> add save/load checkpoint (<a href="https://github.com/ndido98/revelio/commit/097c78f8c95a580926981394bbe337beb8a3ea0f">097c78f</a>)</li>
+<li><strong>model:</strong> add squeezenet (<a href="https://github.com/ndido98/revelio/commit/7e6b44d36b213ca707485081114a26d0a874c825">7e6b44d</a>)</li>
+<li><strong>model:</strong> add vision transformer (<a href="https://github.com/ndido98/revelio/commit/1c441ff96bf0d1a46d272db69448ef03c0ac1eda">1c441ff</a>)</li>
+<li><strong>model:</strong> move scores file path eval to model score computation (<a href="https://github.com/ndido98/revelio/commit/ecf21f8f78db1f0486ea25ab41d19bb6f00973e9">ecf21f8</a>)</li>
+<li><strong>optimizers:</strong> add binary cross entropy (<a href="https://github.com/ndido98/revelio/commit/3f34637f69590899a59c278d622921f6c72be8d8">3f34637</a>)</li>
+<li><strong>preprocessing:</strong> add normalization preprocessing (<a href="https://github.com/ndido98/revelio/commit/230650a04a05578a936f2c43aac0635272dce6b9">230650a</a>)</li>
+<li><strong>preprocessing:</strong> add preprocessing phase after feature extraction (<a href="https://github.com/ndido98/revelio/commit/47c35e448d109a23579684672d597188fe6ea249">47c35e4</a>)</li>
+<li><strong>preprocessing:</strong> add uint8 -&gt; float32 preprocessing (<a href="https://github.com/ndido98/revelio/commit/24bf94b3cea4ba6faba5a606d1dd50cc87fe8510">24bf94b</a>)</li>
+<li><strong>registry:</strong> add - as ignored char (<a href="https://github.com/ndido98/revelio/commit/1b395c71bc9aa354717f4be20a87414cf227b0dd">1b395c7</a>)</li>
+<li><strong>registry:</strong> add transparent registrable classes (<a href="https://github.com/ndido98/revelio/commit/3da9dd690c4010619611c1f11f024b9cee423912">3da9dd6</a>)</li>
+<li><strong>registry:</strong> allow snake case names (<a href="https://github.com/ndido98/revelio/commit/9925ad92b98e13c3ba24d210871547e885f23109">9925ad9</a>)</li>
+<li><strong>registry:</strong> make kwargs with _ assignable only explicitly (<a href="https://github.com/ndido98/revelio/commit/906c73ccecf3814d059ec9a28c0ebb4ce0d95cdf">906c73c</a>)</li>
+</ul>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li>add dataset root to dataset element (<a href="https://github.com/ndido98/revelio/commit/c07e3045701e72a80be2b45cb69f98161d44a0ec">c07e304</a>)</li>
+<li><strong>augmentation:</strong> change signature of step to take only the image (<a href="https://github.com/ndido98/revelio/commit/bb161e25cd66c0984a4f41586fd04f9ac382c827">bb161e2</a>)</li>
+<li><strong>callbacks:</strong> add mkdir to model checkpoint target directory (<a href="https://github.com/ndido98/revelio/commit/dc8c170ceb0c00048fa729c670f674ab02a63a0f">dc8c170</a>)</li>
+<li><strong>callbacks:</strong> change bona fide to live image reporting (<a href="https://github.com/ndido98/revelio/commit/f25c69b7d05ce7caab8f79c4cb44ef6eefc65d71">f25c69b</a>)</li>
+<li><strong>callbacks:</strong> fix tensorboard graph/image display (<a href="https://github.com/ndido98/revelio/commit/598ef5a9cb0d8f8141df76417dede7b26beb19bb">598ef5a</a>)</li>
+<li><strong>callbacks:</strong> import early stopping (<a href="https://github.com/ndido98/revelio/commit/d097f89191c01be542b57b24c3c01941ed4daea2">d097f89</a>)</li>
+<li><strong>callbacks:</strong> remove tensorboard graph (<a href="https://github.com/ndido98/revelio/commit/b3ed308429fe4646f99e39c84eecac13128e37f8">b3ed308</a>)</li>
+<li><strong>cli:</strong> create dataloaders just for warming up for better progress reporting (<a href="https://github.com/ndido98/revelio/commit/bf77bb74a1171dd0b13bb5f9154e7957bb10385c">bf77bb7</a>)</li>
+<li><strong>cli:</strong> disable persistent workers if no workers are used (<a href="https://github.com/ndido98/revelio/commit/8ff3170e3db4856414499b638d5bbbe2fb903969">8ff3170</a>)</li>
+<li><strong>cli:</strong> use consume to warm up the datasets (<a href="https://github.com/ndido98/revelio/commit/4a302eff0256f8e52cb9f5476690bec968cd9ea1">4a302ef</a>)</li>
+<li><strong>config:</strong> allow for no preprocessing (<a href="https://github.com/ndido98/revelio/commit/5df3bfc382fd3369b110af38fbdd1d6296a7da43">5df3bfc</a>)</li>
+<li><strong>config:</strong> change DirectoryPath to str for yet-to-be directories (<a href="https://github.com/ndido98/revelio/commit/b096dbf96256e83442eddddbc29274ba78b37958">b096dbf</a>)</li>
+<li><strong>config:</strong> fix arg name cannot start with underscore (<a href="https://github.com/ndido98/revelio/commit/9745aa3aaa77f4abd9155fc49143bb9d14813ee9">9745aa3</a>)</li>
+<li><strong>config:</strong> make args default to empty (<a href="https://github.com/ndido98/revelio/commit/3ddb895c06b4a3e2af8d13b68e0449424fceb871">3ddb895</a>)</li>
+<li><strong>config:</strong> validate paths without checking their existence (<a href="https://github.com/ndido98/revelio/commit/397bad0b0a5fb8761a8ae91ab6fe33d407aa89f3">397bad0</a>)</li>
+<li><strong>dataset:</strong> add missing y label to yielded element (<a href="https://github.com/ndido98/revelio/commit/cb986312a6d561a1e0921245ecb2720ebf1c4ff0">cb98631</a>)</li>
+<li><strong>dataset:</strong> add randomization of dataset at each epoch (<a href="https://github.com/ndido98/revelio/commit/7842a32c56ea6b11e5d90ef158c799413093f334">7842a32</a>)</li>
+<li><strong>dataset:</strong> allow float32 images (<a href="https://github.com/ndido98/revelio/commit/755c1a2087d6571703ad8a27d07ae29ed644512a">755c1a2</a>)</li>
+<li><strong>dataset:</strong> apply color and channel transposion (<a href="https://github.com/ndido98/revelio/commit/3e9f8532b15446d19bd8334d8f663ee6507405b4">3e9f853</a>)</li>
+<li><strong>dataset:</strong> force gc collection if not loaded from cache (<a href="https://github.com/ndido98/revelio/commit/45e1353ebf3cd0951523b6d99af401131ef39b69">45e1353</a>)</li>
+<li><strong>dataset:</strong> make face detection offline (<a href="https://github.com/ndido98/revelio/commit/8c97c306254b627d2a70f938262b6322427589cf">8c97c30</a>)</li>
+<li><strong>dataset:</strong> remove offline processing when not warming up (<a href="https://github.com/ndido98/revelio/commit/eb6ae711c07575bb5332c88eadfb2932c98d9dd8">eb6ae71</a>)</li>
+<li><strong>dataset:</strong> remove warmup function and instead use boolean flag (<a href="https://github.com/ndido98/revelio/commit/28b42de03367be8dda3d03b5ed2a5e1e95f33d8c">28b42de</a>)</li>
+<li><strong>dataset:</strong> skip elements if face detection or feature extraction fails (<a href="https://github.com/ndido98/revelio/commit/d67702cfa8fae5431f54b5c3e99aa79fadfa0833">d67702c</a>)</li>
+<li><strong>dataset:</strong> use specialized list to avoid memory leaks (<a href="https://github.com/ndido98/revelio/commit/cd3b3ac93520a70ff1f506c4ee978f53e6938e87">cd3b3ac</a>)</li>
+<li><strong>deps:</strong> update dependency matplotlib to v3.6.1 (<a href="https://github.com/ndido98/revelio/commit/429ca2efa27a80606d6f9aaf6ea766a28ea5a9d5">429ca2e</a>)</li>
+<li><strong>deps:</strong> update dependency numpy to v1.23.4 (<a href="https://github.com/ndido98/revelio/commit/70ab22f5bb9528f56a3182e6a68ed6a31a2acd14">70ab22f</a>)</li>
+<li><strong>deps:</strong> update dependency scikit-learn to v1.1.3 (<a href="https://github.com/ndido98/revelio/commit/cfc8a7e364f4cb74a6725d916a6f10b8a1fc64ed">cfc8a7e</a>)</li>
+<li><strong>deps:</strong> update dependency scipy to v1.9.2 (<a href="https://github.com/ndido98/revelio/commit/7c842659584eb4d9f9cd2f1ddd078b341ab90d2c">7c84265</a>)</li>
+<li><strong>deps:</strong> update dependency scipy to v1.9.3 (<a href="https://github.com/ndido98/revelio/commit/5b49637aa85863b769378c4deb75c34221be37a8">5b49637</a>)</li>
+<li><strong>face-detection:</strong> clip bounding box inside image (<a href="https://github.com/ndido98/revelio/commit/cfadaca409610a3ce3f5c66183d1308b628a2b51">cfadaca</a>)</li>
+<li><strong>face-detection:</strong> fix numpy arrays not json serializable (<a href="https://github.com/ndido98/revelio/commit/714ef608d363cc059d6c0b484ff284b4f1498940">714ef60</a>)</li>
+<li><strong>face-detection:</strong> take biggest bounding box for opencv/mtcnn multiple results (<a href="https://github.com/ndido98/revelio/commit/8d9653539377646dfdb879da06366dd861a6ab4e">8d96535</a>)</li>
+<li><strong>loaders:</strong> make amsl loader deterministic (<a href="https://github.com/ndido98/revelio/commit/5e8b92f8c683022d6a3b4c43c17966f2b0dffc8d">5e8b92f</a>)</li>
+<li><strong>metrics:</strong> adapt bpcer@apcer to be more lax (<a href="https://github.com/ndido98/revelio/commit/23747862daf39c223c61c80833b9a76fd7eaf6fc">2374786</a>)</li>
+<li><strong>metrics:</strong> add conditional to remove nan cases (<a href="https://github.com/ndido98/revelio/commit/5158c877d7aee05cfb1ace30ae67844dcbce9347">5158c87</a>)</li>
+<li><strong>metrics:</strong> improve display of accuracy and bpcer@apcer (<a href="https://github.com/ndido98/revelio/commit/4a68287dc543bf795a01854388b834acaf1795ef">4a68287</a>)</li>
+<li><strong>metrics:</strong> use abstract property for name (<a href="https://github.com/ndido98/revelio/commit/acad600e29305faf7f301dd6eb617a778b64e882">acad600</a>)</li>
+<li><strong>model:</strong> add list case to _dict_to_device and fix prediction scores accumulation (<a href="https://github.com/ndido98/revelio/commit/a8f6c473ea31bc204574887b67e6e444c817554e">a8f6c47</a>)</li>
+<li><strong>model:</strong> add missing definition of resnet model if pretrained (<a href="https://github.com/ndido98/revelio/commit/ef090a7266c9e486a10f284feafc8256b8b63d0f">ef090a7</a>)</li>
+<li><strong>model:</strong> apply sigmoid to logits output, remove cumulative loss (<a href="https://github.com/ndido98/revelio/commit/5b3b2d648a4b34eb0971f93fce91cca0c8e2fb4d">5b3b2d6</a>)</li>
+<li><strong>model:</strong> change scores file format (<a href="https://github.com/ndido98/revelio/commit/6bc5b9dd9612fd59ffe47469735b6ab963029cb8">6bc5b9d</a>)</li>
+<li><strong>model:</strong> fix epoch loading from state dict (<a href="https://github.com/ndido98/revelio/commit/c32ee110d2e15df9d23f4a6432a862d9878b096d">c32ee11</a>)</li>
+<li><strong>model:</strong> import neural nets module for registration (<a href="https://github.com/ndido98/revelio/commit/08fc220ae58476c178ba53a49790b1f51dd0f46b">08fc220</a>)</li>
+<li><strong>model:</strong> load metrics from model constructor (<a href="https://github.com/ndido98/revelio/commit/445cdff79350d215b054adb97a8ac0ce728dc93e">445cdff</a>)</li>
+<li><strong>model:</strong> move metrics reset outside batch processing (<a href="https://github.com/ndido98/revelio/commit/bbfbb68c840bbf7c8689a5f9d2abca07764b3c61">bbfbb68</a>)</li>
+<li><strong>model:</strong> move predictions to correct device when computing metrics (<a href="https://github.com/ndido98/revelio/commit/8f5df948558fb83a7584e1ec3165156c8bc22801">8f5df94</a>)</li>
+<li><strong>nn:</strong> don't load callbacks if not training (<a href="https://github.com/ndido98/revelio/commit/c6879b2c73b95d16c882f154eca972780ab1b872">c6879b2</a>)</li>
+<li><strong>preprocessing:</strong> add interpolation to resize (<a href="https://github.com/ndido98/revelio/commit/7ee7580dd5d31bdaf3b313d69ead99baedd14654">7ee7580</a>)</li>
+<li><strong>preprocessing:</strong> redo args validation for normalize (<a href="https://github.com/ndido98/revelio/commit/db7e546026279d72cdc5e5d9cbb71a3fd236fa5c">db7e546</a>)</li>
+<li><strong>registry:</strong> fix bug when loading class with args (<a href="https://github.com/ndido98/revelio/commit/365d94252ef93efed62147f68c9a7432b10fd9a8">365d942</a>)</li>
+<li><strong>registry:</strong> move args sanitization to config (<a href="https://github.com/ndido98/revelio/commit/a690b80b9c081aeef288ac8071bd6cada0b898a5">a690b80</a>)</li>
+<li>use more accurate way of counting steps in data loader (<a href="https://github.com/ndido98/revelio/commit/c726320018c6e2d36e7bdc53d0feba1d8ee86a00">c726320</a>)</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../reference/revelio/utils/rounding/" class="md-footer__link md-footer__link--prev" aria-label="Previous: rounding" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              rounding
+            </div>
+          </div>
+        </a>
+      
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      
+    
+  </body>
+</html>
