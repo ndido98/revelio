@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/ndido98/revelio/compare/1.0.0...1.0.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency matplotlib to v3.6.2 ([e192a41](https://github.com/ndido98/revelio/commit/e192a4163e70a1b3b903972c747c8c99d3801cc0))
+
 ## 1.0.0 (2022-11-02)
 
 
