@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/ndido98/revelio/compare/1.0.1...1.0.2) (2022-11-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency wandb to v0.13.5 ([2fa7a78](https://github.com/ndido98/revelio/commit/2fa7a7836f676e43875b43be287fdbce7098bd24))
+
 ## [1.0.1](https://github.com/ndido98/revelio/compare/1.0.0...1.0.1) (2022-11-03)
 
 
