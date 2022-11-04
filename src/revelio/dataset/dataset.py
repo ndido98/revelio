@@ -130,6 +130,7 @@ class Dataset(IterableDataset):
         descriptors = self._get_elems_list()
         cache_misses = 0
         for descriptor in descriptors:
+            fd_cached, fe_cached = True, True
             elem = _element_with_images(descriptor)
             elem, _, fd_cached = self._apply_face_detection(elem)
             # Feature extraction is offline only if augmentation is disabled
