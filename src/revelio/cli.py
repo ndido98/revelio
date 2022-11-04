@@ -1,10 +1,15 @@
 import argparse
+import json
 import logging
 import random
 import sys
-from typing import Any
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Mapping
 
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
 import torch
 from pydantic import ValidationError
 from torch.utils.data import DataLoader
@@ -127,8 +132,37 @@ def _warmup(
     test_ds.warmup = False
 
 
+def _get_report_dict(
+    experiment_name: str,
+    experiment_start: datetime,
+    experiment_end: datetime,
+    metrics: Mapping[str, Mapping[str, npt.ArrayLike]],
+) -> dict[str, Any]:
+    def _dataset_metrics_to_dict(
+        ds_metrics: Mapping[str, npt.ArrayLike]
+    ) -> dict[str, Any]:
+        res = {}
+        for k, v in ds_metrics.items():
+            if isinstance(v, np.ndarray):
+                res[k] = v.tolist()
+            else:
+                res[k] = v
+        return res
+
+    return {
+        "meta": {
+            "name": experiment_name,
+            "start_time": experiment_start.isoformat(),
+            "end_time": experiment_end.isoformat(),
+        },
+        "metrics": {ds: _dataset_metrics_to_dict(m) for ds, m in metrics.items()},
+    }
+
+
 def _cli_program(args: Any) -> None:
     config = Config.from_string(args.config_file.read())
+    experiment_name = Path(args.config_file.name).stem
+    experiment_start = datetime.now()
     # Set the seed as soon as possible
     if config.seed is not None:
         set_seed(config.seed)
@@ -181,7 +215,17 @@ def _cli_program(args: Any) -> None:
     del val_dl, val_ds
     print("Evaluating the model...")
     metrics = model.evaluate()
+    experiment_end = datetime.now()
+    if config.experiment.scores.metrics is not None:
+        report_dict = _get_report_dict(
+            experiment_name, experiment_start, experiment_end, metrics
+        )
+        report_json = json.dumps(report_dict, indent=4)
+        config.experiment.scores.metrics.write_text(report_json)
     print("---- EXPERIMENT RESULTS ----")
+    print(f"Experiment name: {experiment_name}")
+    print(f"Experiment start: {experiment_start}")
+    print(f"Experiment end: {experiment_end}")
     for ds, metric in metrics.items():
         print(f"Metrics for dataset {ds}:")
         for k, v in metric.items():
@@ -189,6 +233,8 @@ def _cli_program(args: Any) -> None:
     print("Scores have been saved in the following files:")
     print(f"\tBona fide: {config.experiment.scores.bona_fide}")
     print(f"\tMorphed: {config.experiment.scores.morphed}")
+    if config.experiment.scores.metrics is not None:
+        print(f"\tMetrics: {config.experiment.scores.metrics}")
 
 
 def main() -> None:

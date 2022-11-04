@@ -28,6 +28,7 @@ class Training(BaseModel):
 class Scores(BaseModel):
     bona_fide: Path
     morphed: Path
+    metrics: Optional[Path] = None
 
 
 class Metric(BaseModel):
