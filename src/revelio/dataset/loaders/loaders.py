@@ -137,7 +137,7 @@ class FERETLoader(DatasetLoader):  # pragma: no cover
         }
         # fmt: on
         if poses is None:
-            self._poses = allowed_poses
+            self._poses = {"fa", "fb"}  # Load only frontal images as default
         elif not set(poses).issubset(allowed_poses):
             raise ValueError(f"Invalid poses: {poses}")
         else:
@@ -194,4 +194,52 @@ class BiometixMorphedLoader(DatasetLoader):  # pragma: no cover
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
             for image in all_images
+        ]
+
+
+class CFDLoader(DatasetLoader):  # pragma: no cover
+    def __init__(self, poses: Optional[list[str]] = None):
+        allowed_poses = {"n", "a", "f", "hc", "ho"}
+        if poses is None:
+            self._poses = {"n"}  # Load only the neutral pose as default
+        else:
+            lower_poses = {p.lower() for p in poses}
+            if not lower_poses.issubset(allowed_poses):
+                raise ValueError(f"Invalid poses: {poses}")
+            else:
+                self._poses = lower_poses
+
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        all_images = sorted(path.rglob("*.jpg"))
+        valid_images = [
+            img for img in all_images if img.stem[-1].lower() in self._poses
+        ]
+        return [
+            DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
+            for image in valid_images
+        ]
+
+
+class CFDMorphLoader(DatasetLoader):  # pragma: no cover
+    def __init__(self, algorithms: Optional[list[str]] = None):
+        allowed_algorithms = {"c02", "c03"}
+        if algorithms is None:
+            self._algorithms = allowed_algorithms
+        else:
+            lower_algorithms = {a.lower() for a in algorithms}
+            if not lower_algorithms.issubset(allowed_algorithms):
+                raise ValueError(f"Invalid algorithms: {algorithms}")
+            else:
+                self._algorithms = lower_algorithms
+
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        all_images = sorted(path.rglob("*.png"))
+        valid_images: list[Path] = []
+        for algorithm in self._algorithms:
+            valid_images.extend(
+                img for img in all_images if f"_{algorithm}_" in img.stem.lower()
+            )
+        return [
+            DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
+            for image in valid_images
         ]
