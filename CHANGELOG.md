@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/ndido98/revelio/compare/1.0.2...1.0.3) (2022-11-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency tensorboard to ~2.11.0 ([c2bdf22](https://github.com/ndido98/revelio/commit/c2bdf2283e2daf269ca1a97745766bb47b4dbb79))
+
 ## [1.0.2](https://github.com/ndido98/revelio/compare/1.0.1...1.0.2) (2022-11-04)
 
 
