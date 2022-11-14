@@ -1,19 +1,25 @@
+from __future__ import annotations
+
 import gc
 import logging
 from math import ceil
-from typing import Any, Generator, Iterator, Optional
+from typing import TYPE_CHECKING, Any, Generator, Iterator
 
 import cv2 as cv
 import numpy as np
 from torch.utils.data import IterableDataset, get_worker_info
 
-from revelio.augmentation.step import AugmentationStep
-from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
-from revelio.face_detection.detector import FaceDetector
-from revelio.feature_extraction.extractor import FeatureExtractor
-from revelio.preprocessing.step import PreprocessingStep
+from .element import DatasetElement, ElementImage
 
-from .element import DatasetElement, DatasetElementDescriptor, ElementImage
+if TYPE_CHECKING:
+    from revelio.augmentation.step import AugmentationStep
+    from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
+    from revelio.face_detection.detector import FaceDetector
+    from revelio.feature_extraction.extractor import FeatureExtractor
+    from revelio.preprocessing.step import PreprocessingStep
+
+    from .element import DatasetElementDescriptor
+
 
 __all__ = ("Dataset",)
 
@@ -47,7 +53,7 @@ class Dataset(IterableDataset):
     def __init__(
         self,
         paths: DatasetElementDescriptorsList,
-        face_detector: Optional[FaceDetector],
+        face_detector: FaceDetector | None,
         augmentation_steps: list[AugmentationStep],
         feature_extractors: list[FeatureExtractor],
         preprocessing_steps: list[PreprocessingStep],

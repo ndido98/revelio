@@ -1,18 +1,22 @@
-import logging
-from typing import Optional, TypeVar
+from __future__ import annotations
 
-from revelio.augmentation import AugmentationStep
-from revelio.config import Config
+import logging
+from typing import TYPE_CHECKING, TypeVar
+
 from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
-from revelio.face_detection import FaceDetector
-from revelio.feature_extraction import FeatureExtractor
-from revelio.preprocessing.step import PreprocessingStep
 from revelio.utils.random import shuffled
 from revelio.utils.rounding import round_half_up
 
 from .dataset import Dataset
 from .element import DatasetElementDescriptor, ElementClass
 from .loaders.loader import DatasetLoader
+
+if TYPE_CHECKING:
+    from revelio.augmentation.step import AugmentationStep
+    from revelio.config import Config
+    from revelio.face_detection.detector import FaceDetector
+    from revelio.feature_extraction.extractor import FeatureExtractor
+    from revelio.preprocessing.step import PreprocessingStep
 
 __all__ = ("DatasetFactory",)
 
@@ -76,7 +80,7 @@ class DatasetFactory:
     _val: list[DatasetElementDescriptor] = []
     _test: list[DatasetElementDescriptor] = []
 
-    _face_detector: Optional[FaceDetector]
+    _face_detector: FaceDetector | None
     _augmentation_steps: list[AugmentationStep]
     _feature_extractors: list[FeatureExtractor]
     _preprocessing_steps: list[PreprocessingStep]
@@ -86,7 +90,7 @@ class DatasetFactory:
         loaders = self._get_loaders()
         log.debug("Found %d loaders", len(loaders))
         # Merge the datasets with their respective train, val and test percentages
-        current_x_count: Optional[int] = None
+        current_x_count: int | None = None
         for dataset, loader in zip(config.datasets, loaders):
             dataset_xy = loader.load(dataset.path)
             for elem in dataset_xy:
@@ -195,6 +199,8 @@ class DatasetFactory:
         return loaders
 
     def _get_face_detector(self) -> FaceDetector:
+        from revelio.face_detection.detector import FaceDetector
+
         return FaceDetector.find(
             self._config.face_detection.algorithm.name,
             _config=self._config,
@@ -202,6 +208,8 @@ class DatasetFactory:
         )
 
     def _get_augmentation_steps(self) -> list[AugmentationStep]:
+        from revelio.augmentation.step import AugmentationStep
+
         return [
             AugmentationStep.find(
                 step.uses,
@@ -213,6 +221,8 @@ class DatasetFactory:
         ]
 
     def _get_feature_extractors(self) -> list[FeatureExtractor]:
+        from revelio.feature_extraction.extractor import FeatureExtractor
+
         return [
             FeatureExtractor.find(
                 extractor.name,
@@ -223,6 +233,8 @@ class DatasetFactory:
         ]
 
     def _get_preprocessing_steps(self) -> list[PreprocessingStep]:
+        from revelio.preprocessing.step import PreprocessingStep
+
         return [
             PreprocessingStep.find(
                 step.uses,
