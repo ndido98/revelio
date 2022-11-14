@@ -109,8 +109,8 @@ class Model(Registrable):
                 timestamp=datetime.now().timestamp(),
                 today=datetime.now().strftime("%Y-%m-%d"),
             )
-            np.savetxt(formatted_bona_fide, bona_fide_scores, "%.5f")
-            np.savetxt(formatted_morphed, morphed_scores, "%.5f")
+            np.savetxt(formatted_bona_fide, bona_fide_scores, "%.8f")
+            np.savetxt(formatted_morphed, morphed_scores, "%.8f")
         return metrics
 
     def _compute_metrics(
