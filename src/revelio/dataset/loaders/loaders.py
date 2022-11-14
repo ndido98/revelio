@@ -221,8 +221,12 @@ class CFDLoader(DatasetLoader):  # pragma: no cover
 
 
 class CFDMorphLoader(DatasetLoader):  # pragma: no cover
-    def __init__(self, algorithms: Optional[list[str]] = None):
-        allowed_algorithms = {"c02", "c03"}
+    def __init__(
+        self,
+        algorithms: Optional[list[str]] = None,
+        morph_levels: Optional[list[float]] = None,
+    ):
+        allowed_algorithms = {"c02", "c03", "c05", "c08"}
         if algorithms is None:
             self._algorithms = allowed_algorithms
         else:
@@ -231,14 +235,27 @@ class CFDMorphLoader(DatasetLoader):  # pragma: no cover
                 raise ValueError(f"Invalid algorithms: {algorithms}")
             else:
                 self._algorithms = lower_algorithms
+        self._morph_levels = (
+            [int(level * 100) for level in morph_levels]
+            if morph_levels is not None
+            else None
+        )
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
         all_images = sorted(path.rglob("*.png"))
         valid_images: list[Path] = []
         for algorithm in self._algorithms:
-            valid_images.extend(
-                img for img in all_images if f"_{algorithm}_" in img.stem.lower()
-            )
+            if self._morph_levels is None:
+                valid_images.extend(
+                    img for img in all_images if f"_{algorithm}_" in img.stem.lower()
+                )
+            else:
+                for level in self._morph_levels:
+                    valid_images.extend(
+                        img
+                        for img in all_images
+                        if f"_{algorithm}_b{level}_" in img.stem.lower()
+                    )
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
             for image in valid_images
