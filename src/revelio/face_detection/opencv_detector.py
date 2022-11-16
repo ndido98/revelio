@@ -3,9 +3,9 @@ from typing import Any, Optional
 
 import cv2 as cv
 
-from revelio.dataset.element import Image
+from revelio.dataset.element import Image, Landmarks
 
-from .detector import BoundingBox, FaceDetector, Landmarks
+from .detector import BoundingBox, FaceDetector
 
 
 class OpenCVDetector(FaceDetector):  # pragma: no cover

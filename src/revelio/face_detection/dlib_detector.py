@@ -5,9 +5,9 @@ import cv2 as cv
 import dlib
 import numpy as np
 
-from revelio.dataset.element import Image
+from revelio.dataset.element import Image, Landmarks
 
-from .detector import BoundingBox, FaceDetector, Landmarks
+from .detector import BoundingBox, FaceDetector
 
 
 class DLIBDetector(FaceDetector):  # pragma: no cover

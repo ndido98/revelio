@@ -4,9 +4,9 @@ import cv2 as cv
 import numpy as np
 from facenet_pytorch import MTCNN
 
-from revelio.dataset.element import Image
+from revelio.dataset.element import Image, Landmarks
 
-from .detector import BoundingBox, FaceDetector, Landmarks
+from .detector import BoundingBox, FaceDetector
 
 
 class MTCNNDetector(FaceDetector):  # pragma: no cover

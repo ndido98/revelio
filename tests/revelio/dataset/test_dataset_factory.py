@@ -29,10 +29,11 @@ from revelio.dataset import (
     ElementClass,
     ElementImage,
     Image,
+    Landmarks,
 )
 from revelio.dataset.dataset_factory import _split_train_val_test
 from revelio.dataset.loaders import DatasetLoader
-from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
+from revelio.face_detection.detector import BoundingBox, FaceDetector
 from revelio.feature_extraction.extractor import FeatureExtractor
 from revelio.preprocessing.step import PreprocessingStep
 

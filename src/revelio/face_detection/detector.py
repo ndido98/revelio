@@ -3,14 +3,12 @@ from pathlib import Path
 from typing import Optional, TypeAlias
 
 import numpy as np
-import numpy.typing as npt
 
 from revelio.config.config import Config
-from revelio.dataset.element import DatasetElement, ElementImage, Image
+from revelio.dataset.element import DatasetElement, ElementImage, Image, Landmarks
 from revelio.registry.registry import Registrable
 
 BoundingBox: TypeAlias = tuple[int, int, int, int]
-Landmarks: TypeAlias = npt.NDArray[np.int32]
 
 
 class FaceDetector(Registrable):
@@ -114,8 +112,7 @@ class FaceDetector(Registrable):
                     raise RuntimeError(f"Failed to load meta file: {meta_path}") from e
                 landmarks = meta["landmarks"] if "landmarks" in meta else None
                 if "bb" in meta:
-                    # We have the bounding boxes, skip loading a new image
-                    # and instead crop the one we already have
+                    # Crop the image using the precomputed bounding box
                     x1, y1, x2, y2 = meta["bb"]
                     image = x.image[y1:y2, x1:x2]
                     new_x = ElementImage(

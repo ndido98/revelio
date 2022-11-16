@@ -3,8 +3,10 @@ from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
 import numpy as np
+import numpy.typing as npt
 
-Image: TypeAlias = np.ndarray[int, np.dtype[np.uint8 | np.float32]]
+Image: TypeAlias = npt.NDArray[np.uint8 | np.float32]
+Landmarks: TypeAlias = npt.NDArray[np.int32]
 
 
 class ElementClass(Enum):
@@ -90,14 +92,14 @@ class ElementImage:
 
     _path: Path
     _image: Image
-    _landmarks: Optional[np.ndarray]
+    _landmarks: Optional[Landmarks]
     _features: dict[str, np.ndarray]
 
     def __init__(
         self,
         path: Path,
         image: Image,
-        landmarks: Optional[np.ndarray] = None,
+        landmarks: Optional[Landmarks] = None,
         features: Optional[dict[str, np.ndarray]] = None,
     ) -> None:
         """
@@ -130,7 +132,7 @@ class ElementImage:
         return self._image
 
     @property
-    def landmarks(self) -> Optional[np.ndarray]:
+    def landmarks(self) -> Optional[Landmarks]:
         """
         Gets the facial landmarks of the image (if present).
         """

@@ -7,14 +7,18 @@ import pytest
 
 from revelio.config.config import Config
 from revelio.config.model.face_detection import FaceDetection, FaceDetectionAlgorithm
-from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
-from revelio.face_detection.detector import BoundingBox, FaceDetector, Landmarks
+from revelio.dataset.element import (
+    DatasetElement,
+    ElementClass,
+    ElementImage,
+    Image,
+    Landmarks,
+)
+from revelio.face_detection.detector import BoundingBox, FaceDetector
 
 
 class Dummy2(FaceDetector):
-    def process_element(
-        self, elem: np.ndarray
-    ) -> tuple[BoundingBox, Optional[Landmarks]]:
+    def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
         return ((5, 5, 15, 15), np.array([1, 2, 3]))
 
 
