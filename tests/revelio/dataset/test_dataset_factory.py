@@ -91,8 +91,10 @@ class Identity(AugmentationStep):
         self.foo = foo
         super().__init__(**kwargs)
 
-    def process_element(self, elem: ElementImage) -> ElementImage:
-        return elem
+    def process_element(
+        self, image: Image, landmarks: Optional[Landmarks]
+    ) -> tuple[Image, Optional[Landmarks]]:
+        return image, landmarks
 
 
 class DummyFeatureExtractor(FeatureExtractor):

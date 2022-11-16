@@ -1,19 +1,25 @@
 from pathlib import Path
+from typing import Optional
 from unittest import mock
 
 import numpy as np
 import pytest
 
 from revelio.augmentation.step import AugmentationStep
-from revelio.dataset.element import DatasetElement, ElementClass, ElementImage
+from revelio.dataset.element import (
+    DatasetElement,
+    ElementClass,
+    ElementImage,
+    Image,
+    Landmarks,
+)
 
 
 class Invert(AugmentationStep):
-    def process_element(self, elem: ElementImage) -> ElementImage:
-        return ElementImage(
-            path=elem.path,
-            image=(255 - elem.image).astype(np.uint8),
-        )
+    def process_element(
+        self, image: Image, landmarks: Optional[Landmarks]
+    ) -> tuple[Image, Optional[Landmarks]]:
+        return 255 - image, landmarks
 
 
 @pytest.fixture

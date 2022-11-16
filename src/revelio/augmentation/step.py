@@ -8,9 +8,9 @@ overriding the `process_element` method.
 
 import random
 from abc import abstractmethod
-from typing import Literal
+from typing import Literal, Optional
 
-from revelio.dataset.element import DatasetElement, ElementImage
+from revelio.dataset.element import DatasetElement, ElementImage, Image, Landmarks
 from revelio.registry.registry import Registrable
 
 
@@ -31,7 +31,7 @@ class AugmentationStep(Registrable):
     that is affected by the augmentation step.
 
     An augmentation step must implement the `process_element` method, which takes
-    an image and returns its augmented version.
+    an image, its landmarks and returns its augmented version.
 
     Only dataset elements which are part of the training set are augmented;
     validation and test sets are not augmented.
@@ -44,16 +44,19 @@ class AugmentationStep(Registrable):
         self._probability = _probability
 
     @abstractmethod
-    def process_element(self, elem: ElementImage) -> ElementImage:
+    def process_element(
+        self, image: Image, landmarks: Optional[Landmarks]
+    ) -> tuple[Image, Optional[Landmarks]]:
         """
         Processes a single image of a dataset element,
         and returns its augmented version.
 
         Args:
-            elem: The image to be augmented.
+            image: The image to be augmented.
+            landmarks: The landmarks of the image to be augmented.
 
         Returns:
-            The augmented image.
+            A tuple containing the augmented image and its landmarks.
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -74,7 +77,14 @@ class AugmentationStep(Registrable):
             new_xs = []
             for i, x in enumerate(elem.x):
                 if self._applies_to == "all" or i in self._applies_to:
-                    new_xs.append(self.process_element(x))
+                    new_img, new_landmarks = self.process_element(x.image, x.landmarks)
+                    new_x = ElementImage(
+                        path=x.path,
+                        image=new_img,
+                        landmarks=new_landmarks,
+                        features=x.features,
+                    )
+                    new_xs.append(new_x)
                 else:
                     new_xs.append(x)
             return DatasetElement(
