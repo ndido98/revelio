@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/ndido98/revelio/compare/1.0.3...1.0.4) (2022-11-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency numpy to v1.23.5 ([061aea3](https://github.com/ndido98/revelio/commit/061aea3c8ea07c20ad24a6ebb8246b21e71d0b65))
+
 ## [1.0.3](https://github.com/ndido98/revelio/compare/1.0.2...1.0.3) (2022-11-09)
 
 
