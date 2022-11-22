@@ -310,7 +310,7 @@ flake8 = ">=3.5,<6"
 
 [[package]]
 name = "flake8-logging-format"
-version = "0.8.1"
+version = "0.9.0"
 description = ""
 category = "dev"
 optional = false
@@ -1653,7 +1653,7 @@ test = ["pytest (>=3.0.0)", "pytest-cov"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <3.12"
-content-hash = "0bcee54bfa35a36c2918c230d13dccb2ce81cb1f6ff96ff381771faa104c5e1c"
+content-hash = "0fc46f403c38eb9b375914ca30ff5e9029fedc76314fd18903b6aef4c82165b4"
 
 [metadata.files]
 absl-py = [
@@ -1898,7 +1898,7 @@ flake8-eradicate = [
     {file = "flake8_eradicate-1.4.0-py3-none-any.whl", hash = "sha256:e3bbd0871be358e908053c1ab728903c114f062ba596b4d40c852fd18f473d56"},
 ]
 flake8-logging-format = [
-    {file = "flake8-logging-format-0.8.1.tar.gz", hash = "sha256:fecab361ff1700d4550cedbd3f4475d45eda01fcaa800768c9551d2ced16b780"},
+    {file = "flake8-logging-format-0.9.0.tar.gz", hash = "sha256:e830cc49091e4b8ab9ea3da69a3da074bd631ce9a7db300e5c89fb48ba4a6986"},
 ]
 fonttools = [
     {file = "fonttools-4.38.0-py3-none-any.whl", hash = "sha256:820466f43c8be8c3009aef8b87e785014133508f0de64ec469e4efb643ae54fb"},
