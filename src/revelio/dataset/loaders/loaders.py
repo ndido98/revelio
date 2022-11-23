@@ -210,10 +210,17 @@ class CFDLoader(DatasetLoader):  # pragma: no cover
                 self._poses = lower_poses
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.jpg"))
-        valid_images = [
-            img for img in all_images if img.stem[-1].lower() in self._poses
-        ]
+        png = sorted(path.rglob("*.png"))
+        jpg = sorted(path.rglob("*.jpg"))
+        all_images = sorted(png + jpg)
+        valid_images = []
+        for pose in self._poses:
+            pose_images = [
+                img
+                for img in all_images
+                if img.stem.lower().split("-")[-1].startswith(pose)
+            ]
+            valid_images.extend(pose_images)
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
             for image in valid_images
@@ -242,7 +249,9 @@ class CFDMorphLoader(DatasetLoader):  # pragma: no cover
         )
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.png"))
+        png = sorted(path.rglob("*.png"))
+        jpg = sorted(path.rglob("*.jpg"))
+        all_images = sorted(png + jpg)
         valid_images: list[Path] = []
         for algorithm in self._algorithms:
             if self._morph_levels is None:
