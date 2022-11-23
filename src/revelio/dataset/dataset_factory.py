@@ -169,7 +169,9 @@ class DatasetFactory:
             self._feature_extractors = self._get_feature_extractors()
         else:
             self._feature_extractors = []
-        self._preprocessing_steps = self._get_preprocessing_steps()
+        self._train_preprocessing_steps = self._get_preprocessing_steps("train")
+        self._val_preprocessing_steps = self._get_preprocessing_steps("val")
+        self._test_preprocessing_steps = self._get_preprocessing_steps("test")
 
     def _get_loaders(self) -> list[DatasetLoader]:
         loaders: list[DatasetLoader] = []
@@ -232,7 +234,7 @@ class DatasetFactory:
             for extractor in self._config.feature_extraction.algorithms
         ]
 
-    def _get_preprocessing_steps(self) -> list[PreprocessingStep]:
+    def _get_preprocessing_steps(self, dataset: str) -> list[PreprocessingStep]:
         from revelio.preprocessing.step import PreprocessingStep
 
         return [
@@ -241,6 +243,7 @@ class DatasetFactory:
                 **step.args,
             )
             for step in self._config.preprocessing.steps
+            if step.datasets is None or dataset in step.datasets
         ]
 
     def get_train_dataset(self) -> Dataset:
@@ -249,7 +252,7 @@ class DatasetFactory:
             self._face_detector,
             self._augmentation_steps,
             self._feature_extractors,
-            self._preprocessing_steps,
+            self._train_preprocessing_steps,
             True,
         )
 
@@ -259,7 +262,7 @@ class DatasetFactory:
             self._face_detector,
             [],
             self._feature_extractors,
-            self._preprocessing_steps,
+            self._val_preprocessing_steps,
             True,
         )
 
@@ -269,6 +272,6 @@ class DatasetFactory:
             self._face_detector,
             [],
             self._feature_extractors,
-            self._preprocessing_steps,
+            self._test_preprocessing_steps,
             False,
         )
