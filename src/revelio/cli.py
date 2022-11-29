@@ -89,7 +89,10 @@ def _create_warmup_data_loader(dataset: Dataset, workers_count: int) -> DataLoad
 
 
 def _create_data_loader(
-    dataset: Dataset, batch_size: int, workers_count: int, persistent_workers: bool
+    dataset: Dataset,
+    batch_size: int,
+    workers_count: int,
+    persistent_workers: bool,
 ) -> DataLoader:
     return DataLoader(
         dataset,
@@ -107,6 +110,7 @@ def _warmup(
     train_ds: Dataset,
     val_ds: Dataset,
     test_ds: Dataset,
+    seed: int,
 ) -> None:
     if config.experiment.training.enabled:
         train_ds.warmup = True
@@ -118,14 +122,11 @@ def _warmup(
     # Warmup (i.e. run the offline processing) the three data loaders so we don't
     # have an overhead when we start training
     if config.experiment.training.enabled:
-        if config.seed is not None:
-            set_seed(config.seed)
+        set_seed(seed)
         consume(tqdm(warmup_train_dl, desc="Warming up the training data loader"))
-        if config.seed is not None:
-            set_seed(config.seed)
+        set_seed(seed)
         consume(tqdm(warmup_val_dl, desc="Warming up the validation data loader"))
-    if config.seed is not None:
-        set_seed(config.seed)
+    set_seed(seed)
     consume(tqdm(warmup_test_dl, desc="Warming up the test data loader"))
     train_ds.warmup = False
     val_ds.warmup = False
@@ -165,18 +166,19 @@ def _cli_program(args: Any) -> None:
     experiment_start = datetime.now()
     # Set the seed as soon as possible
     if config.seed is not None:
+        seed = config.seed
         set_seed(config.seed)
     else:
         seed = random.randint(0, 2**32 - 1)
         print(f"No seed was specified, using a random seed: {seed}")
-        set_seed(seed)
+    set_seed(seed)
     print("Loading the dataset...")
     dataset = DatasetFactory(config)
     train_ds = dataset.get_train_dataset()
     val_ds = dataset.get_val_dataset()
     test_ds = dataset.get_test_dataset()
     if args.warmup:
-        _warmup(config, args.warmup_workers_count, train_ds, val_ds, test_ds)
+        _warmup(config, args.warmup_workers_count, train_ds, val_ds, test_ds, seed)
     train_dl = _create_data_loader(
         train_ds,
         batch_size=config.experiment.batch_size,
@@ -211,8 +213,10 @@ def _cli_program(args: Any) -> None:
     if config.experiment.training.enabled:
         print("Fitting the model...")
         model.fit()
-    del train_dl, train_ds
-    del val_dl, val_ds
+    del train_ds
+    del train_dl
+    del val_ds
+    del val_dl
     print("Evaluating the model...")
     metrics = model.evaluate()
     experiment_end = datetime.now()
@@ -221,7 +225,14 @@ def _cli_program(args: Any) -> None:
             experiment_name, experiment_start, experiment_end, metrics
         )
         report_json = json.dumps(report_dict, indent=4)
-        config.experiment.scores.metrics.write_text(report_json)
+        formatted_report_file = Path(
+            str(config.experiment.scores.metrics).format(
+                now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                timestamp=datetime.now().timestamp(),
+                today=datetime.now().strftime("%Y-%m-%d"),
+            )
+        )
+        formatted_report_file.write_text(report_json)
     print("---- EXPERIMENT RESULTS ----")
     print(f"Experiment name: {experiment_name}")
     print(f"Experiment start: {experiment_start}")
