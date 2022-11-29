@@ -9,6 +9,17 @@ from .step import AugmentationStep
 
 
 class JPEGCompression(AugmentationStep):
+    """
+    Applies JPEG compression artifacts to the image.
+    This augmentation can be used to test the robustness of a model to JPEG compression.
+
+    There are several modes of operation:
+    - If `quality` is specified, the image will be compressed to the specified quality.
+        If more qualities are specified, one is chosen randomly.
+    - If `max_bytes` is specified, the image will be compressed to the highest quality
+        that produces an image under the specified size.
+    """
+
     def __init__(
         self,
         *,
@@ -16,6 +27,16 @@ class JPEGCompression(AugmentationStep):
         max_bytes: Optional[int] = None,
         **kwargs: Any,
     ):
+        """
+        Applies JPEG compression artifacts to the image.
+
+        Args:
+            quality: The quality to compress the image to. If a list is provided, one
+                quality is chosen randomly. If a dictionary with the `min` and `max`
+                keys is provided, the quality is chosen randomly between the specified
+                quality range.
+            max_bytes: The maximum number of bytes the image can be compressed to.
+        """
         super().__init__(**kwargs)
         if quality is not None:
             self._validate_quality(quality)
