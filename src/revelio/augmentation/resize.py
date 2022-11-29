@@ -35,6 +35,15 @@ def _validate_greater(name1: str, name2: str, value1: int, value2: int) -> None:
 
 
 class Resize(AugmentationStep):
+    """
+    Applies a resize filter to the image.
+
+    Both width and height can be either a fixed value or a range.
+    The aspect ratio can be preserved or not, with a given probability.
+    The interpolation algorithm and fill mode are chosen randomly
+    from the provided lists.
+    """
+
     def __init__(
         self,
         *,
@@ -49,6 +58,20 @@ class Resize(AugmentationStep):
         keep_aspect_ratio_probability: float = 1.0,
         **kwargs: Any,
     ) -> None:
+        """
+        Applies a resize filter to the image.
+
+        Args:
+            width: The fixed width of the image.
+            height: The fixed height of the image.
+            from_width: The minimum width of the image.
+            to_width: The maximum width of the image.
+            from_height: The minimum height of the image.
+            to_height: The maximum height of the image.
+            algorithms: The list of algorithms to choose from.
+            fill_modes: The list of fill modes to choose from.
+            keep_aspect_ratio_probability: The probability of keeping the aspect ratio.
+        """
         super().__init__(**kwargs)
         self._parse_sizes(width, height, from_width, to_width, from_height, to_height)
         self._parse_algorithms(algorithms)
