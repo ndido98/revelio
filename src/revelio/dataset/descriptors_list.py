@@ -15,7 +15,11 @@ def _encoded_len(s: str) -> int:
 
 class DatasetElementDescriptorsList(Sequence[DatasetElementDescriptor]):
     def __init__(self, elems: list[DatasetElementDescriptor] | np.ndarray) -> None:
-        if isinstance(elems, list):
+        # Handle the empty case
+        if len(elems) == 0:
+            self._storage = np.empty(0, dtype=np.dtype([]))
+            self._images_per_descriptor = 0
+        elif isinstance(elems, list):
             self._from_list(elems)
         elif isinstance(elems, np.ndarray):
             self._from_storage(elems)
@@ -31,7 +35,7 @@ class DatasetElementDescriptorsList(Sequence[DatasetElementDescriptor]):
             elif current_x_count != len(elem.x):
                 raise ValueError("All descriptors must have the same number of images.")
         assert current_x_count is not None
-        self._images_per_descriptor: int = current_x_count
+        self._images_per_descriptor = current_x_count
         # Convert the list to Numpy arrays to avoid copy-on-access overhead when
         # using multiple workers
         longest_path_length: int = 0

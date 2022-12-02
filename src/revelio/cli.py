@@ -217,35 +217,37 @@ def _cli_program(args: Any) -> None:
     del train_dl
     del val_ds
     del val_dl
-    print("Evaluating the model...")
-    metrics = model.evaluate()
-    experiment_end = datetime.now()
-    if config.experiment.scores.metrics is not None:
-        report_dict = _get_report_dict(
-            experiment_name, experiment_start, experiment_end, metrics
-        )
-        report_json = json.dumps(report_dict, indent=4)
-        formatted_report_file = Path(
-            str(config.experiment.scores.metrics).format(
-                now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                timestamp=datetime.now().timestamp(),
-                today=datetime.now().strftime("%Y-%m-%d"),
+    has_test_data = len(test_ds) > 0
+    if has_test_data:
+        print("Evaluating the model...")
+        metrics = model.evaluate()
+        experiment_end = datetime.now()
+        if config.experiment.scores.metrics is not None:
+            report_dict = _get_report_dict(
+                experiment_name, experiment_start, experiment_end, metrics
             )
-        )
-        formatted_report_file.write_text(report_json)
-    print("---- EXPERIMENT RESULTS ----")
-    print(f"Experiment name: {experiment_name}")
-    print(f"Experiment start: {experiment_start}")
-    print(f"Experiment end: {experiment_end}")
-    for ds, metric in metrics.items():
-        print(f"Metrics for dataset {ds}:")
-        for k, v in metric.items():
-            print(f"\t{k}: {v!r}")
-    print("Scores have been saved in the following files:")
-    print(f"\tBona fide: {config.experiment.scores.bona_fide}")
-    print(f"\tMorphed: {config.experiment.scores.morphed}")
-    if config.experiment.scores.metrics is not None:
-        print(f"\tMetrics: {config.experiment.scores.metrics}")
+            report_json = json.dumps(report_dict, indent=4)
+            formatted_report_file = Path(
+                str(config.experiment.scores.metrics).format(
+                    now=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    timestamp=datetime.now().timestamp(),
+                    today=datetime.now().strftime("%Y-%m-%d"),
+                )
+            )
+            formatted_report_file.write_text(report_json)
+        print("---- EXPERIMENT RESULTS ----")
+        print(f"Experiment name: {experiment_name}")
+        print(f"Experiment start: {experiment_start}")
+        print(f"Experiment end: {experiment_end}")
+        for ds, metric in metrics.items():
+            print(f"Metrics for dataset {ds}:")
+            for k, v in metric.items():
+                print(f"\t{k}: {v!r}")
+        print("Scores have been saved in the following files:")
+        print(f"\tBona fide: {config.experiment.scores.bona_fide}")
+        print(f"\tMorphed: {config.experiment.scores.morphed}")
+        if config.experiment.scores.metrics is not None:
+            print(f"\tMetrics: {config.experiment.scores.metrics}")
 
 
 def main() -> None:
