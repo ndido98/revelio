@@ -1,4 +1,5 @@
 from .alexnet import AlexNet
+from .feature_inception_resnet import FeatureInceptionResnet
 from .inception_resnet import InceptionResNetV1
 from .mobilenet import MobileNet
 from .neuralnet import *
