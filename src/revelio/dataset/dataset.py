@@ -35,11 +35,10 @@ def _element_with_images(elem: DatasetElementDescriptor) -> DatasetElement:
     )
 
 
-def _bgr2rgb(elem: DatasetElement) -> list[dict[str, Any]]:
+def _whc2cwh(elem: DatasetElement) -> list[dict[str, Any]]:
     elem_xs = []
     for x in elem.x:
-        rgb = cv.cvtColor(x.image, cv.COLOR_BGR2RGB)
-        chw = np.transpose(rgb, (2, 0, 1))
+        chw = np.transpose(x.image, (2, 0, 1))
         elem_x: dict[str, Any] = {"image": chw}
         if x.landmarks is not None:
             elem_x["landmarks"] = x.landmarks
@@ -167,7 +166,7 @@ class Dataset(IterableDataset):
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
             elem, fe_success, fe_cached = self._apply_feature_extraction(
-                elem, len(self._augmentation_steps) > 0, silent=True
+                elem, force_online=len(self._augmentation_steps) > 0, silent=True
             )
             if not fe_success:
                 continue
@@ -178,7 +177,7 @@ class Dataset(IterableDataset):
                     gc.collect()
             for preprocessing_step in self._preprocessing_steps:
                 elem = preprocessing_step.process(elem)
-            elem_xs = _bgr2rgb(elem)
+            elem_xs = _whc2cwh(elem)
             yield {
                 "x": elem_xs,
                 "y": elem.y.value,
