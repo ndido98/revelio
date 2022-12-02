@@ -440,7 +440,7 @@ protobuf = ["grpcio-tools (>=1.50.0)"]
 
 [[package]]
 name = "hypothesis"
-version = "6.58.2"
+version = "6.59.0"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -1653,7 +1653,7 @@ test = ["pytest (>=3.0.0)", "pytest-cov"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <3.12"
-content-hash = "0fc46f403c38eb9b375914ca30ff5e9029fedc76314fd18903b6aef4c82165b4"
+content-hash = "e72e7a42efa05fce2a3b3c2a29d0d3a2f44b4bbb9605b6bfc798a5b6b383ecb2"
 
 [metadata.files]
 absl-py = [
@@ -1976,8 +1976,8 @@ grpcio = [
     {file = "grpcio-1.50.0.tar.gz", hash = "sha256:12b479839a5e753580b5e6053571de14006157f2ef9b71f38c56dc9b23b95ad6"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.58.2-py3-none-any.whl", hash = "sha256:6e235b71455ef7e329b8214e75bad3f5195caf4ee708c571f20a76c6f5c18814"},
-    {file = "hypothesis-6.58.2.tar.gz", hash = "sha256:6108f8f692fa6554c8cb10b3516d97d2609fa063745ecaf36f1878d007c51d8f"},
+    {file = "hypothesis-6.59.0-py3-none-any.whl", hash = "sha256:4eb2875097a07553a1006cb2b96fab21682e4359b138b2ae3c5f5d8b3f5a8bf1"},
+    {file = "hypothesis-6.59.0.tar.gz", hash = "sha256:af05e24b123c9413b8752bbf822105dbb112f56456fb240723d7f410eebf78bb"},
 ]
 identify = [
     {file = "identify-2.5.8-py2.py3-none-any.whl", hash = "sha256:48b7925fe122720088aeb7a6c34f17b27e706b72c61070f27fe3789094233440"},
