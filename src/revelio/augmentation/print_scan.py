@@ -50,7 +50,7 @@ class PrintScan(AugmentationStep):
         color_correction_beta_x: float = 35.0,
         color_correction_gamma: float = 0.6,
         cutoff_noise_threshold: float = 32.0,
-        max_n2_noise_value: float = 128.0,
+        max_n2_noise_value: float = 20.0,
         **kwargs: Any,
     ):
         """
@@ -107,7 +107,8 @@ class PrintScan(AugmentationStep):
     def _precompute_dark_area_lut(self) -> None:
         lut = np.arange(256, dtype=np.float64)
         lut = 1 / (1 + np.exp(lut - self._cutoff_noise_threshold))
-        self._dark_area_lut = np.round(lut * self._max_n2_noise_value).astype(np.uint8)
+        lut = np.round(lut * self._max_n2_noise_value)
+        self._dark_area_lut = np.clip(lut, 0, 255).astype(np.uint8)
 
     def process_element(
         self, image: Image, landmarks: Optional[Landmarks]
@@ -143,7 +144,8 @@ class PrintScan(AugmentationStep):
             _gaussians_in_range(image.shape, mean=128, numbers_range=(0, 255))
             * magnitude
         )
-        return np.round(image + noise).astype(np.uint8)  # type: ignore
+        summed = image.astype(np.int16) + noise
+        return np.clip(np.round(summed), 0, 255).astype(np.uint8)  # type: ignore
 
     def _gamma_correction(self, image: Image) -> Image:
         return cv.LUT(image, self._gamma_lut)  # type: ignore
@@ -153,7 +155,8 @@ class PrintScan(AugmentationStep):
             cv.LUT(image, self._dark_area_lut).astype(np.float32)
             * np.random.random(image.shape)
         ).astype(np.uint8)
-        return image + noise  # type: ignore
+        summed = image.astype(np.int16) + noise
+        return np.clip(np.round(summed), 0, 255).astype(np.uint8)  # type: ignore
 
     def _psf(self, image: Image) -> Image:
         return np.round(  # type: ignore
@@ -162,4 +165,4 @@ class PrintScan(AugmentationStep):
                 (self._blurring_filter_size, self._blurring_filter_size),
                 self._blurring_filter_sigma,
             )
-        )
+        ).astype(np.uint8)
