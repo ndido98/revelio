@@ -54,8 +54,8 @@ class Model(Registrable):
         # Reset the seed so we are sure to get the same results
         if self.config.seed is not None:
             set_seed(self.config.seed)
-        scores_list: list[npt.NDArray[np.float32]] = []
-        labels_list: list[int] = []
+        scores_list: list[float] = []
+        labels_list: list[float] = []
         original_datasets_list: list[str] = []
         testing_groups = self._get_testing_groups_datasets()
         log.debug("Found testing groups: %s", testing_groups)
@@ -65,16 +65,16 @@ class Model(Registrable):
             batch_scores = np.atleast_1d(batch_scores)
             if batch_scores.ndim != 1:
                 raise ValueError("predict() must return a 1D-array of scores")
-            batch_gt = elem["y"].cpu().numpy()
+            batch_gt = elem["y"].cpu().tolist()
             batch_dataset = elem["dataset"]
-            scores_list.append(np.atleast_1d(batch_scores))
-            labels_list.append(np.atleast_1d(batch_gt))
+            scores_list.extend(batch_scores.tolist())
+            labels_list.extend(batch_gt)
             if isinstance(batch_dataset, list):
                 original_datasets_list.extend(batch_dataset)
             else:
                 original_datasets_list.append(batch_dataset)
-        scores = np.concatenate(scores_list)
-        labels = np.concatenate(labels_list)
+        scores = np.array(scores_list, dtype=np.float32)
+        labels = np.array(labels_list, dtype=np.float32)
         original_datasets = np.array(original_datasets_list)
         # Create the directories for the scores
         self.config.experiment.scores.bona_fide.parent.mkdir(
@@ -116,7 +116,7 @@ class Model(Registrable):
     def _compute_metrics(
         self,
         scores: np.ndarray[int, np.dtype[np.float32]],
-        labels: np.ndarray[int, np.dtype[np.uint8]],
+        labels: np.ndarray[int, np.dtype[np.float32]],
         mask: np.ndarray[int, np.dtype[np.bool_]],
     ) -> Mapping[str, npt.ArrayLike]:
         computed_metrics = {}
