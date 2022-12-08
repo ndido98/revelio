@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/ndido98/revelio/compare/1.0.5...1.0.6) (2022-12-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency scikit-learn to ~1.2.0 ([c856597](https://github.com/ndido98/revelio/commit/c856597e1f9a8ddb69dce3933bd0219747668620))
+
 ## [1.0.5](https://github.com/ndido98/revelio/compare/1.0.4...1.0.5) (2022-12-07)
 
 
