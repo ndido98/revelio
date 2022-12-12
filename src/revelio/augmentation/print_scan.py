@@ -11,6 +11,22 @@ _PREWITT_KERNEL_SEP1 = np.array([1, 1, 1])
 _PREWITT_KERNEL_SEP2 = np.array([1, 0, -1])
 
 
+def _get_sigma(image: Image) -> float:
+    ref_diag1, ref_sigma1 = 195.6, 0.8
+    ref_diag2, ref_sigma2 = 1799.3, 4.0
+    diag = np.sqrt(image.shape[0] ** 2 + image.shape[1] ** 2)
+    # Linearly interpolate between the two reference sigmas based on the image diagonal
+    # fmt: off
+    result = (
+        ref_sigma1 * (ref_diag2 - diag) / (ref_diag2 - ref_diag1)
+        + ref_sigma2 * (diag - ref_diag1) / (ref_diag2 - ref_diag1)
+    )
+    # fmt: on
+    # Clamp the resulting sigma to a minimum of 0.8,
+    # which is the value OpenCV uses when using 3x3 filters
+    return float(np.clip(result, 0.8, None))
+
+
 def _gaussians_in_range(
     shape: tuple, mean: float, numbers_range: tuple[float, float]
 ) -> np.ndarray:
@@ -41,8 +57,6 @@ class PrintScan(AugmentationStep):
     def __init__(
         self,
         *,
-        blurring_filter_size: int = 7,
-        blurring_filter_sigma: float = 4.0,
         apply_edge_noise: bool = True,
         apply_dark_area_noise: bool = True,
         color_correction_alpha: float = 8.3,
@@ -59,8 +73,6 @@ class PrintScan(AugmentationStep):
         and heterogeneous image sources" by Ferrara et al.
 
         Args:
-            blurring_filter_size: Size of the Gaussian blurring filter.
-            blurring_filter_sigma: Sigma of the Gaussian blurring filter.
             apply_edge_noise: Whether to apply a simulated edge noise.
             apply_dark_area_noise: Whether to apply a simulated dark area noise.
             color_correction_alpha: Alpha parameter of the gamma correction.
@@ -71,8 +83,6 @@ class PrintScan(AugmentationStep):
             max_n2_noise_value: Maximum value for the dark area noise.
         """
         super().__init__(**kwargs)
-        self._blurring_filter_size = blurring_filter_size
-        self._blurring_filter_sigma = blurring_filter_sigma
         self._apply_edge_noise = apply_edge_noise
         self._apply_dark_area_noise = apply_dark_area_noise
         self._color_correction_alpha = color_correction_alpha
@@ -119,11 +129,8 @@ class PrintScan(AugmentationStep):
         image = self._gamma_correction(image)
         if self._apply_dark_area_noise:
             image = self._dark_area_noise(image)
-        image = cv.GaussianBlur(
-            image,
-            (self._blurring_filter_size, self._blurring_filter_size),
-            self._blurring_filter_sigma,
-        )
+        sigma = _get_sigma(image)
+        image = cv.GaussianBlur(image, ksize=None, sigmaX=sigma, sigmaY=sigma)
         return image, landmarks
 
     def _compute_gradient_magnitude(self, image: Image) -> np.ndarray:
@@ -159,10 +166,7 @@ class PrintScan(AugmentationStep):
         return np.clip(np.round(summed), 0, 255).astype(np.uint8)  # type: ignore
 
     def _psf(self, image: Image) -> Image:
+        sigma = _get_sigma(image)
         return np.round(  # type: ignore
-            cv.GaussianBlur(
-                image,
-                (self._blurring_filter_size, self._blurring_filter_size),
-                self._blurring_filter_sigma,
-            )
+            cv.GaussianBlur(image, ksize=None, sigmaX=sigma, sigmaY=sigma)
         ).astype(np.uint8)
