@@ -1,3 +1,47 @@
+## [2.0.0](https://github.com/ndido98/revelio/compare/1.0.6...2.0.0) (2022-12-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **augmentation:** change default N2 noise value for print&scan simulation
+* **dataset:** remove automatic bgr to rgb conversion
+* **cli:** reset seed before training and before evaluation
+* **augmentation:** change signature of augmentation process_element
+
+### Features
+
+* **augmentation:** add grayscale augmentation ([b81d2db](https://github.com/ndido98/revelio/commit/b81d2dbd02aed47963bf131f31a0ee99c54c984b))
+* **augmentation:** add jpeg and resize augmentations ([5b52035](https://github.com/ndido98/revelio/commit/5b520355b6672727abd709882e4dee566a34f2cd))
+* **augmentation:** add print&scan augmentation step ([458394b](https://github.com/ndido98/revelio/commit/458394b15a193f4264debd8fb847202a896b9158))
+* **augmentation:** add stack config to grayscale step ([a79e642](https://github.com/ndido98/revelio/commit/a79e642dcef14765eaee1c498d3917cf3f668a57))
+* **config:** add json metrics file report ([4032d95](https://github.com/ndido98/revelio/commit/4032d95d462d464cc5a173ee1505829d4fc868b5))
+* **dataset:** allow for empty test set ([ef11f07](https://github.com/ndido98/revelio/commit/ef11f071e55bc5cce249441e0b2f205a97601828))
+* **feature-extraction:** add prnu, fourier and wavelets ([4393e3e](https://github.com/ndido98/revelio/commit/4393e3e11934c46a775f38e55d50bc94aaf764c1))
+* **loaders:** add cfd/cfdmorph loaders ([4454797](https://github.com/ndido98/revelio/commit/4454797cd57ed4d99bc41a6cd2b0ffe882e6464c))
+* **loaders:** add morph level args to CFDMorph loader ([f273cc5](https://github.com/ndido98/revelio/commit/f273cc5f3e1513440472883921cf94df1e438167))
+* **loaders:** add png and jpg loading for cfd and cfdmorph ([0106e99](https://github.com/ndido98/revelio/commit/0106e990510f53138ed7447b1b154a9f3e17697d))
+* **model:** add feature inception resnet ([d247360](https://github.com/ndido98/revelio/commit/d247360ddeb902c12d6f77d5832164774fbd777f))
+* **model:** use 8 instead of 5 decimals in scores ([5b818d4](https://github.com/ndido98/revelio/commit/5b818d4d4bd1f3bfd48df53988e2a14c82e689e3))
+* **preprocessing:** add dataset-variant preprocessing ([daa6247](https://github.com/ndido98/revelio/commit/daa6247857997a37f966a7c1f694c7841c6bf181))
+* **preprocessing:** add select channel and color space conversions ([b8795b9](https://github.com/ndido98/revelio/commit/b8795b9136d419fb8ef9d20099c7214def8a0495))
+* **preprocessing:** make maximum value configurable for each channel ([ef58d51](https://github.com/ndido98/revelio/commit/ef58d51238beeb518fe8232bcd99385123847c82))
+
+
+### Bug Fixes
+
+* **augmentation:** change default N2 noise value for print&scan simulation ([428957d](https://github.com/ndido98/revelio/commit/428957dd0f75e07e357292eef3f156e6611e187e))
+* **augmentation:** make print&scan sigma proportional to image diagonal ([4ce23e1](https://github.com/ndido98/revelio/commit/4ce23e193d57778ecc2c0ae4ae791dc7b1046e48))
+* **callbacks:** fix missing image report if fine tuning ([9b7abb6](https://github.com/ndido98/revelio/commit/9b7abb615ce9c8600b6120fd64d01a4e2aba7015))
+* **cli:** reset seed before training and before evaluation ([3d8d62b](https://github.com/ndido98/revelio/commit/3d8d62b49270ea3b11537cd1c15c4af99e5b228a))
+* **dataset:** fix use before assign in offline processing ([677d798](https://github.com/ndido98/revelio/commit/677d798999d766326ea2e5d20565d559286ef9c8))
+* **model:** mitigate memory leak in model evaluation ([a7919b6](https://github.com/ndido98/revelio/commit/a7919b6bace16c4e7317bd29c27b02779d1c7c2d))
+
+
+### Code Refactoring
+
+* **augmentation:** change signature of augmentation process_element ([cab004f](https://github.com/ndido98/revelio/commit/cab004fbe945b3685e3fb850a0683e613fe63cbc))
+* **dataset:** remove automatic bgr to rgb conversion ([5e28a29](https://github.com/ndido98/revelio/commit/5e28a29bff0355517c1e7a323a8d2a39de741b79))
+
 ## [1.0.6](https://github.com/ndido98/revelio/compare/1.0.5...1.0.6) (2022-12-08)
 
 
