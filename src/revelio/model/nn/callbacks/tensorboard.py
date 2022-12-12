@@ -43,7 +43,7 @@ class TensorBoard(Callback):
     def after_training_epoch(
         self, epoch: int, metrics: dict[str, torch.Tensor]
     ) -> None:
-        if self._profiler is not None and epoch == 0:
+        if self._profiler is not None and epoch == self.model.initial_epoch:
             self._profiler.stop()
         # Write the average metrics for the epoch
         # If we iterate through metrics we won't have any validation metric, because
@@ -59,7 +59,7 @@ class TensorBoard(Callback):
     def before_training_step(
         self, epoch: int, step: int, batch: dict[str, Any]
     ) -> None:
-        if epoch == 0 and step == 0:
+        if epoch == self.model.initial_epoch and step == 0:
             self._add_images_view(batch, "train")
 
     def after_training_step(
