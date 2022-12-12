@@ -297,7 +297,9 @@ def test_extraction_is_loaded(config: Config) -> None:
 
 def test_preprocessing_is_loaded(config: Config) -> None:
     factory = DatasetFactory(config)
-    assert len(factory._preprocessing_steps) == 1
+    assert len(factory._train_preprocessing_steps) == 1
+    assert len(factory._val_preprocessing_steps) == 1
+    assert len(factory._test_preprocessing_steps) == 1
 
 
 def test_train_dataset(config: Config) -> None:
