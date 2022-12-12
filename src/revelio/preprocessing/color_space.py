@@ -16,7 +16,7 @@ _COLOR_SPACES = {
 }
 
 
-class ColorSpace(PreprocessingStep):
+class ColorSpace(PreprocessingStep):  # pragma: no cover
     def __init__(self, *, target: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         if target not in _COLOR_SPACES.keys():

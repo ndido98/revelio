@@ -24,17 +24,19 @@ _VALID_FILL_MODES = {
 }
 
 
-def _validate_positive(name: str, value: int) -> None:
+def _validate_positive(name: str, value: int) -> None:  # pragma: no cover
     if value <= 0:
         raise ValueError(f"{name} must be a positive integer")
 
 
-def _validate_greater(name1: str, name2: str, value1: int, value2: int) -> None:
+def _validate_greater(
+    name1: str, name2: str, value1: int, value2: int
+) -> None:  # pragma: no cover
     if value1 <= value2:
         raise ValueError(f"{name1} must be greater than {name2}")
 
 
-class Resize(AugmentationStep):
+class Resize(AugmentationStep):  # pragma: no cover
     """
     Applies a resize filter to the image.
 

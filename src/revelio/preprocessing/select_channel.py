@@ -7,7 +7,7 @@ from revelio.dataset.element import ElementImage
 from .step import PreprocessingStep
 
 
-class SelectChannel(PreprocessingStep):
+class SelectChannel(PreprocessingStep):  # pragma: no cover
     def __init__(self, *, channel_index: int, stack: int = 1, **kwargs: Any):
         super().__init__(**kwargs)
         if channel_index < 0:

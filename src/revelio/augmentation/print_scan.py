@@ -11,7 +11,7 @@ _PREWITT_KERNEL_SEP1 = np.array([1, 1, 1])
 _PREWITT_KERNEL_SEP2 = np.array([1, 0, -1])
 
 
-def _get_sigma(image: Image) -> float:
+def _get_sigma(image: Image) -> float:  # pragma: no cover
     ref_diag1, ref_sigma1 = 195.6, 0.8
     ref_diag2, ref_sigma2 = 1799.3, 4.0
     diag = np.sqrt(image.shape[0] ** 2 + image.shape[1] ** 2)
@@ -27,7 +27,7 @@ def _get_sigma(image: Image) -> float:
     return float(np.clip(result, 0.8, None))
 
 
-def _gaussians_in_range(
+def _gaussians_in_range(  # pragma: no cover
     shape: tuple, mean: float, numbers_range: tuple[float, float]
 ) -> np.ndarray:
     from_range, to_range = numbers_range
@@ -47,7 +47,7 @@ def _gaussians_in_range(
     return retval
 
 
-class PrintScan(AugmentationStep):
+class PrintScan(AugmentationStep):  # pragma: no cover
     """
     Apply a simulated print and scan process to the image,
     based on "Face morphing detection in the presence of printing/scanning

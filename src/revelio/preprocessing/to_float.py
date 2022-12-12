@@ -7,7 +7,7 @@ from revelio.dataset.element import ElementImage
 from .step import PreprocessingStep
 
 
-class ToFloat(PreprocessingStep):
+class ToFloat(PreprocessingStep):  # pragma: no cover
     def __init__(self, *, max_per_channel: float | list[float] = 255.0, **kwargs: Any):
         super().__init__(**kwargs)
         if isinstance(max_per_channel, list):

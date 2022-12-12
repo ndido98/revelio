@@ -8,7 +8,7 @@ from revelio.dataset.element import Image, Landmarks
 from .step import AugmentationStep
 
 
-class JPEGCompression(AugmentationStep):
+class JPEGCompression(AugmentationStep):  # pragma: no cover
     """
     Applies JPEG compression artifacts to the image.
     This augmentation can be used to test the robustness of a model to JPEG compression.

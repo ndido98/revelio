@@ -6,7 +6,7 @@ import torch
 from .neuralnet import NeuralNetwork
 
 
-class FeatureInceptionResnet(NeuralNetwork):
+class FeatureInceptionResnet(NeuralNetwork):  # pragma: no cover
     class BasicConv2d(torch.nn.Module):  # Taken from torchvision source
         def __init__(
             self,

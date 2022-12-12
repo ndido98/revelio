@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 # Taken from https://github.com/polimi-ispl/prnu-python
 
 
-class PRNUExtractor(SameSizeExtractor):
+class PRNUExtractor(SameSizeExtractor):  # pragma: no cover
     def __init__(
         self,
         *,

@@ -8,7 +8,7 @@ from revelio.dataset.element import Image, Landmarks
 from .step import AugmentationStep
 
 
-class Grayscale(AugmentationStep):
+class Grayscale(AugmentationStep):  # pragma: no cover
     """
     Applies a grayscale filter to the image.
     """

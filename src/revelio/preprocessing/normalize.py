@@ -12,7 +12,7 @@ _PRESETS = {
 }
 
 
-class Normalize(PreprocessingStep):
+class Normalize(PreprocessingStep):  # pragma: no cover
     def __init__(
         self,
         *,

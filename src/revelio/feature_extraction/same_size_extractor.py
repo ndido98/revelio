@@ -9,7 +9,7 @@ from revelio.dataset.element import ElementImage
 from .extractor import FeatureExtractor
 
 
-class SameSizeExtractor(FeatureExtractor):
+class SameSizeExtractor(FeatureExtractor):  # pragma: no cover
 
     transparent: bool = True
 

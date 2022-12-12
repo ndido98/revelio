@@ -22,7 +22,7 @@ _VALID_FILL_MODES = {
 }
 
 
-class Resize(PreprocessingStep):
+class Resize(PreprocessingStep):  # pragma: no cover
     def __init__(
         self,
         *,
