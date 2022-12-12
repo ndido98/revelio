@@ -32,6 +32,7 @@ to use, and `args` is a dictionary of arguments that will be passed to it.
 ## Face detectors
 
 There are three face detectors already available in Revelio:
+
 * [dlib](http://dlib.net/)
 * [OpenCV](https://opencv.org/)
 * [MTCNN](https://github.com/timesler/facenet-pytorch)

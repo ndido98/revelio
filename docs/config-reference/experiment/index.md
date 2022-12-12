@@ -21,6 +21,7 @@ experiment:
     scores:
         bona_fide: /path/to/bona_fide_scores.txt
         morphed: /path/to/morphed_scores.txt
+        metrics: /path/to/metrics.json
     metrics:
       - name: metric1
         args:
@@ -56,6 +57,8 @@ a much more complicated set of training arguments than a simple linear model.
 The `scores` setting specifies the paths to the files containing the scores
 for the bona fide and morphed images. The scores are the result of the model
 evaluation on the test set images.
+The `scores.metrics` field contains the path to a JSON file where the metrics
+for each testing group will be saved. This field is optional.
 
 The `metrics` setting specifies the metrics to use to evaluate the model. It
 contains a list of metrics, each of which has a `name` and an optional `args` field.

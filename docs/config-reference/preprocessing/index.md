@@ -28,6 +28,29 @@ contains the arguments that will be passed to the step.
 The transformations are applied in the order they are specified in the
 configuration file.
 
+Sometimes it is useful to apply a certain preprocessing step only to a specific dataset,
+for example when the augmentation pipeline has already taken care of some
+of the preprocessing steps for the training set.
+If that's the case, the `datasets` key can be used to specify the datasets that the
+preprocessing step will be applied to.
+
+```yaml
+preprocessing:
+  steps:
+    - uses: step1
+      datasets: [train, val]
+      args:
+        arg1: value1
+        arg2: value2
+        ...
+    - ...
+```
+
+The `datasets` key (if present) is a list of dataset names (`train`, `val`, or `test`)
+that the preprocessing step will be applied to.
+If the `datasets` key is not present, the preprocessing step will be applied to
+all the datasets.
+
 ## Preprocessing steps
 
 There are some preprocessing steps already available in Revelio.
