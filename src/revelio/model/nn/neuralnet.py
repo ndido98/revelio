@@ -1,3 +1,4 @@
+import copy
 from abc import abstractmethod
 from typing import Any, Optional
 
@@ -146,12 +147,14 @@ class NeuralNetwork(Model):
             return torch.squeeze(prediction).cpu().numpy()  # type: ignore
 
     def get_state_dict(self) -> dict[str, Any]:
-        return {
-            "model_state_dict": self.classifier.state_dict(),
-            "optimizer_state_dict": self.optimizer.state_dict(),
-            "train_steps_per_epoch": self.train_steps_per_epoch,
-            "val_steps_per_epoch": self.val_steps_per_epoch,
-        }
+        return copy.deepcopy(
+            {
+                "model_state_dict": self.classifier.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "train_steps_per_epoch": self.train_steps_per_epoch,
+                "val_steps_per_epoch": self.val_steps_per_epoch,
+            }
+        )
 
     def load_state_dict(self, state_dict: dict[str, Any]) -> None:
         self.classifier.load_state_dict(state_dict["model_state_dict"])
