@@ -3,8 +3,11 @@ from pathlib import Path
 from typing import Optional
 
 from revelio.dataset.element import DatasetElementDescriptor, ElementClass
+from revelio.utils.files import rglob_multiple
 
 from .loader import DatasetLoader
+
+IMAGE_EXTENSIONS = ("png", "jpg", "jpeg", "tiff", "tif", "jp2", "ppm")
 
 
 class PMDBLoader(DatasetLoader):  # pragma: no cover
@@ -19,7 +22,7 @@ class PMDBLoader(DatasetLoader):  # pragma: no cover
         self._morph_percentages_count = morph_percentages_count
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.png"))
+        all_images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         bona_fide = []
         morphed = []
         for image in all_images:
@@ -60,7 +63,7 @@ class MorphDBLoader(DatasetLoader):  # pragma: no cover
         self._include_train_bf = include_training_bona_fide
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.png"))
+        all_images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         bona_fide = []
         morphed = []
         for image in all_images:
@@ -83,7 +86,7 @@ class MorphDBLoader(DatasetLoader):  # pragma: no cover
                         y=ElementClass.BONA_FIDE,
                     )
                 )
-        morphed_images = sorted(path.rglob("morph*.png"))
+        morphed_images = rglob_multiple(path, "morph*", IMAGE_EXTENSIONS)
         for image in morphed_images:
             if (
                 (
@@ -109,19 +112,19 @@ class IdiapMorphedLoader(DatasetLoader):  # pragma: no cover
         self._algorithm = algorithm
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob(f"morph_{self._algorithm}/*.jpg"))
+        images = rglob_multiple(path, f"morph_{self._algorithm}/*", IMAGE_EXTENSIONS)
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
-            for image in all_images
+            for image in images
         ]
 
 
 class FRGCLoader(DatasetLoader):  # pragma: no cover
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.jpg"))
+        images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
-            for image in all_images
+            for image in images
         ]
 
 
@@ -144,10 +147,10 @@ class FERETLoader(DatasetLoader):  # pragma: no cover
             self._poses = set(poses)
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.ppm"))
+        all_images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         valid_images = []
         for pose in self._poses:
-            pose_images = [img for img in all_images if f"_{pose}.ppm" in img.name]
+            pose_images = [img for img in all_images if f"_{pose}." in img.name]
             pose_alt_images = [img for img in all_images if f"_{pose}_" in img.stem]
             valid_images.extend(pose_images)
             valid_images.extend(pose_alt_images)
@@ -173,14 +176,14 @@ class AMSLLoader(DatasetLoader):  # pragma: no cover
         morphed: list[DatasetElementDescriptor] = []
         for pose in self._poses:
             dir_name = f"londondb_genuine_{pose}_passport-scale_15kb"
-            files = sorted((path / dir_name).rglob("*.jpg"))
+            files = rglob_multiple(path / dir_name, "*", IMAGE_EXTENSIONS)
             bona_fide.extend(
                 DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
                 for image in files
             )
         if self._load_morphs:
             dir_name = "londondb_morph_combined_alpha0.5_passport-scale_15kb"
-            files = sorted((path / dir_name).rglob("*.jpg"))
+            files = rglob_multiple(path / dir_name, "*", IMAGE_EXTENSIONS)
             morphed.extend(
                 DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
                 for image in files
@@ -190,10 +193,10 @@ class AMSLLoader(DatasetLoader):  # pragma: no cover
 
 class BiometixMorphedLoader(DatasetLoader):  # pragma: no cover
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        all_images = sorted(path.rglob("*.jpg"))
+        images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         return [
             DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
-            for image in all_images
+            for image in images
         ]
 
 
@@ -210,14 +213,12 @@ class CFDLoader(DatasetLoader):  # pragma: no cover
                 self._poses = lower_poses
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        png = sorted(path.rglob("*.png"))
-        jpg = sorted(path.rglob("*.jpg"))
-        all_images = sorted(png + jpg)
+        images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         valid_images = []
         for pose in self._poses:
             pose_images = [
                 img
-                for img in all_images
+                for img in images
                 if img.stem.lower().split("-")[-1].startswith(pose)
             ]
             valid_images.extend(pose_images)
@@ -249,20 +250,18 @@ class CFDMorphLoader(DatasetLoader):  # pragma: no cover
         )
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        png = sorted(path.rglob("*.png"))
-        jpg = sorted(path.rglob("*.jpg"))
-        all_images = sorted(png + jpg)
+        images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
         valid_images: list[Path] = []
         for algorithm in self._algorithms:
             if self._morph_levels is None:
                 valid_images.extend(
-                    img for img in all_images if f"_{algorithm}_" in img.stem.lower()
+                    img for img in images if f"_{algorithm}_" in img.stem.lower()
                 )
             else:
                 for level in self._morph_levels:
                     valid_images.extend(
                         img
-                        for img in all_images
+                        for img in images
                         if f"_{algorithm}_b{level}_" in img.stem.lower()
                     )
         return [
