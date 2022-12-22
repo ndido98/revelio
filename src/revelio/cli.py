@@ -322,7 +322,7 @@ def main() -> None:
         _cli_program(args)
     except (TypeError, ValueError, ValidationError) as e:
         # Ignore pretty printing of exceptions and just re-raise them
-        if logging_level > 0:
+        if args.logging_level > 0:
             raise
         print(
             "---------------------------- FATAL ERROR ----------------------------\n"
