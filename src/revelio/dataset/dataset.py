@@ -109,6 +109,25 @@ class Dataset(IterableDataset):
                 cached = False
         return elem, success, cached
 
+    def _apply_augmentation(
+        self, elem: DatasetElement, silent: bool = False
+    ) -> DatasetElement:
+        steps_count = len(self._augmentation_steps)
+        for i, augmentation_step in enumerate(self._augmentation_steps):
+            try:
+                elem = augmentation_step.process(elem)
+            except RuntimeError:
+                if not silent:
+                    log.warning(
+                        "Skipping augmentation step %d/%d for %s",
+                        i,
+                        steps_count,
+                        elem,
+                        exc_info=True,
+                    )
+                continue
+        return elem
+
     def _apply_feature_extraction(
         self, elem: DatasetElement, force_online: bool, silent: bool = False
     ) -> tuple[DatasetElement, bool, bool]:
@@ -161,8 +180,7 @@ class Dataset(IterableDataset):
             if not fd_success:
                 continue
             # Augment the dataset; this is always done online
-            for augmentation_step in self._augmentation_steps:
-                elem = augmentation_step.process(elem)
+            elem = self._apply_augmentation(elem, silent=True)
             # If augmentation is enabled, feature extraction is done online;
             # otherwise, we load the precomputed features
             elem, fe_success, fe_cached = self._apply_feature_extraction(

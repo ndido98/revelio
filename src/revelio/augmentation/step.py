@@ -77,7 +77,14 @@ class AugmentationStep(Registrable):
             new_xs = []
             for i, x in enumerate(elem.x):
                 if self._applies_to == "all" or i in self._applies_to:
-                    new_img, new_landmarks = self.process_element(x.image, x.landmarks)
+                    try:
+                        new_img, new_landmarks = self.process_element(
+                            x.image, x.landmarks
+                        )
+                    except Exception as e:
+                        raise RuntimeError(f"Failed to process {x.path}: {e}") from e
+                    if new_img is None:
+                        raise RuntimeError(f"Failed to process {x.path}: image is None")
                     new_x = ElementImage(
                         path=x.path,
                         image=new_img,
