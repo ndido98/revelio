@@ -57,6 +57,7 @@ torch-tb-profiler = "~0.4"
 facenet-pytorch = "~2.5"
 wandb = "~0.13"
 zstandard = "~0.19"
+deepface = "0.0.75"
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.7.0"
