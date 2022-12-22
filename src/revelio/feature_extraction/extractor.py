@@ -6,6 +6,7 @@ import numpy as np
 from revelio.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage
 from revelio.registry import Registrable
+from revelio.utils.caching import ZstdCacher
 
 
 class FeatureExtractor(Registrable):
@@ -32,6 +33,7 @@ class FeatureExtractor(Registrable):
 
     def __init__(self, *, _config: Config) -> None:
         self._config = _config
+        self._cacher = ZstdCacher()
 
     def _get_features_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.feature_extraction.output_path)
@@ -42,7 +44,7 @@ class FeatureExtractor(Registrable):
             / algorithm_name
             / elem.original_dataset
             / relative_img_path.parent
-            / f"{relative_img_path.stem}.features.npz"
+            / f"{relative_img_path.stem}.features.xz"
         )
 
     @abstractmethod
@@ -91,7 +93,7 @@ class FeatureExtractor(Registrable):
             features_path = self._get_features_path(elem, i)
             if features_path.is_file() and not force_online:
                 try:
-                    features = np.load(features_path)["features"]
+                    features = self._cacher.load(features_path)["features"]
                 except ValueError as e:
                     raise RuntimeError(
                         f"Failed to load features: {features_path}"
@@ -108,11 +110,13 @@ class FeatureExtractor(Registrable):
                     features = self.process_element(x)
                 except Exception as e:
                     raise RuntimeError(f"Failed to process {x.path}: {e}") from e
-                if not force_online:  # TODO: is it correct?
+                if features is None:
+                    raise RuntimeError(f"Failed to process {x.path}: returned None")
+                if not force_online:
                     # We don't need to save the features if we're forced to do it online
                     # (that means we have one or more augmentation steps)
                     features_path.parent.mkdir(parents=True, exist_ok=True)
-                    np.savez_compressed(features_path, features=features)
+                    self._cacher.save(features_path, features=features)
                 new_x = ElementImage(
                     path=x.path,
                     image=x.image,

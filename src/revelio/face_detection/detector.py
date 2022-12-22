@@ -2,11 +2,10 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Optional, TypeAlias
 
-import numpy as np
-
 from revelio.config.config import Config
 from revelio.dataset.element import DatasetElement, ElementImage, Image, Landmarks
 from revelio.registry.registry import Registrable
+from revelio.utils.caching import ZstdCacher
 
 BoundingBox: TypeAlias = tuple[int, int, int, int]
 
@@ -41,6 +40,7 @@ class FaceDetector(Registrable):
 
     def __init__(self, *, _config: Config) -> None:
         self._config = _config
+        self._cacher = ZstdCacher()
 
     def _get_meta_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.face_detection.output_path)
@@ -51,7 +51,7 @@ class FaceDetector(Registrable):
             / algorithm_name
             / elem.original_dataset
             / relative_img_path.parent
-            / f"{relative_img_path.stem}.meta.npz"
+            / f"{relative_img_path.stem}.meta.xz"
         )
 
     @abstractmethod
@@ -107,7 +107,7 @@ class FaceDetector(Registrable):
             meta_path = self._get_meta_path(elem, i)
             if meta_path.is_file():
                 try:
-                    meta = np.load(meta_path)
+                    meta = self._cacher.load(meta_path)
                 except ValueError as e:
                     raise RuntimeError(f"Failed to load meta file: {meta_path}") from e
                 landmarks = meta["landmarks"] if "landmarks" in meta else None
@@ -129,6 +129,8 @@ class FaceDetector(Registrable):
                     bb, landmarks = self.process_element(x.image)
                 except Exception as e:
                     raise RuntimeError(f"Failed to process {x.path}: {e}") from e
+                if bb is None or len(bb) != 4:
+                    raise RuntimeError(f"Failed to process {x.path}: returned {bb}")
                 # Make sure that the bounding box is always inside the image
                 clipped_bb = (
                     max(0, bb[0]),
@@ -145,9 +147,9 @@ class FaceDetector(Registrable):
                 # Create the meta file
                 meta_path.parent.mkdir(parents=True, exist_ok=True)
                 if landmarks is not None:
-                    np.savez_compressed(meta_path, bb=clipped_bb, landmarks=landmarks)
+                    self._cacher.save(meta_path, bb=clipped_bb, landmarks=landmarks)
                 else:
-                    np.savez_compressed(meta_path, bb=clipped_bb)
+                    self._cacher.save(meta_path, bb=clipped_bb)
                 new_xs.append(new_x)
         return (
             DatasetElement(
