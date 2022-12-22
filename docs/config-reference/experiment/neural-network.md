@@ -31,9 +31,26 @@ training:
 
 The `epochs` argument specifies the number of epochs to train the model for.
 
-The `optimizer` argument specifies the optimizer to use. It has two keys:
-`name`, which contains the name of the optimizer, and `args`, which contains
-the arguments that will be passed when creating the optimizer.
+The `optimizer` argument specifies the optimizer to use. Its most basic configuration
+has two keys: `name`, which contains the name of the optimizer, and `args`,
+which contains the arguments that will be passed when creating the optimizer.
+There is a third argument, which is useful when fine tuning a pretrained model:
+`load_from_checkpoint` (default `true`), which specifies whether to load the
+optimizer state from the checkpoint or not.
+By default, the optimizer state is loaded from the checkpoint, so that the
+optimizer can continue from where it left off.
+If you fine tune with a different optimizer than the original one, this argument
+is automatically set to `false` and it is not necessary to specify it.
+If you fine tune with the same optimizer, but you want to change its hyperparameters
+(e.g. the learning rate), you must set this argument to `false` and specify the
+new hyperparameters in the configuration file.
+
+!!! warning
+    If you fine tune with the same optimizer, but you want to change its
+    hyperparameters (e.g. the learning rate) and you forget to set
+    `load_from_checkpoint` to `false`, the optimizer will continue from where
+    it left off, and the new hyperparameters will be ignored, leading to unexpected
+    results during training and validation.
 
 The `loss` argument specifies the loss function to use. It has two keys:
 `name`, which contains the name of the loss function, and `args`, which

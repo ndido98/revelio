@@ -20,25 +20,19 @@ class NeuralNetwork(Model):
     transparent: bool = True
 
     initial_epoch: int
-    epochs: int
+    epochs: Optional[int] = None
     train_steps_per_epoch: list[int] = []
     val_steps_per_epoch: list[int] = []
-    optimizer: torch.optim.Optimizer
-    loss_function: torch.nn.Module
-    callbacks: list[Callback]
-    should_stop: bool
+    optimizer: Optional[torch.optim.Optimizer] = None
+    loss_function: Optional[torch.nn.Module] = None
+    callbacks: list[Callback] = []
+    should_stop: bool = False
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
         self.classifier = self.get_classifier(**self.config.experiment.model.args)
-        # Load the training configuration
-        if "epochs" not in self.config.experiment.training.args:
-            raise ValueError("Missing epochs in training configuration")
-        self.epochs = int(self.config.experiment.training.args["epochs"])
-        self._load_optimizer()
-        self._load_loss()
-        self._load_callbacks()
-        self.should_stop = False
+        if self.config.experiment.training.enabled:
+            self._load_training_config()
         # Load a checkpoint if present
         if self.config.experiment.model.checkpoint is not None:
             checkpoint = torch.load(
@@ -51,26 +45,43 @@ class NeuralNetwork(Model):
         self._train_batches_count: Optional[int] = None
         self._val_batches_count: Optional[int] = None
         # Move the model to the device
-        self.loss_function = self.loss_function.to(self.device, non_blocking=True)
+        if self.loss_function is not None:
+            self.loss_function = self.loss_function.to(self.device, non_blocking=True)
         self.classifier = self.classifier.to(self.device, non_blocking=True)
         # Once the model is fully initialized, pass a reference to it to the callbacks
         for callback in self.callbacks:
             callback.model = self
 
-    def _load_optimizer(self) -> None:
+    def _load_training_config(self) -> None:
+        if "epochs" not in self.config.experiment.training.args:
+            raise ValueError("Missing epochs in training configuration")
+        self.epochs = int(self.config.experiment.training.args["epochs"])
+        self._load_optimizer()
+        self._load_loss()
+        self._load_callbacks()
+
+    def _get_optimizer_name(self) -> Optional[str]:
+        if not self.config.experiment.training.enabled:
+            return None
         if "optimizer" not in self.config.experiment.training.args:
             raise ValueError("Missing optimizer in training configuration")
         if "name" not in self.config.experiment.training.args["optimizer"]:
             raise ValueError("Missing optimizer name in training configuration")
-        found_optimizer = Optimizer.find(
-            self.config.experiment.training.args["optimizer"]["name"],
-        )
+        return self.config.experiment.training.args["optimizer"]["name"]  # type: ignore
+
+    def _load_optimizer(self) -> None:
+        optimizer_name = self._get_optimizer_name()
+        if optimizer_name is None:
+            raise ValueError("Training is disabled for this model")
+        found_optimizer = Optimizer.find(optimizer_name)
         self.optimizer = found_optimizer.get(
             params=self.classifier.parameters(),
             **self.config.experiment.training.args["optimizer"].get("args", {}),
         )
 
     def _load_loss(self) -> None:
+        if not self.config.experiment.training.enabled:
+            raise ValueError("Training is disabled for this model")
         if "loss" not in self.config.experiment.training.args:
             raise ValueError("Missing loss in training configuration")
         if "name" not in self.config.experiment.training.args["loss"]:
@@ -85,21 +96,28 @@ class NeuralNetwork(Model):
     def _load_callbacks(self) -> None:
         # Load the callbacks if training is enabled
         self.callbacks = []
-        if self.config.experiment.training.enabled:
-            for callback in self.config.experiment.training.args.get("callbacks", []):
-                if "name" not in callback:
-                    raise ValueError("Missing callback name in training configuration")
-                found_callback = Callback.find(
-                    callback["name"],
-                    **callback.get("args", {}),
-                )
-                self.callbacks.append(found_callback)
+        if not self.config.experiment.training.enabled:
+            raise ValueError("Training is disabled for this model")
+        for callback in self.config.experiment.training.args.get("callbacks", []):
+            if "name" not in callback:
+                raise ValueError("Missing callback name in training configuration")
+            found_callback = Callback.find(
+                callback["name"],
+                **callback.get("args", {}),
+            )
+            self.callbacks.append(found_callback)
 
     @abstractmethod
     def get_classifier(self, **kwargs: Any) -> torch.nn.Module:
         raise NotImplementedError  # pragma: no cover
 
-    def fit(self) -> None:
+    def fit(self) -> None:  # noqa: C901
+        if not self.config.experiment.training.enabled:
+            raise ValueError("Training is disabled for this model")
+        assert self.epochs is not None
+        assert self.optimizer is not None
+        assert self.loss_function is not None
+
         self.should_stop = False
         for callback in self.callbacks:
             callback.before_training()
@@ -147,10 +165,12 @@ class NeuralNetwork(Model):
             return torch.squeeze(prediction).cpu().numpy()  # type: ignore
 
     def get_state_dict(self) -> dict[str, Any]:
+        optimizer_state = self.optimizer.state_dict() if self.optimizer else None
         return copy.deepcopy(
             {
                 "model_state_dict": self.classifier.state_dict(),
-                "optimizer_state_dict": self.optimizer.state_dict(),
+                "optimizer_name": self._get_optimizer_name(),
+                "optimizer_state_dict": optimizer_state,
                 "train_steps_per_epoch": self.train_steps_per_epoch,
                 "val_steps_per_epoch": self.val_steps_per_epoch,
             }
@@ -162,7 +182,18 @@ class NeuralNetwork(Model):
         # optimizer's state dict, otherwise the optimizer will complain that the model
         # is on the wrong device
         self.classifier = self.classifier.to(self.device, non_blocking=True)
-        self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
+        if (
+            self.optimizer is not None
+            and "optimizer_name" in state_dict
+            and state_dict["optimizer_name"] is not None
+            and state_dict["optimizer_name"] == self._get_optimizer_name()
+        ):
+            # Load the optimizer state dict only if the optimizer is the same
+            if state_dict["optimizer_state_dict"] is None:
+                raise ValueError("Missing optimizer state dict")
+            optimizer_config = self.config.experiment.training.args["optimizer"]
+            if optimizer_config.get("load_from_checkpoint", True):
+                self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
         self.train_steps_per_epoch = state_dict["train_steps_per_epoch"]
         self.val_steps_per_epoch = state_dict["val_steps_per_epoch"]
         if len(self.train_steps_per_epoch) != len(self.val_steps_per_epoch):
@@ -204,6 +235,8 @@ class NeuralNetwork(Model):
         pbar: tqdm,
         initial_metrics: dict[str, torch.Tensor],
     ) -> tuple[dict[str, torch.Tensor], int]:
+        assert self.optimizer is not None
+        assert self.loss_function is not None
         metrics = {}
         dl = self.train_dataloader if training else self.val_dataloader
         self._reset_metrics()
