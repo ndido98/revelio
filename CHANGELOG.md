@@ -1,3 +1,25 @@
+## [3.0.0](https://github.com/ndido98/revelio/compare/2.0.0...3.0.0) (2023-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **neuralnet:** make get_state_dict return deep copy
+
+### Features
+
+* **augmentation:** add jpeg2000 compression step ([6700c95](https://github.com/ndido98/revelio/commit/6700c95b18b0ec53faaead64062926cbee6e6466))
+* **caching:** abstract face detection/feature extraction load/save with cachers ([8994668](https://github.com/ndido98/revelio/commit/8994668756ecf17b624e18115ed5f4e65dd54296))
+* **feature-extraction:** add stationary wavelet packets extraction ([905c78a](https://github.com/ndido98/revelio/commit/905c78a347c33b8b690ffee831cf0541fef556db))
+* **nn:** add load_from_checkpoint argument to optimizer when fine tuning ([32c41d5](https://github.com/ndido98/revelio/commit/32c41d58620c4d70aecb1f0ae1cac2d68122b1e3))
+* **utils:** add glob_multiple utility function ([51328a3](https://github.com/ndido98/revelio/commit/51328a3ed6bf9f0e40aab854bea90fdb83891829))
+
+
+### Bug Fixes
+
+* **cli:** add pretty printing of exceptions when not verbose ([26a374d](https://github.com/ndido98/revelio/commit/26a374da5d4d8e213c44c2a583e3684d023f9e39))
+* **dataset:** allow data augmentation to skip failing step ([f5e6b96](https://github.com/ndido98/revelio/commit/f5e6b965ccfa94e78f9fbc04c526b9a138611b35))
+* **neuralnet:** make get_state_dict return deep copy ([7236c50](https://github.com/ndido98/revelio/commit/7236c5070470e27c876ba6019b84423a11136336))
+
 ## [2.0.0](https://github.com/ndido98/revelio/compare/1.0.6...2.0.0) (2022-12-12)
 
 
