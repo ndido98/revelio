@@ -35,7 +35,7 @@ class PMDBLoader(DatasetLoader):  # pragma: no cover
                         y=ElementClass.BONA_FIDE,
                     )
                 )
-        morphed_images = sorted(path.rglob("morph*.png"))
+        morphed_images = rglob_multiple(path, "morph*", IMAGE_EXTENSIONS)
         # Take at most n morphed images
         for _, g in itertools.groupby(morphed_images, lambda x: x.stem[:-4]):
             group_images = list(g)
