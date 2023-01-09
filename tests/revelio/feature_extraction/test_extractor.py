@@ -67,10 +67,10 @@ def test_features_path(
     dummy1: FeatureExtractor, dataset_element: DatasetElement
 ) -> None:
     assert dummy1._get_features_path(dataset_element, 0) == Path(
-        "/path/to/fe/dummy1/ds1/image1.features.npz"
+        "/path/to/fe/dummy1/ds1/image1.features.xz"
     )
     assert dummy1._get_features_path(dataset_element, 1) == Path(
-        "/path/to/fe/dummy1/ds1/image2.features.npz"
+        "/path/to/fe/dummy1/ds1/image2.features.xz"
     )
 
 
@@ -80,7 +80,10 @@ def test_features_present_non_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch("numpy.load", return_value={"features": np.array([1, 2, 3])}),
+        mock.patch(
+            "revelio.utils.caching.zstd_cacher.ZstdCacher.load",
+            return_value={"features": np.array([1, 2, 3])},
+        ),
     ):
         new_elem, cached = dummy1.process(dataset_element)
         assert cached
@@ -95,7 +98,7 @@ def test_features_present_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch("numpy.savez_compressed") as mock_savez,
+        mock.patch("revelio.utils.caching.zstd_cacher.ZstdCacher.save") as mock_savez,
     ):
         new_elem, cached = dummy1.process(dataset_element, force_online=True)
         assert not cached
@@ -111,7 +114,7 @@ def test_features_not_present_not_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch("numpy.savez_compressed") as mock_savez,
+        mock.patch("revelio.utils.caching.zstd_cacher.ZstdCacher.save") as mock_savez,
     ):
         new_elem, cached = dummy1.process(dataset_element)
         assert not cached
@@ -127,7 +130,7 @@ def test_features_not_present_forced(
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch("numpy.savez_compressed") as mock_savez,
+        mock.patch("revelio.utils.caching.zstd_cacher.ZstdCacher.save") as mock_savez,
     ):
         new_elem, cached = dummy1.process(dataset_element, force_online=True)
         assert not cached

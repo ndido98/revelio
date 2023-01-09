@@ -60,10 +60,10 @@ def dataset_element() -> DatasetElement:
 
 def test_meta_path(dummy2: FaceDetector, dataset_element: DatasetElement) -> None:
     assert dummy2._get_meta_path(dataset_element, 0) == Path(
-        "/path/to/fd/dummy2/ds1/image1.meta.npz"
+        "/path/to/fd/dummy2/ds1/image1.meta.xz"
     )
     assert dummy2._get_meta_path(dataset_element, 1) == Path(
-        "/path/to/fd/dummy2/ds1/image2.meta.npz"
+        "/path/to/fd/dummy2/ds1/image2.meta.xz"
     )
 
 
@@ -71,7 +71,7 @@ def test_meta_file_write(dummy2: FaceDetector, dataset_element: DatasetElement) 
     with (
         mock.patch("pathlib.Path.is_file", return_value=False),
         mock.patch("pathlib.Path.mkdir", return_value=None),
-        mock.patch("numpy.savez_compressed") as mock_savez,
+        mock.patch("revelio.utils.caching.zstd_cacher.ZstdCacher.save") as mock_savez,
     ):
         new_elem, cached = dummy2.process(dataset_element)
         assert not cached
@@ -96,7 +96,7 @@ def test_meta_file_read(dummy2: FaceDetector, dataset_element: DatasetElement) -
         mock.patch("pathlib.Path.is_file", return_value=True),
         mock.patch("pathlib.Path.mkdir", return_value=None),
         mock.patch(
-            "numpy.load",
+            "revelio.utils.caching.zstd_cacher.ZstdCacher.load",
             return_value={
                 "bb": np.array([5, 5, 15, 15]),
                 "landmarks": np.array([1, 2, 3]),
