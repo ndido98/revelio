@@ -27,9 +27,9 @@ def _get_sigma(image: Image) -> float:  # pragma: no cover
     return float(np.clip(result, 0.8, None))
 
 
-def _gaussians_in_range(  # pragma: no cover
+def _gaussians_in_range(
     shape: tuple, mean: float, numbers_range: tuple[float, float]
-) -> np.ndarray:
+) -> np.ndarray:  # pragma: no cover
     from_range, to_range = numbers_range
     p = (np.random.random(shape) * 100).astype(np.int32)
     retval = np.where(
