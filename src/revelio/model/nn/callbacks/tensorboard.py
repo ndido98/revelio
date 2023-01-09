@@ -10,7 +10,7 @@ import torch.utils.tensorboard as tb
 from .callback import Callback
 
 
-class TensorBoard(Callback):
+class TensorBoard(Callback):  # pragma: no cover
     _writer: tb.SummaryWriter
     _profiler: Optional[profiler.profile]
 
