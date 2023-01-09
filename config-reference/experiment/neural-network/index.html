@@ -1243,6 +1243,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../reference/revelio/feature_extraction/stationary_wavelet_packets/" class="md-nav__link">
+        stationary_wavelet_packets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../reference/revelio/feature_extraction/wavelets_extractor/" class="md-nav__link">
         wavelets_extractor
       </a>
@@ -2083,6 +2097,101 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_10_1" type="checkbox" id="__nav_3_1_10_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../reference/revelio/utils/caching/">caching</a>
+          
+            <label for="__nav_3_1_10_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="caching" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_10_1">
+          <span class="md-nav__icon md-icon"></span>
+          caching
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/revelio/utils/caching/cacher/" class="md-nav__link">
+        cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/revelio/utils/caching/npz_cacher/" class="md-nav__link">
+        npz_cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/revelio/utils/caching/zstd_cacher/" class="md-nav__link">
+        zstd_cacher
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/revelio/utils/files/" class="md-nav__link">
+        files
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../reference/revelio/utils/iterators/" class="md-nav__link">
         iterators
@@ -2289,9 +2398,27 @@ model.</p>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
 </code></pre></div>
 <p>The <code>epochs</code> argument specifies the number of epochs to train the model for.</p>
-<p>The <code>optimizer</code> argument specifies the optimizer to use. It has two keys:
-<code>name</code>, which contains the name of the optimizer, and <code>args</code>, which contains
-the arguments that will be passed when creating the optimizer.</p>
+<p>The <code>optimizer</code> argument specifies the optimizer to use. Its most basic configuration
+has two keys: <code>name</code>, which contains the name of the optimizer, and <code>args</code>,
+which contains the arguments that will be passed when creating the optimizer.
+There is a third argument, which is useful when fine tuning a pretrained model:
+<code>load_from_checkpoint</code> (default <code>true</code>), which specifies whether to load the
+optimizer state from the checkpoint or not.
+By default, the optimizer state is loaded from the checkpoint, so that the
+optimizer can continue from where it left off.
+If you fine tune with a different optimizer than the original one, this argument
+is automatically set to <code>false</code> and it is not necessary to specify it.
+If you fine tune with the same optimizer, but you want to change its hyperparameters
+(e.g. the learning rate), you must set this argument to <code>false</code> and specify the
+new hyperparameters in the configuration file.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you fine tune with the same optimizer, but you want to change its
+hyperparameters (e.g. the learning rate) and you forget to set
+<code>load_from_checkpoint</code> to <code>false</code>, the optimizer will continue from where
+it left off, and the new hyperparameters will be ignored, leading to unexpected
+results during training and validation.</p>
+</div>
 <p>The <code>loss</code> argument specifies the loss function to use. It has two keys:
 <code>name</code>, which contains the name of the loss function, and <code>args</code>, which
 contains the arguments that will be passed when creating the loss function.</p>

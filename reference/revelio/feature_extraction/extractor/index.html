@@ -1227,6 +1227,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../stationary_wavelet_packets/" class="md-nav__link">
+        stationary_wavelet_packets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../wavelets_extractor/" class="md-nav__link">
         wavelets_extractor
       </a>
@@ -2067,6 +2081,101 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_10_1" type="checkbox" id="__nav_3_1_10_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../utils/caching/">caching</a>
+          
+            <label for="__nav_3_1_10_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="caching" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_10_1">
+          <span class="md-nav__icon md-icon"></span>
+          caching
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/cacher/" class="md-nav__link">
+        cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/npz_cacher/" class="md-nav__link">
+        npz_cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/zstd_cacher/" class="md-nav__link">
+        zstd_cacher
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/files/" class="md-nav__link">
+        files
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../utils/iterators/" class="md-nav__link">
         iterators
@@ -2284,8 +2393,7 @@ The user should not override this method, but instead implement <code>process_el
 
         <details class="quote">
           <summary>Source code in <code>revelio/feature_extraction/extractor.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 11</span>
-<span class="normal"> 12</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 12</span>
 <span class="normal"> 13</span>
 <span class="normal"> 14</span>
 <span class="normal"> 15</span>
@@ -2403,7 +2511,11 @@ The user should not override this method, but instead implement <code>process_el
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
-<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FeatureExtractor</span><span class="p">(</span><span class="n">Registrable</span><span class="p">):</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FeatureExtractor</span><span class="p">(</span><span class="n">Registrable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A feature extractor is responsible for extracting various types of features</span>
 <span class="sd">    from images.</span>
@@ -2427,6 +2539,7 @@ The user should not override this method, but instead implement <code>process_el
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span> <span class="o">=</span> <span class="n">ZstdCacher</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_features_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">DatasetElement</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">feature_extraction</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
@@ -2437,7 +2550,7 @@ The user should not override this method, but instead implement <code>process_el
             <span class="o">/</span> <span class="n">algorithm_name</span>
             <span class="o">/</span> <span class="n">elem</span><span class="o">.</span><span class="n">original_dataset</span>
             <span class="o">/</span> <span class="n">relative_img_path</span><span class="o">.</span><span class="n">parent</span>
-            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">relative_img_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.features.npz&quot;</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">relative_img_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.features.xz&quot;</span>
         <span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
@@ -2486,7 +2599,7 @@ The user should not override this method, but instead implement <code>process_el
             <span class="n">features_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_path</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">features_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">features_path</span><span class="p">)[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
+                    <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">features_path</span><span class="p">)[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Failed to load features: </span><span class="si">{</span><span class="n">features_path</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2503,11 +2616,13 @@ The user should not override this method, but instead implement <code>process_el
                     <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_element</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>  <span class="c1"># TODO: is it correct?</span>
+                <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: returned None&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>
                     <span class="c1"># We don&#39;t need to save the features if we&#39;re forced to do it online</span>
                     <span class="c1"># (that means we have one or more augmentation steps)</span>
                     <span class="n">features_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">features_path</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">features_path</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
                 <span class="n">new_x</span> <span class="o">=</span> <span class="n">ElementImage</span><span class="p">(</span>
                     <span class="n">path</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                     <span class="n">image</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
@@ -2618,9 +2733,7 @@ they have been already computed and saved to the disk.</p></td>
 
       <details class="quote">
         <summary>Source code in <code>revelio/feature_extraction/extractor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 66</span>
 <span class="normal"> 67</span>
 <span class="normal"> 68</span>
 <span class="normal"> 69</span>
@@ -2684,7 +2797,11 @@ they have been already computed and saved to the disk.</p></td>
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
-<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">DatasetElement</span><span class="p">,</span> <span class="n">force_online</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DatasetElement</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2714,7 +2831,7 @@ they have been already computed and saved to the disk.</p></td>
         <span class="n">features_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_features_path</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">features_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">features_path</span><span class="p">)[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
+                <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">features_path</span><span class="p">)[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Failed to load features: </span><span class="si">{</span><span class="n">features_path</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2731,11 +2848,13 @@ they have been already computed and saved to the disk.</p></td>
                 <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_element</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>  <span class="c1"># TODO: is it correct?</span>
+            <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: returned None&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">force_online</span><span class="p">:</span>
                 <span class="c1"># We don&#39;t need to save the features if we&#39;re forced to do it online</span>
                 <span class="c1"># (that means we have one or more augmentation steps)</span>
                 <span class="n">features_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">features_path</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">features_path</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
             <span class="n">new_x</span> <span class="o">=</span> <span class="n">ElementImage</span><span class="p">(</span>
                 <span class="n">path</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
@@ -2821,9 +2940,7 @@ be skipped and the exception will be logged.</p>
 
       <details class="quote">
         <summary>Source code in <code>revelio/feature_extraction/extractor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
@@ -2835,7 +2952,9 @@ be skipped and the exception will be logged.</p>
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
-<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span> <span class="nf">process_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">ElementImage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a single image and returns its features.</span>

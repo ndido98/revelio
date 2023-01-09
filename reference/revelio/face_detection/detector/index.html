@@ -1227,6 +1227,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../feature_extraction/stationary_wavelet_packets/" class="md-nav__link">
+        stationary_wavelet_packets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../feature_extraction/wavelets_extractor/" class="md-nav__link">
         wavelets_extractor
       </a>
@@ -2067,6 +2081,101 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1_10_1" type="checkbox" id="__nav_3_1_10_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../utils/caching/">caching</a>
+          
+            <label for="__nav_3_1_10_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="caching" data-md-level="4">
+        <label class="md-nav__title" for="__nav_3_1_10_1">
+          <span class="md-nav__icon md-icon"></span>
+          caching
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/cacher/" class="md-nav__link">
+        cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/npz_cacher/" class="md-nav__link">
+        npz_cacher
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/caching/zstd_cacher/" class="md-nav__link">
+        zstd_cacher
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/files/" class="md-nav__link">
+        files
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../utils/iterators/" class="md-nav__link">
         iterators
@@ -2290,7 +2399,8 @@ The user should not override this method, but instead implement <code>process_el
 
         <details class="quote">
           <summary>Source code in <code>revelio/face_detection/detector.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 14</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 13</span>
+<span class="normal"> 14</span>
 <span class="normal"> 15</span>
 <span class="normal"> 16</span>
 <span class="normal"> 17</span>
@@ -2436,7 +2546,9 @@ The user should not override this method, but instead implement <code>process_el
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FaceDetector</span><span class="p">(</span><span class="n">Registrable</span><span class="p">):</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FaceDetector</span><span class="p">(</span><span class="n">Registrable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A face detector is responsible for detecting faces in the dataset images.</span>
 <span class="sd">    It is also responsible for cropping the images to only contain the face, and for</span>
@@ -2466,6 +2578,7 @@ The user should not override this method, but instead implement <code>process_el
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span> <span class="o">=</span> <span class="n">ZstdCacher</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_meta_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">DatasetElement</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">face_detection</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
@@ -2476,7 +2589,7 @@ The user should not override this method, but instead implement <code>process_el
             <span class="o">/</span> <span class="n">algorithm_name</span>
             <span class="o">/</span> <span class="n">elem</span><span class="o">.</span><span class="n">original_dataset</span>
             <span class="o">/</span> <span class="n">relative_img_path</span><span class="o">.</span><span class="n">parent</span>
-            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">relative_img_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.meta.npz&quot;</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">relative_img_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.meta.xz&quot;</span>
         <span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
@@ -2532,7 +2645,7 @@ The user should not override this method, but instead implement <code>process_el
             <span class="n">meta_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_path</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">meta_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_path</span><span class="p">)</span>
+                    <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_path</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load meta file: </span><span class="si">{</span><span class="n">meta_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
                 <span class="n">landmarks</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;landmarks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;landmarks&quot;</span> <span class="ow">in</span> <span class="n">meta</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2554,6 +2667,8 @@ The user should not override this method, but instead implement <code>process_el
                     <span class="n">bb</span><span class="p">,</span> <span class="n">landmarks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_element</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="k">if</span> <span class="n">bb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: returned </span><span class="si">{</span><span class="n">bb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="c1"># Make sure that the bounding box is always inside the image</span>
                 <span class="n">clipped_bb</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bb</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
@@ -2570,9 +2685,9 @@ The user should not override this method, but instead implement <code>process_el
                 <span class="c1"># Create the meta file</span>
                 <span class="n">meta_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">landmarks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">,</span> <span class="n">landmarks</span><span class="o">=</span><span class="n">landmarks</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">,</span> <span class="n">landmarks</span><span class="o">=</span><span class="n">landmarks</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">)</span>
                 <span class="n">new_xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_x</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">DatasetElement</span><span class="p">(</span>
@@ -2745,7 +2860,9 @@ that they can be loaded later without having to recompute them.</p>
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">DatasetElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DatasetElement</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">DatasetElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DatasetElement</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a dataset element and returns an element with the same data, but</span>
 <span class="sd">    with each image cropped to only contain the face.</span>
@@ -2771,7 +2888,7 @@ that they can be loaded later without having to recompute them.</p>
         <span class="n">meta_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta_path</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">meta_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">meta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_path</span><span class="p">)</span>
+                <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_path</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load meta file: </span><span class="si">{</span><span class="n">meta_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
             <span class="n">landmarks</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;landmarks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;landmarks&quot;</span> <span class="ow">in</span> <span class="n">meta</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2793,6 +2910,8 @@ that they can be loaded later without having to recompute them.</p>
                 <span class="n">bb</span><span class="p">,</span> <span class="n">landmarks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_element</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">if</span> <span class="n">bb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: returned </span><span class="si">{</span><span class="n">bb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="c1"># Make sure that the bounding box is always inside the image</span>
             <span class="n">clipped_bb</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bb</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
@@ -2809,9 +2928,9 @@ that they can be loaded later without having to recompute them.</p>
             <span class="c1"># Create the meta file</span>
             <span class="n">meta_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">landmarks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">,</span> <span class="n">landmarks</span><span class="o">=</span><span class="n">landmarks</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">,</span> <span class="n">landmarks</span><span class="o">=</span><span class="n">landmarks</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cacher</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="n">bb</span><span class="o">=</span><span class="n">clipped_bb</span><span class="p">)</span>
             <span class="n">new_xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_x</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">DatasetElement</span><span class="p">(</span>
