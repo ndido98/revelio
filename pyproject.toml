@@ -156,3 +156,15 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "zstandard.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "deepface.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tensorflow.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "sklearn.*"
+ignore_missing_imports = true

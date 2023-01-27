@@ -1,3 +1,4 @@
+from .deepface_extractor import *
 from .extractor import *
 from .fourier_extractor import *
 from .prnu_extractor import *
