@@ -1,3 +1,4 @@
+import hashlib
 from abc import abstractmethod
 from pathlib import Path
 
@@ -38,14 +39,12 @@ class FeatureExtractor(Registrable):
     def _get_features_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.feature_extraction.output_path)
         algorithm_name = type(self).__name__.lower()
-        relative_img_path = elem.x[x_idx].path.relative_to(elem.dataset_root_path)
-        return (
-            output_path
-            / algorithm_name
-            / elem.original_dataset
-            / relative_img_path.parent
-            / f"{relative_img_path.stem}.features.xz"
-        )
+        path_hash = hashlib.shake_256(
+            str(elem.x[x_idx].path.parent).encode("utf-8")
+        ).hexdigest(16)
+        img_path = Path(path_hash[:2]) / path_hash[2:4] / path_hash[4:]
+        img_name = elem.x[x_idx].path.stem
+        return output_path / algorithm_name / img_path / f"{img_name}.features.xz"
 
     @abstractmethod
     def process_element(self, elem: ElementImage) -> np.ndarray:
@@ -98,12 +97,6 @@ class FeatureExtractor(Registrable):
                     raise RuntimeError(
                         f"Failed to load features: {features_path}"
                     ) from e
-                new_x = ElementImage(
-                    path=x.path,
-                    image=x.image,
-                    features={**x.features, algorithm_name: features},
-                )
-                new_xs.append(new_x)
             else:
                 cached = False
                 try:
@@ -117,12 +110,12 @@ class FeatureExtractor(Registrable):
                     # (that means we have one or more augmentation steps)
                     features_path.parent.mkdir(parents=True, exist_ok=True)
                     self._cacher.save(features_path, features=features)
-                new_x = ElementImage(
-                    path=x.path,
-                    image=x.image,
-                    features={**x.features, algorithm_name: features},
-                )
-                new_xs.append(new_x)
+            new_x = ElementImage(
+                path=x.path,
+                image=x.image,
+                features={**x.features, algorithm_name: features},
+            )
+            new_xs.append(new_x)
         return (
             DatasetElement(
                 dataset_root_path=elem.dataset_root_path,

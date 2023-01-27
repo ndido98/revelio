@@ -1,3 +1,4 @@
+import hashlib
 from abc import abstractmethod
 from pathlib import Path
 from typing import Optional, TypeAlias
@@ -45,14 +46,12 @@ class FaceDetector(Registrable):
     def _get_meta_path(self, elem: DatasetElement, x_idx: int) -> Path:
         output_path = Path(self._config.face_detection.output_path)
         algorithm_name = type(self).__name__.lower()
-        relative_img_path = elem.x[x_idx].path.relative_to(elem.dataset_root_path)
-        return (
-            output_path
-            / algorithm_name
-            / elem.original_dataset
-            / relative_img_path.parent
-            / f"{relative_img_path.stem}.meta.xz"
-        )
+        path_hash = hashlib.shake_256(
+            str(elem.x[x_idx].path.parent).encode("utf-8")
+        ).hexdigest(16)
+        img_path = Path(path_hash[:2]) / path_hash[2:4] / path_hash[4:]
+        img_name = elem.x[x_idx].path.stem
+        return output_path / algorithm_name / img_path / f"{img_name}.meta.xz"
 
     @abstractmethod
     def process_element(self, elem: Image) -> tuple[BoundingBox, Optional[Landmarks]]:
