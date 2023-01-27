@@ -106,6 +106,27 @@ class DatasetFactory:
             bona_fide_xy = [e for e in dataset_xy if e.y == ElementClass.BONA_FIDE]
             morphed_xy = [e for e in dataset_xy if e.y == ElementClass.MORPHED]
 
+            log.debug(
+                "First 10 bona fide elements of dataset %s:\n%s",
+                dataset.name,
+                "\n".join([", ".join(str(p) for p in e.x) for e in bona_fide_xy[:10]]),
+            )
+            log.debug(
+                "Last 10 bona fide elements of dataset %s:\n%s",
+                dataset.name,
+                "\n".join([", ".join(str(p) for p in e.x) for e in bona_fide_xy[-10:]]),
+            )
+            log.debug(
+                "First 10 morphed elements of dataset %s:\n%s",
+                dataset.name,
+                "\n".join([", ".join(str(p) for p in e.x) for e in morphed_xy[:10]]),
+            )
+            log.debug(
+                "Last 10 morphed elements of dataset %s:\n%s",
+                dataset.name,
+                "\n".join([", ".join(str(p) for p in e.x) for e in morphed_xy[-10:]]),
+            )
+
             bona_fide_train, bona_fide_val, bona_fide_test = _split_train_val_test(
                 bona_fide_xy,
                 dataset.split.train,
