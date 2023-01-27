@@ -47,7 +47,6 @@ torchvision = [
 dlib = "~19.24"
 numpy = "~1.23"
 opencv-python = "~4.6"
-tensorboard = "~2.11"
 tqdm = "~4.64"
 matplotlib = "~3.6"
 PyWavelets = "~1.4"
@@ -57,7 +56,9 @@ torch-tb-profiler = "~0.4"
 facenet-pytorch = "~2.5"
 wandb = "~0.13"
 zstandard = "~0.19"
-deepface = "0.0.75"
+tensorboard = "2.10.1"
+tensorflow = "2.10.1"
+deepface = {git = "https://github.com/serengil/deepface.git"}
 
 [tool.poetry.dev-dependencies]
 autoflake = "~1.7.0"
