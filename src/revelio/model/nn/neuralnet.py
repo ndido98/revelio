@@ -297,10 +297,16 @@ class NeuralNetwork(Model):
             loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
             metrics = {loss_name: loss.cpu()}
             for metric in self.metrics:
-                metric_dict = metric.compute_to_dict()
-                for k, v in metric_dict.items():
-                    if metric_prefix != "":
-                        metrics[f"{metric_prefix}_{k}"] = v
-                    else:
-                        metrics[k] = v
+                try:
+                    metric_dict = metric.compute_to_dict()
+                    for k, v in metric_dict.items():
+                        if metric_prefix != "":
+                            metrics[f"{metric_prefix}_{k}"] = v
+                        else:
+                            metrics[k] = v
+                except RuntimeError:
+                    # A metric's computation may fail during training because not all
+                    # data may not have been seen yet.
+                    # In this case, we just skip the metric.
+                    pass
             return metrics
