@@ -27,6 +27,8 @@ class NeuralNetwork(Model):
     loss_function: Optional[torch.nn.Module] = None
     callbacks: list[Callback] = []
     should_stop: bool = False
+    custom_loss: bool = False
+    include_raw_y: bool = False
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
@@ -83,15 +85,16 @@ class NeuralNetwork(Model):
         if not self.config.experiment.training.enabled:
             raise ValueError("Training is disabled for this model")
         if "loss" not in self.config.experiment.training.args:
-            raise ValueError("Missing loss in training configuration")
-        if "name" not in self.config.experiment.training.args["loss"]:
-            raise ValueError("Missing loss name in training configuration")
-        found_loss = Loss.find(
-            self.config.experiment.training.args["loss"]["name"],
-        )
-        self.loss_function = found_loss.get(
-            **self.config.experiment.training.args["loss"].get("args", {}),
-        )
+            self.loss_function = None
+        elif "name" not in self.config.experiment.training.args.get("loss", {}):
+            self.loss_function = None
+        else:
+            found_loss = Loss.find(
+                self.config.experiment.training.args["loss"]["name"],
+            )
+            self.loss_function = found_loss.get(
+                **self.config.experiment.training.args["loss"].get("args", {}),
+            )
 
     def _load_callbacks(self) -> None:
         # Load the callbacks if training is enabled
@@ -116,7 +119,6 @@ class NeuralNetwork(Model):
             raise ValueError("Training is disabled for this model")
         assert self.epochs is not None
         assert self.optimizer is not None
-        assert self.loss_function is not None
 
         self.should_stop = False
         for callback in self.callbacks:
@@ -160,8 +162,7 @@ class NeuralNetwork(Model):
         with torch.no_grad():
             device_batch = _dict_to_device(batch, self.device)
             # Use the classifier to get the batch classes
-            prediction = self.classifier(device_batch["x"])
-            prediction = torch.sigmoid(prediction)
+            prediction, _, _ = self._forward(device_batch)
             return torch.squeeze(prediction).cpu().numpy()  # type: ignore
 
     def get_state_dict(self) -> dict[str, Any]:
@@ -194,8 +195,8 @@ class NeuralNetwork(Model):
             optimizer_config = self.config.experiment.training.args["optimizer"]
             if optimizer_config.get("load_from_checkpoint", True):
                 self.optimizer.load_state_dict(state_dict["optimizer_state_dict"])
-        self.train_steps_per_epoch = state_dict["train_steps_per_epoch"]
-        self.val_steps_per_epoch = state_dict["val_steps_per_epoch"]
+        self.train_steps_per_epoch = state_dict.get("train_steps_per_epoch", [])
+        self.val_steps_per_epoch = state_dict.get("val_steps_per_epoch", [])
         if len(self.train_steps_per_epoch) != len(self.val_steps_per_epoch):
             raise ValueError(
                 "The number of training and validation steps per epoch must be the same"
@@ -228,6 +229,61 @@ class NeuralNetwork(Model):
         self.val_steps_per_epoch.append(batches_count)
         return metrics
 
+    def _forward(
+        self, device_batch: dict[str, torch.Tensor]
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        Optional[torch.Tensor | dict[str, torch.Tensor]],
+    ]:
+        input_params = [device_batch["x"]]
+        if self.custom_loss:
+            input_params.append(device_batch["y"])
+        if self.include_raw_y:
+            input_params.append(device_batch["y_raw"])
+        output = self.classifier(*input_params)
+        ground_truth = torch.squeeze(device_batch["y"])
+        if not self.custom_loss:
+            # If the classifier returns a tensor, the model doesn't have a custom
+            # loss embedded in the model, so we need to use the one the user
+            # specified in the configuration file
+            if not isinstance(output, torch.Tensor):
+                raise TypeError(
+                    "The classifier must return a tensor with the prediction"
+                )
+            prediction = torch.squeeze(output)
+            if self.config.experiment.training.enabled:
+                # Compute the loss
+                if self.loss_function is None:
+                    raise ValueError(
+                        "No loss function was specified in the configuration file"
+                    )
+                loss = self.loss_function(prediction, ground_truth)
+            else:
+                loss = None
+        else:
+            # If the classifier returns a dict, the model has a custom loss
+            # embedded in the model, so we need to use that one
+            # We expect two keys: "prediction" and "loss"
+            if (
+                not isinstance(output, dict)
+                or "prediction" not in output
+                or "loss" not in output
+            ):
+                raise TypeError(
+                    "The classifier must return a dict with two keys: "
+                    "prediction and loss"
+                )
+            prediction = torch.squeeze(output["prediction"])
+            if self.config.experiment.training.enabled:
+                loss = output["loss"]
+            else:
+                loss = None
+        # Before updating the metrics, apply a sigmoid to the prediction
+        # (the output of the classifier is not a probability)
+        prediction = torch.sigmoid(prediction)
+        return (prediction, ground_truth, loss)
+
     def _run_epoch(
         self,
         training: bool,
@@ -236,7 +292,6 @@ class NeuralNetwork(Model):
         initial_metrics: dict[str, torch.Tensor],
     ) -> tuple[dict[str, torch.Tensor], int]:
         assert self.optimizer is not None
-        assert self.loss_function is not None
         metrics = {}
         dl = self.train_dataloader if training else self.val_dataloader
         self._reset_metrics()
@@ -252,18 +307,19 @@ class NeuralNetwork(Model):
             # Use the classifier to get the batch classes
             if training:
                 self.optimizer.zero_grad()
-            prediction = self.classifier(device_batch["x"])
-            prediction = torch.squeeze(prediction)
-            ground_truth = torch.squeeze(device_batch["y"])
-            # Compute the loss
-            loss = self.loss_function(prediction, ground_truth)
-            # Before updating the metrics, apply a sigmoid to the prediction
-            # (the output of the classifier is not a probability)
-            prediction = torch.sigmoid(prediction)
+            prediction, ground_truth, loss = self._forward(device_batch)
+            assert loss is not None
             self._update_metrics(prediction, ground_truth)
             # Do backpropagation and optimize weights
             if training:
-                loss.backward()
+                if isinstance(loss, dict) and "loss" in loss:
+                    loss["loss"].backward()
+                elif isinstance(loss, torch.Tensor):
+                    loss.backward()
+                else:
+                    raise TypeError(
+                        "The returned loss must be a dict with a 'loss' key or a tensor"
+                    )
                 self.optimizer.step()
             # Compute the metrics up until this point
             metrics = self._compute_metrics_dict(loss, "val" if not training else "")
@@ -291,11 +347,17 @@ class NeuralNetwork(Model):
                 metric.update(y_pred, y_true)
 
     def _compute_metrics_dict(
-        self, loss: torch.Tensor, metric_prefix: str = ""
+        self, loss: torch.Tensor | dict[str, torch.Tensor], metric_prefix: str = ""
     ) -> dict[str, torch.Tensor]:
         with torch.no_grad():
-            loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
-            metrics = {loss_name: loss.cpu()}
+            if isinstance(loss, torch.Tensor):
+                loss_name = "loss" if metric_prefix == "" else f"{metric_prefix}_loss"
+                metrics = {loss_name: loss.cpu()}
+            else:
+                metrics = {}
+                for k, v in loss.items():
+                    loss_name = k if metric_prefix == "" else f"{metric_prefix}_{k}"
+                    metrics[loss_name] = v.cpu()
             for metric in self.metrics:
                 try:
                     metric_dict = metric.compute_to_dict()
