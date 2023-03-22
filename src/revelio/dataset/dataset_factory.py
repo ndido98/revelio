@@ -3,11 +3,11 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, TypeVar
 
-from revelio.dataset.descriptors_list import DatasetElementDescriptorsList
 from revelio.utils.random import shuffled
 from revelio.utils.rounding import round_half_up
 
 from .dataset import Dataset
+from .descriptors_list import DatasetElementDescriptorsList
 from .element import DatasetElementDescriptor, ElementClass
 from .loaders.loader import DatasetLoader
 
@@ -85,114 +85,104 @@ class DatasetFactory:
     _feature_extractors: list[FeatureExtractor]
     _preprocessing_steps: list[PreprocessingStep]
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, verbose: bool = True) -> None:
         self._config = config
         loaders = self._get_loaders()
-        log.debug("Found %d loaders", len(loaders))
+        log.info("Found %d loaders", len(loaders))
         # Merge the datasets with their respective train, val and test percentages
         current_x_count: int | None = None
         for dataset, loader in zip(config.datasets, loaders):
             dataset_xy = loader.load(dataset.path)
+            if len(dataset_xy) == 0:
+                raise ValueError(
+                    f"Dataset {dataset.name} is empty after loading with "
+                    f"{type(loader).__name__}"
+                )
             for elem in dataset_xy:
                 if current_x_count is None:
                     current_x_count = len(elem.x)
                 elif current_x_count != len(elem.x):
                     raise ValueError(
-                        "The number of images in the dataset is not consistent "
+                        "The number of images in the dataset elements produced by "
+                        f"{type(loader).__name__} is not consistent "
                         f"(expected {current_x_count}, got {len(elem.x)})"
                     )
                 elem._dataset_name = dataset.name
                 elem._root_path = dataset.path
-            bona_fide_xy = [e for e in dataset_xy if e.y == ElementClass.BONA_FIDE]
-            morphed_xy = [e for e in dataset_xy if e.y == ElementClass.MORPHED]
+            if verbose:
+                print(f"Loaded dataset: {dataset.name}")
+            for cls in ElementClass:
+                cls_xy = [e for e in dataset_xy if e.y == cls]
+                log.debug(
+                    "First 10 elements of class %s of dataset %s:\n%s",
+                    cls,
+                    dataset.name,
+                    "\n".join([", ".join(str(p) for p in e.x) for e in cls_xy[:10]]),
+                )
+                cls_train, cls_val, cls_test = _split_train_val_test(
+                    cls_xy,
+                    dataset.split.train,
+                    dataset.split.val,
+                    dataset.split.test,
+                )
+                self._train.extend(cls_train)
+                self._val.extend(cls_val)
+                self._test.extend(cls_test)
+                if verbose:
+                    print(f"\t{cls}:")
+                    print(f"\t\tTraining: {len(cls_train)}")
+                    print(f"\t\tValidation: {len(cls_val)}")
+                    print(f"\t\tTest: {len(cls_test)}")
 
-            log.debug(
-                "First 10 bona fide elements of dataset %s:\n%s",
-                dataset.name,
-                "\n".join([", ".join(str(p) for p in e.x) for e in bona_fide_xy[:10]]),
-            )
-            log.debug(
-                "Last 10 bona fide elements of dataset %s:\n%s",
-                dataset.name,
-                "\n".join([", ".join(str(p) for p in e.x) for e in bona_fide_xy[-10:]]),
-            )
-            log.debug(
-                "First 10 morphed elements of dataset %s:\n%s",
-                dataset.name,
-                "\n".join([", ".join(str(p) for p in e.x) for e in morphed_xy[:10]]),
-            )
-            log.debug(
-                "Last 10 morphed elements of dataset %s:\n%s",
-                dataset.name,
-                "\n".join([", ".join(str(p) for p in e.x) for e in morphed_xy[-10:]]),
-            )
+        if verbose:
+            print(f"{len(config.datasets)} loaded datasets:")
+            self._print_stats()
 
-            bona_fide_train, bona_fide_val, bona_fide_test = _split_train_val_test(
-                bona_fide_xy,
-                dataset.split.train,
-                dataset.split.val,
-                dataset.split.test,
-            )
-            morphed_train, morphed_val, morphed_test = _split_train_val_test(
-                morphed_xy,
-                dataset.split.train,
-                dataset.split.val,
-                dataset.split.test,
-            )
-
-            self._train.extend(bona_fide_train + morphed_train)
-            self._val.extend(bona_fide_val + morphed_val)
-            self._test.extend(bona_fide_test + morphed_test)
-
-            print(f"Loaded dataset: {dataset.name}")
-            print("\tBona fide:")
-            print(f"\t\tTraining: {len(bona_fide_train)}")
-            print(f"\t\tValidation: {len(bona_fide_val)}")
-            print(f"\t\tTest: {len(bona_fide_test)}")
-            print("\tMorphed:")
-            print(f"\t\tTraining: {len(morphed_train)}")
-            print(f"\t\tValidation: {len(morphed_val)}")
-            print(f"\t\tTest: {len(morphed_test)}")
         # Shuffle the three complete datasets
         self._train = shuffled(self._train)
         self._val = shuffled(self._val)
         self._test = shuffled(self._test)
 
-        # Print some stats
-        bf_train_size = sum(1 for e in self._train if e.y == ElementClass.BONA_FIDE)
-        mr_train_size = sum(1 for e in self._train if e.y == ElementClass.MORPHED)
-        bf_val_size = sum(1 for e in self._val if e.y == ElementClass.BONA_FIDE)
-        mr_val_size = sum(1 for e in self._val if e.y == ElementClass.MORPHED)
-        bf_test_size = sum(1 for e in self._test if e.y == ElementClass.BONA_FIDE)
-        mr_test_size = sum(1 for e in self._test if e.y == ElementClass.MORPHED)
-        print("Loaded datasets:")
-        print(f"\tTotal training: {len(self._train)}")
-        print(f"\tTotal validation: {len(self._val)}")
-        print(f"\tTotal test: {len(self._test)}")
-        print("\tBona fide:")
-        print(f"\t\tTraining: {bf_train_size}")
-        print(f"\t\tValidation: {bf_val_size}")
-        print(f"\t\tTest: {bf_test_size}")
-        print("\tMorphed:")
-        print(f"\t\tTraining: {mr_train_size}")
-        print(f"\t\tValidation: {mr_val_size}")
-        print(f"\t\tTest: {mr_test_size}")
+        self._load_face_detector()
+        self._load_augmentation_steps()
+        self._load_feature_extraction()
+        self._load_preprocessing_steps()
 
+    def _load_face_detector(self) -> None:
         if self._config.face_detection.enabled:
             self._face_detector = self._get_face_detector()
         else:
             self._face_detector = None
+
+    def _load_augmentation_steps(self) -> None:
         if self._config.augmentation.enabled:
             self._augmentation_steps = self._get_augmentation_steps()
         else:
             self._augmentation_steps = []
+
+    def _load_feature_extraction(self) -> None:
         if self._config.feature_extraction.enabled:
             self._feature_extractors = self._get_feature_extractors()
         else:
             self._feature_extractors = []
+
+    def _load_preprocessing_steps(self) -> None:
         self._train_preprocessing_steps = self._get_preprocessing_steps("train")
         self._val_preprocessing_steps = self._get_preprocessing_steps("val")
         self._test_preprocessing_steps = self._get_preprocessing_steps("test")
+
+    def _print_stats(self) -> None:
+        print(f"\tTotal training: {len(self._train)}")
+        print(f"\tTotal validation: {len(self._val)}")
+        print(f"\tTotal test: {len(self._test)}")
+        for cls in ElementClass:
+            cls_train_size = sum(1 for e in self._train if e.y == cls)
+            cls_val_size = sum(1 for e in self._val if e.y == cls)
+            cls_test_size = sum(1 for e in self._test if e.y == cls)
+            print(f"\t{cls}:")
+            print(f"\t\tTraining: {cls_train_size}")
+            print(f"\t\tValidation: {cls_val_size}")
+            print(f"\t\tTest: {cls_test_size}")
 
     def _get_loaders(self) -> list[DatasetLoader]:
         loaders: list[DatasetLoader] = []
@@ -249,6 +239,7 @@ class DatasetFactory:
         return [
             FeatureExtractor.find(
                 extractor.name,
+                _applies_to=extractor.applies_to,
                 _config=self._config,
                 **extractor.args,
             )

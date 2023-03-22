@@ -36,12 +36,12 @@ def config() -> Config:
 
 @pytest.fixture
 def dummy1(config: Config) -> FeatureExtractor:
-    return Dummy1(_config=config)
+    return Dummy1(_applies_to="all", _config=config)
 
 
 @pytest.fixture
 def dummy2(config: Config) -> FeatureExtractor:
-    return Dummy2(_config=config)
+    return Dummy2(_applies_to="all", _config=config)
 
 
 @pytest.fixture

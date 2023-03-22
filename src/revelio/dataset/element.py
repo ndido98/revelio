@@ -16,6 +16,29 @@ class ElementClass(Enum):
 
     BONA_FIDE = 0.0
     MORPHED = 1.0
+    MORPHED_WITH_CRIMINAL = 2.0
+    MORPHED_WITH_ACCOMPLICE = 3.0
+
+    def is_bona_fide(self) -> bool:
+        return self == ElementClass.BONA_FIDE
+
+    def is_morphed(self) -> bool:
+        return not self.is_bona_fide()
+
+    @property
+    def y_label(self) -> float:
+        return 0.0 if self.is_bona_fide() else 1.0
+
+    def __str__(self) -> str:
+        match self:
+            case ElementClass.BONA_FIDE:
+                return "Bona fide"
+            case ElementClass.MORPHED:
+                return "Morphed"
+            case ElementClass.MORPHED_WITH_CRIMINAL:
+                return "Morphed with criminal"
+            case ElementClass.MORPHED_WITH_ACCOMPLICE:
+                return "Morphed with accomplice"
 
 
 class DatasetElementDescriptor:

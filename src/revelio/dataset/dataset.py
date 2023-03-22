@@ -198,6 +198,7 @@ class Dataset(IterableDataset):
             elem_xs = _whc2cwh(elem)
             yield {
                 "x": elem_xs,
-                "y": elem.y.value,
+                "y": elem.y.y_label,
+                "y_raw": elem.y.value,
                 "dataset": elem.original_dataset,
             }

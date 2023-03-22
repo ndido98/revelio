@@ -1,6 +1,7 @@
 import hashlib
 from abc import abstractmethod
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 
@@ -32,7 +33,10 @@ class FeatureExtractor(Registrable):
     The user should not override this method, but instead implement `process_element`.
     """
 
-    def __init__(self, *, _config: Config) -> None:
+    def __init__(
+        self, *, _applies_to: list[int] | Literal["all"], _config: Config
+    ) -> None:
+        self._applies_to = _applies_to
         self._config = _config
         self._cacher = ZstdCacher()
 
@@ -89,33 +93,36 @@ class FeatureExtractor(Registrable):
         algorithm_name = type(self).__name__.lower()
         algorithm_name = algorithm_name.replace("extractor", "")
         for i, x in enumerate(elem.x):
-            features_path = self._get_features_path(elem, i)
-            if features_path.is_file() and not force_online:
-                try:
-                    features = self._cacher.load(features_path)["features"]
-                except ValueError as e:
-                    raise RuntimeError(
-                        f"Failed to load features: {features_path}"
-                    ) from e
+            if self._applies_to == "all" or i in self._applies_to:
+                features_path = self._get_features_path(elem, i)
+                if features_path.is_file() and not force_online:
+                    try:
+                        features = self._cacher.load(features_path)["features"]
+                    except ValueError as e:
+                        raise RuntimeError(
+                            f"Failed to load features: {features_path}"
+                        ) from e
+                else:
+                    cached = False
+                    try:
+                        features = self.process_element(x)
+                    except Exception as e:
+                        raise RuntimeError(f"Failed to process {x.path}: {e}") from e
+                    if features is None:
+                        raise RuntimeError(f"Failed to process {x.path}: returned None")
+                    if not force_online:
+                        # We don't need to save the features if we're forced to do it
+                        # online (that means we have one or more augmentation steps)
+                        features_path.parent.mkdir(parents=True, exist_ok=True)
+                        self._cacher.save(features_path, features=features)
+                new_x = ElementImage(
+                    path=x.path,
+                    image=x.image,
+                    features={**x.features, algorithm_name: features},
+                )
+                new_xs.append(new_x)
             else:
-                cached = False
-                try:
-                    features = self.process_element(x)
-                except Exception as e:
-                    raise RuntimeError(f"Failed to process {x.path}: {e}") from e
-                if features is None:
-                    raise RuntimeError(f"Failed to process {x.path}: returned None")
-                if not force_online:
-                    # We don't need to save the features if we're forced to do it online
-                    # (that means we have one or more augmentation steps)
-                    features_path.parent.mkdir(parents=True, exist_ok=True)
-                    self._cacher.save(features_path, features=features)
-            new_x = ElementImage(
-                path=x.path,
-                image=x.image,
-                features={**x.features, algorithm_name: features},
-            )
-            new_xs.append(new_x)
+                new_xs.append(x)
         return (
             DatasetElement(
                 dataset_root_path=elem.dataset_root_path,

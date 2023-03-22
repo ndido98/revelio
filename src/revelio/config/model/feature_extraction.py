@@ -3,16 +3,29 @@ from typing import Any
 
 from pydantic import BaseModel, root_validator, validator
 
-from .utils import args_cannot_start_with_underscores
+from .utils import (
+    AppliesTo,
+    args_cannot_start_with_underscores,
+    check_applies_to_has_no_duplicates,
+    convert_applies_to,
+)
 
 
 class FeatureExtractionAlgorithm(BaseModel):
     name: str
     args: dict[str, Any] = {}
-    weight: float = 1.0
+    applies_to: AppliesTo = "all"
 
     _args_underscores = validator("args", allow_reuse=True)(
         args_cannot_start_with_underscores
+    )
+
+    _applies_to_convert = validator("applies_to", pre=True, allow_reuse=True)(
+        convert_applies_to
+    )
+
+    _applies_to_duplicates = validator("applies_to", allow_reuse=True)(
+        check_applies_to_has_no_duplicates
     )
 
 
