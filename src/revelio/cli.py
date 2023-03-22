@@ -1,4 +1,5 @@
 import argparse
+import importlib.util
 import json
 import logging
 import random
@@ -160,6 +161,37 @@ def _get_report_dict(
     }
 
 
+def _load_plugins(args: Any) -> None:
+    plugins_names: dict[str, str] = {}
+    plugins_dirs = args.plugins_dirs if args.plugins_dirs is not None else []
+    for plugins_dir in plugins_dirs:
+        plugins_dir = Path(plugins_dir)
+        if not plugins_dir.is_dir():
+            raise argparse.ArgumentTypeError(
+                f"{plugins_dir} does not exist or is not a directory"
+            )
+        py_files = list(plugins_dir.glob("*.py"))
+        for file in py_files:
+            if file.stem in plugins_names:
+                raise argparse.ArgumentTypeError(
+                    f"Plugin name {file.stem} is already used by "
+                    f"{plugins_names[file.stem]}"
+                )
+            else:
+                plugins_names[file.stem] = file
+                print(f"Loaded plugin {file.stem} from {file}")
+            module_name = f"revelio.plugins.{file.stem}"
+            spec = importlib.util.spec_from_file_location(module_name, file)
+            if spec is None:
+                raise argparse.ArgumentTypeError(
+                    f"Could not load plugin {file.name} as a module"
+                )
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module
+            assert spec.loader is not None
+            spec.loader.exec_module(module)
+
+
 def _cli_program(args: Any) -> None:
     config = Config.from_string(args.config_file.read())
     experiment_name = Path(args.config_file.name).stem
@@ -172,6 +204,7 @@ def _cli_program(args: Any) -> None:
         seed = random.randint(0, 2**32 - 1)
         print(f"No seed was specified, using a random seed: {seed}")
     set_seed(seed)
+    _load_plugins(args)
     print("Loading the dataset...")
     dataset = DatasetFactory(config)
     train_ds = dataset.get_train_dataset()
@@ -306,6 +339,13 @@ def main() -> None:
         default=True,
         help="Set this to true to disable the warmup",
         dest="warmup",
+    )
+    parser.add_argument(
+        "-p",
+        "--plugins-dir",
+        action="append",
+        help="The directory where to look for plugin files; can be repeated",
+        dest="plugins_dirs",
     )
 
     args = parser.parse_args()
