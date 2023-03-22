@@ -268,3 +268,21 @@ class CFDMorphLoader(DatasetLoader):  # pragma: no cover
             DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
             for image in valid_images
         ]
+
+
+class FEILoader(DatasetLoader):
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        images = rglob_multiple(path, "*-11", IMAGE_EXTENSIONS)
+        return [
+            DatasetElementDescriptor(x=(image,), y=ElementClass.BONA_FIDE)
+            for image in images
+        ]
+
+
+class FEIMorphLoader(DatasetLoader):
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        images = rglob_multiple(path, "*", IMAGE_EXTENSIONS)
+        return [
+            DatasetElementDescriptor(x=(image,), y=ElementClass.MORPHED)
+            for image in images
+        ]

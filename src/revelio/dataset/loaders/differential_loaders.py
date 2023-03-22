@@ -8,7 +8,7 @@ from .loader import DatasetLoader
 
 IMAGE_EXTENSIONS = ("png", "jpg", "jpeg", "tiff", "tif", "jp2", "ppm")
 
-MorphCoupleType = Literal["accomplice", "criminal", "both"]
+MorphCoupleType = Literal["none", "accomplice", "criminal", "both"]
 
 
 def _parse_file_names(value: Optional[str | list[str]], default: str) -> list[str]:
@@ -47,12 +47,12 @@ class DifferentialPMDBLoader(DatasetLoader):
         if self._morph_couple_type in ("criminal", "both"):
             for file_name in self._criminal_file_names:
                 couples += self._load_couples_file(
-                    path / file_name, path, ElementClass.MORPHED
+                    path / file_name, path, ElementClass.MORPHED_WITH_CRIMINAL
                 )
         if self._morph_couple_type in ("accomplice", "both"):
             for file_name in self._accomplice_file_names:
                 couples += self._load_couples_file(
-                    path / file_name, path, ElementClass.MORPHED
+                    path / file_name, path, ElementClass.MORPHED_WITH_ACCOMPLICE
                 )
         return couples
 
@@ -72,33 +72,45 @@ class DifferentialIdiapLoader(DatasetLoader):
     def __init__(
         self,
         bona_fide_root: str,
-        morphed_root: str,
+        morphed_root: Optional[str] = None,
         morph_couple_type: MorphCoupleType = "both",
         bona_fide_file_name: str = "BonafideAttemptIndex.txt",
         criminal_file_name: str = "Criminal_MorphAttemptIndex.txt",
         accomplice_file_name: str = "Accomplice_MorphAttemptIndex.txt",
+        load_bona_fide_couples: bool = True,
     ) -> None:
         self._bona_fide_root = Path(bona_fide_root)
-        self._morphed_root = Path(morphed_root)
+        self._morphed_root = None if morphed_root is None else Path(morphed_root)
         self._morph_couple_type = morph_couple_type
         self._bona_fide_file_name = bona_fide_file_name
         self._criminal_file_name = criminal_file_name
         self._accomplice_file_name = accomplice_file_name
+        self._load_bona_fide_couples = load_bona_fide_couples
 
     def load(self, path: Path) -> list[DatasetElementDescriptor]:
-        bona_fide_couples = path / self._bona_fide_file_name
-        criminal_morph_couples = path / self._criminal_file_name
-        accomplice_morph_couples = path / self._accomplice_file_name
-        couples = self._load_couples_file(
-            bona_fide_couples, self._bona_fide_root, ElementClass.BONA_FIDE
-        )
-        if self._morph_couple_type in ("criminal", "both"):
+        couples = []
+        if self._load_bona_fide_couples:
+            bona_fide_couples = path / self._bona_fide_file_name
             couples += self._load_couples_file(
-                criminal_morph_couples, self._morphed_root, ElementClass.MORPHED
+                bona_fide_couples, self._bona_fide_root, ElementClass.BONA_FIDE
+            )
+        if self._morph_couple_type in ("criminal", "both"):
+            if self._morphed_root is None:
+                raise ValueError("Morphed root must be specified")
+            criminal_morph_couples = path / self._criminal_file_name
+            couples += self._load_couples_file(
+                criminal_morph_couples,
+                self._morphed_root,
+                ElementClass.MORPHED_WITH_CRIMINAL,
             )
         if self._morph_couple_type in ("accomplice", "both"):
+            if self._morphed_root is None:
+                raise ValueError("Morphed root must be specified")
+            accomplice_morph_couples = path / self._accomplice_file_name
             couples += self._load_couples_file(
-                accomplice_morph_couples, self._morphed_root, ElementClass.MORPHED
+                accomplice_morph_couples,
+                self._morphed_root,
+                ElementClass.MORPHED_WITH_ACCOMPLICE,
             )
         return couples
 
@@ -177,11 +189,11 @@ class DifferentialMorphDBLoader(DatasetLoader):
         )
         if self._morph_couple_type in ("criminal", "both"):
             couples += self._load_couples_file(
-                criminal_morph_couples, path, ElementClass.MORPHED
+                criminal_morph_couples, path, ElementClass.MORPHED_WITH_CRIMINAL
             )
         if self._morph_couple_type in ("accomplice", "both"):
             couples += self._load_couples_file(
-                accomplice_morph_couples, path, ElementClass.MORPHED
+                accomplice_morph_couples, path, ElementClass.MORPHED_WITH_ACCOMPLICE
             )
         return couples
 
@@ -193,5 +205,72 @@ class DifferentialMorphDBLoader(DatasetLoader):
         for line in lines:
             probe_name, live_name = line.split()
             probe, live = root / probe_name, root / live_name
+            couples.append(DatasetElementDescriptor(x=(probe, live), y=element_class))
+        return couples
+
+
+class DifferentialFEILoader(DatasetLoader):
+    def __init__(
+        self,
+        bona_fide_root: str,
+        morphed_root: Optional[str] = None,
+        morph_couple_type: MorphCoupleType = "both",
+        bona_fide_file_name: str = "bonafide.txt",
+        criminal_file_name: str = "criminal.txt",
+        accomplice_file_name: str = "accomplice.txt",
+        load_bona_fide_couples: bool = True,
+    ) -> None:
+        self._bona_fide_root = Path(bona_fide_root)
+        self._morphed_root = None if morphed_root is None else Path(morphed_root)
+        self._morph_couple_type = morph_couple_type
+        self._bona_fide_file_name = bona_fide_file_name
+        self._criminal_file_name = criminal_file_name
+        self._accomplice_file_name = accomplice_file_name
+        self._load_bona_fide_couples = load_bona_fide_couples
+
+    def load(self, path: Path) -> list[DatasetElementDescriptor]:
+        couples = []
+        if self._load_bona_fide_couples:
+            bona_fide_couples = path / self._bona_fide_file_name
+            couples += self._load_couples_file(
+                bona_fide_couples,
+                self._bona_fide_root,
+                self._bona_fide_root,
+                ElementClass.BONA_FIDE,
+            )
+        if self._morph_couple_type in ("criminal", "both"):
+            if self._morphed_root is None:
+                raise ValueError("Morphed root must be specified")
+            criminal_morph_couples = path / self._criminal_file_name
+            couples += self._load_couples_file(
+                criminal_morph_couples,
+                self._morphed_root,
+                self._bona_fide_root,
+                ElementClass.MORPHED_WITH_CRIMINAL,
+            )
+        if self._morph_couple_type in ("accomplice", "both"):
+            if self._morphed_root is None:
+                raise ValueError("Morphed root must be specified")
+            accomplice_morph_couples = path / self._accomplice_file_name
+            couples += self._load_couples_file(
+                accomplice_morph_couples,
+                self._morphed_root,
+                self._bona_fide_root,
+                ElementClass.MORPHED_WITH_ACCOMPLICE,
+            )
+        return couples
+
+    def _load_couples_file(
+        self,
+        couples_file: Path,
+        probe_root: Path,
+        live_root: Path,
+        element_class: ElementClass,
+    ) -> list[DatasetElementDescriptor]:
+        couples = []
+        lines = couples_file.read_text().splitlines()
+        for line in lines:
+            probe_name, live_name = line.split()
+            probe, live = probe_root / probe_name, live_root / live_name
             couples.append(DatasetElementDescriptor(x=(probe, live), y=element_class))
         return couples
