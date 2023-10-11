@@ -27,6 +27,15 @@ poetry install
 poetry run revelio
 ```
 
+## Reproducing the experiments
+
+Using the uploaded configuration file in the `experiments/` directory inside the repository, it is possible to reproduce the experiments reported in the paper.
+
+The following experiments are available at the moment:
+* [Inception-Resnet V1, Table 6](https://github.com/ndido98/revelio/blob/master/experiments/inception-resnet.yml)
+
+This list is currently a work in progress.
+
 ## Development
 
 * Clone this repository
