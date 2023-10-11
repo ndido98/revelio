@@ -1,0 +1,267 @@
+# This is a sample configuration file to reproduce the experiment for Inception-Resnet in Table 6
+
+seed: 42
+
+datasets:
+  - name: pmdb
+    path: C:\repos\datasets\PMDB\PMDB_10
+    testing_groups:
+      - ubo
+    split: &enabled-training-split
+      train: 0.7
+      val: 0.1
+      test: 0.2
+  - name: frgc
+    path: C:\repos\datasets\FRGC-Reduced
+    testing_groups:
+      - opencv
+      - facemorpher
+      - stylegan
+    split: *enabled-training-split
+  - name: feret
+    path: C:\repos\datasets\Feret
+    testing_groups:
+      - opencv
+      - facemorpher
+      - stylegan
+    loader:
+      args:
+        poses: [fa, fb]
+    split: *enabled-training-split
+  - name: amsl
+    path: C:\repos\datasets\AMSL_FaceMorphImageDataSet
+    testing_groups:
+      - opencv
+      - facemorpher
+      - stylegan
+      - amsl
+      - webmorph
+    loader:
+      name: AMSLLoader
+      args:
+        poses: [neutral]
+        load_morphs: false
+    split: *enabled-training-split
+  - name: idiap-opencv
+    path: C:\repos\datasets\IdiapMorphed
+    testing_groups:
+      - opencv
+    loader:
+      name: IdiapMorphedLoader
+      args:
+        algorithm: opencv
+    split: *enabled-training-split
+  - name: idiap-facemorpher
+    path: C:\repos\datasets\IdiapMorphed
+    testing_groups:
+      - facemorpher
+    loader:
+      name: IdiapMorphedLoader
+      args:
+        algorithm: facemorpher
+    split: *enabled-training-split
+  - name: idiap-stylegan
+    path: C:\repos\datasets\IdiapMorphed
+    testing_groups:
+      - stylegan
+    loader:
+      name: IdiapMorphedLoader
+      args:
+        algorithm: stylegan
+    split: *enabled-training-split
+  - name: idiap-amsl
+    path: C:\repos\datasets\IdiapMorphed
+    testing_groups:
+      - amsl
+    loader:
+      name: IdiapMorphedLoader
+      args:
+        algorithm: amsl
+    split: &testing-split
+      train: 0
+      val: 0
+      test: 1
+  - name: idiap-webmorph
+    path: C:\repos\datasets\IdiapMorphed
+    testing_groups:
+      - webmorph
+    loader:
+      name: IdiapMorphedLoader
+      args:
+        algorithm: webmorph
+    split: *testing-split
+  - name: morphdb-digital
+    path: C:\repos\datasets\MorphDB
+    testing_groups:
+      - morphdb-digital
+    loader:
+      name: MorphDBLoader
+      args:
+        kinds: [digital]
+    split: *testing-split
+  - name: morphdb-print-scanned
+    path: C:\repos\datasets\MorphDB
+    testing_groups:
+      - morphdb-print-scanned
+    loader:
+      name: MorphDBLoader
+      args:
+        kinds: [ps300dpi]
+        include_training_bona_fide: true
+    split: *testing-split
+  - name: cfd
+    path: C:\repos\datasets\CFD\Images
+    testing_groups:
+      - cfd
+      - cfd-c02
+      - cfd-c03
+      - cfd-c08
+    split: *testing-split
+  - name: cfd-morph-c02
+    path: C:\repos\datasets\CFDMorph
+    testing_groups:
+      - cfd
+      - cfd-c02
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c02]
+    split: *testing-split
+  - name: cfd-morph-c03
+    path: C:\repos\datasets\CFDMorph
+    testing_groups:
+      - cfd
+      - cfd-c03
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c03]
+    split: *testing-split
+  - name: cfd-morph-c08
+    path: C:\repos\datasets\CFDMorph
+    testing_groups:
+      - cfd
+      - cfd-c08
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c08]
+    split: *testing-split
+  - name: cfd-compressed
+    path: C:\repos\datasets\CFD-Compressed\Images
+    testing_groups:
+      - cfd-compressed
+      - cfd-c02-compressed
+      - cfd-c03-compressed
+      - cfd-c08-compressed
+    split: *testing-split
+    loader:
+      name: CFDLoader
+  - name: cfd-morph-c02-compressed
+    path: C:\repos\datasets\CFDMorph-Compressed
+    testing_groups:
+      - cfd-compressed
+      - cfd-c02-compressed
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c02]
+    split: *testing-split
+  - name: cfd-morph-c03-compressed
+    path: C:\repos\datasets\CFDMorph-Compressed
+    testing_groups:
+      - cfd-compressed
+      - cfd-c03-compressed
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c03]
+    split: *testing-split
+  - name: cfd-morph-c08-compressed
+    path: C:\repos\datasets\CFDMorph-Compressed
+    testing_groups:
+      - cfd-compressed
+      - cfd-c08-compressed
+    loader:
+      name: CFDMorphLoader
+      args:
+        algorithms: [c08]
+    split: *testing-split
+
+face_detection:
+  enabled: true
+  output_path: C:\revelio_tmp\face_detection
+  algorithm:
+    name: mtcnn_detector
+
+augmentation:
+  enabled: false
+  steps: []
+
+feature_extraction:
+  enabled: false
+  output_path: C:\revelio_tmp\feature_extraction
+  algorithms: []
+
+preprocessing:
+  steps:
+    - uses: resize
+      args:
+        width: 299
+        height: 299
+        algorithm: cubic
+        keep_aspect_ratio: true
+        fill_mode: constant
+    - uses: to_float
+    - uses: normalize
+      args:
+        mean: [0.5, 0.5, 0.5]
+        std: [0.5, 0.5, 0.5]
+    - uses: color-space
+      args:
+        target: rgb
+
+experiment:
+  batch_size: 64
+  model:
+    name: inception-resnet-v1
+    args:
+      pretrained: true
+      freeze: false
+  training:
+    enabled: true
+    args:
+      epochs: 50
+      optimizer:
+        name: SGD
+        args:
+          lr: 0.0005
+      loss:
+        name: BCEWithLogitsLoss
+      callbacks:
+        - name: Tensorboard
+          args:
+            log_dir: C:\revelio_tmp\tensorboard
+        - name: ModelCheckpoint
+          args:
+            monitor: val_loss
+            file_path: C:\revelio_tmp\checkpoints\inception-resnet-{now}-epoch{epoch:02d}-{val_loss:.4f}.chk
+            save_best_only: true
+            min_delta: 0.001
+        - name: EarlyStopping
+          args:
+            patience: 5
+            min_delta: 0.001
+            restore_best_weights: true
+  scores:
+    bona_fide: C:\repos\experiments\model\inception-resnet\inception-resnet_bona_fide_{group}_{now}.txt
+    morphed: C:\repos\experiments\model\inception-resnet\inception-resnet_morphed_{group}_{now}.txt
+    metrics: C:\repos\experiments\model\inception-resnet\inception-resnet_metrics_{now}.json
+  metrics:
+    - name: equal_error_rate
+    - name: bpcer_at_apcer
+      args:
+        thresholds:
+          - 0.1
+          - 0.05
+          - 0.01
