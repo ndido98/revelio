@@ -12,8 +12,6 @@
 
 **Source Code**: [https://github.com/ndido98/revelio](https://github.com/ndido98/revelio)
 
-**PyPI**: [https://pypi.org/project/revelio/](https://pypi.org/project/revelio/)
-
 ---
 
 A declarative framework for Morphing Attack Detection experiments
