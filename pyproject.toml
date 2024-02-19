@@ -61,7 +61,7 @@ tensorflow = "2.10.1"
 deepface = {git = "https://github.com/serengil/deepface.git"}
 
 [tool.poetry.dev-dependencies]
-autoflake = "~1.7.0"
+autoflake = "~2.3.0"
 black = "~22.12.0"
 flake8 = "~5.0"
 flake8-bugbear = "~22.12.0"
