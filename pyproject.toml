@@ -57,7 +57,7 @@ facenet-pytorch = "~2.5"
 wandb = "~0.13"
 zstandard = "~0.19"
 tensorboard = "2.10.1"
-tensorflow = "2.10.1"
+tensorflow = "2.12.1"
 deepface = {git = "https://github.com/serengil/deepface.git"}
 
 [tool.poetry.dev-dependencies]
